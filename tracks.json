@@ -1,0 +1,15 @@
+{
+  "mainTracks": [
+    "mainTrack1.mp3",
+    "mainTrack2.mp3",
+    "mainTrack3.mp3",
+    "mainTrack4.mp3"
+  ],
+  "timeBasedTracks": {
+    "morning": ["morning1.mp3", "morning2.mp3", "morning3.mp3"],
+    "day": ["day1.mp3", "day2.mp3", "day3.mp3"],
+    "evening": ["evening1.mp3", "evening2.mp3", "evening3.mp3"],
+    "night": ["night1.mp3", "night2.mp3", "night3.mp3"],
+    "lateNight": ["lateNight1.mp3", "lateNight2.mp3", "lateNight3.mp3"]
+  }
+}
