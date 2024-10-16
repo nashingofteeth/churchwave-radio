@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mainTracks.length === 0) return;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
+    console.log(`Playing main track: ${currentMainTrack}`);
     theTransmitter.currentTime = 0; // Reset to start from the beginning
 
     theTransmitter.addEventListener("loadedmetadata", () => {
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nextTrack =
       availableTracks[Math.floor(Math.random() * availableTracks.length)];
     theTransmitter.src = nextTrack;
+    console.log(`Playing time-based track: ${nextTrack}`);
     theTransmitter.currentTime = 0; // Reset to start from the beginning
     usedPieces[currentMainTrackKey][nextTrack] = true;
     theTransmitter.play();
@@ -106,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nextTrack =
       availableTracks[Math.floor(Math.random() * availableTracks.length)];
     theTransmitter.src = nextTrack;
+    console.log(`Playing late night track: ${nextTrack}`);
     theTransmitter.currentTime = 0; // Reset to start from the beginning
     usedPieces.lateNight[nextTrack] = true;
     theTransmitter.play();
