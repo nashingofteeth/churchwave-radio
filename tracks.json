@@ -6,10 +6,109 @@
     "01-album-pieces/03-BONUS_TRACKS-(demo).wav"
   ],
   "timeBasedTracks": {
-    "morning": ["morning1.mp3", "morning2.mp3", "morning3.mp3"],
-    "day": ["day1.mp3", "day2.mp3", "day3.mp3"],
-    "evening": ["evening1.mp3", "evening2.mp3", "evening3.mp3"],
-    "night": ["night1.mp3", "night2.mp3", "night3.mp3"],
-    "lateNight": ["lateNight1.mp3", "lateNight2.mp3", "lateNight3.mp3"]
+    "0": {
+      "morning": [
+        "02-interstitials/01/AMORN1-(scripture).wav",
+        "02-interstitials/01/AMORN2-(bumper).wav",
+        "02-interstitials/01/AMORN3-(bumper).wav"
+      ],
+      "day": [
+        "02-interstitials/01/DAY1-(music).wav",
+        "02-interstitials/01/DAY2-(bumper).wav",
+        "02-interstitials/01/DAY3-(bumper).wav"
+      ],
+      "evening": [
+        "02-interstitials/01/EVENING1-(music).wav",
+        "02-interstitials/01/EVENING2-(bumper).wav",
+        "02-interstitials/01/EVENING3-(bumper).wav"
+      ],
+      "night": [
+        "02-interstitials/01/NIGHT1-(music).wav",
+        "02-interstitials/01/NIGHT2-(bumper).wav",
+        "02-interstitials/01/NIGHT3-(bumper).wav"
+      ],
+      "lateNight": [
+        "02-interstitials/01/lateNight0A.mp3",
+        "02-interstitials/01/lateNight0B.mp3"
+      ]
+    },
+    "1": {
+      "morning": [
+        "02-interstitials/02/AMORN1-(music).wav",
+        "02-interstitials/02/AMORN2-(message from evila).wav",
+        "02-interstitials/02/AMORN3-(bumper).wav"
+      ],
+      "day": [
+        "02-interstitials/02/DAY1-(music).wav",
+        "02-interstitials/02/DAY2-(message from evila).wav",
+        "02-interstitials/02/DAY3-(bumper).wav"
+      ],
+      "evening": [
+        "02-interstitials/02/EVENING1-(music).wav",
+        "02-interstitials/02/EVENING2-(message from evila).wav",
+        "02-interstitials/02/EVENING3-(bumper).wav"
+      ],
+      "night": [
+        "02-interstitials/02/NIGHT1-(music).wav",
+        "02-interstitials/02/NIGHT2-(tiktok edit).wav",
+        "02-interstitials/02/NIGHT3-(bumper).wav"
+      ],
+      "lateNight": [
+        "02-interstitials/02/lateNight1A.mp3",
+        "02-interstitials/02/lateNight1B.mp3"
+      ]
+    },
+    "2": {
+      "morning": [
+        "02-interstitials/03/AMORN1-(music).wav",
+        "02-interstitials/03/AMORN2-(ad bumper).wav",
+        "02-interstitials/03/AMORN3-(scripture).wav"
+      ],
+      "day": [
+        "02-interstitials/03/DAY1-(music).wav",
+        "02-interstitials/03/DAY2-(ad bumper).wav",
+        "02-interstitials/03/DAY3-(website bumper).wav"
+      ],
+      "evening": [
+        "02-interstitials/03/EVENING1-(tiktok edit).wav",
+        "02-interstitials/03/EVENING2-(ad bumper).wav",
+        "02-interstitials/03/EVENING3-(scripture).wav"
+      ],
+      "night": [
+        "02-interstitials/03/NIGHT1-(music).wav",
+        "02-interstitials/03/NIGHT2-(ad bumper).wav",
+        "02-interstitials/03/NIGHT3-(website bumper).wav"
+      ],
+      "lateNight": [
+        "02-interstitials/03/lateNight2A.mp3",
+        "02-interstitials/03/lateNight2B.mp3"
+      ]
+    }
+  },
+  "3": {
+    "morning": [
+      "02-interstitials/04/AMORN1-(music).wav",
+      "02-interstitials/04/AMORN2-(music).wav",
+      "02-interstitials/04/AMORN3-(music).wav"
+    ],
+    "day": [
+      "02-interstitials/04/DAY1-(music).wav",
+      "02-interstitials/04/DAY2-(music).wav",
+      "02-interstitials/04/DAY3-(music).wav"
+    ],
+    "evening": [
+      "02-interstitials/04/EVENING1-(music).wav",
+      "02-interstitials/04/EVENING2-(music).wav",
+      "02-interstitials/04/EVENING3-(news).wav"
+    ],
+    "night": [
+      "02-interstitials/04/NIGHT1-(music).wav",
+      "02-interstitials/04/NIGHT2-(music).wav",
+      "02-interstitials/04/NIGHT3-(bumper).wav"
+    ],
+    "lateNight": [
+      "02-interstitials/04/lateNight3A.mp3",
+      "02-interstitials/04/lateNight3B.mp3"
+    ]
   }
 }

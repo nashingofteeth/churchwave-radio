@@ -21,11 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const usedPieces = {
-    morning: {},
-    day: {},
-    evening: {},
-    night: {},
-    lateNight: {},
+    0: {},
+    1: {},
+    2: {},
+    3: {},
   };
 
   let currentMainTrackIndex;
@@ -61,18 +60,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const playNextTrack = () => {
-    let availableTracks = timeBasedTracks[timeOfDay].filter(
-      (track) => !usedPieces[timeOfDay][track],
-    );
+    const currentMainTrackKey = currentMainTrackIndex.toString();
+    let availableTracks = timeBasedTracks[currentMainTrackKey][
+      timeOfDay
+    ].filter((track) => !usedPieces[currentMainTrackKey][track]);
 
     if (availableTracks.length === 0) {
-      usedPieces[timeOfDay] = {};
-      availableTracks = timeBasedTracks[timeOfDay];
+      usedPieces[currentMainTrackKey] = {};
+      availableTracks = timeBasedTracks[currentMainTrackKey][timeOfDay];
     }
 
     const nextTrack =
       availableTracks[Math.floor(Math.random() * availableTracks.length)];
-    usedPieces[timeOfDay][nextTrack] = true;
+    usedPieces[currentMainTrackKey][nextTrack] = true;
     theTransmitter.src = nextTrack;
     theTransmitter.play();
 
