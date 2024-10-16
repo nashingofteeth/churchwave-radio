@@ -1,9 +1,9 @@
 {
   "mainTracks": [
-    "mainTrack1.mp3",
-    "mainTrack2.mp3",
-    "mainTrack3.mp3",
-    "mainTrack4.mp3"
+    "01-album-pieces/00-OVERTURE-(demo).wav",
+    "01-album-pieces/01-SIDE_A-(demo).wav",
+    "01-album-pieces/02-SIDE_B-(demo).wav",
+    "01-album-pieces/03-BONUS_TRACKS-(demo).wav"
   ],
   "timeBasedTracks": {
     "morning": ["morning1.mp3", "morning2.mp3", "morning3.mp3"],

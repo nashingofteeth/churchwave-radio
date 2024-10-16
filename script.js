@@ -28,28 +28,36 @@ document.addEventListener("DOMContentLoaded", () => {
     lateNight: {},
   };
 
+  let currentMainTrackIndex;
+
   // Fetch JSON file and load tracks
   fetch("tracks.json")
     .then((response) => response.json())
     .then((data) => {
       mainTracks = data.mainTracks;
       timeBasedTracks = data.timeBasedTracks;
-      playRandomMainTrack();
+      currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+      playMainTrack(); // Start with a random main track
     })
     .catch((error) => console.error("Error loading tracks:", error));
 
   const getRandomStartTime = (duration) => {
-    return Math.floor(Math.random() * (duration / 3));
+    return Math.floor(Math.random() * (duration * 0.9));
   };
 
-  const playRandomMainTrack = () => {
-    const randomMainTrack =
-      mainTracks[Math.floor(Math.random() * mainTracks.length)];
-    theTransmitter.src = randomMainTrack;
+  const playMainTrack = () => {
+    if (mainTracks.length === 0) return;
+    const currentMainTrack = mainTracks[currentMainTrackIndex];
+    theTransmitter.src = currentMainTrack;
     theTransmitter.addEventListener("loadedmetadata", () => {
       theTransmitter.currentTime = getRandomStartTime(theTransmitter.duration);
       theTransmitter.play();
     });
+
+    currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
+
+    // Set up to play the next time-based track when this main track ends
+    theTransmitter.addEventListener("ended", playNextTrack, { once: true });
   };
 
   const playNextTrack = () => {
@@ -67,7 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
     usedPieces[timeOfDay][nextTrack] = true;
     theTransmitter.src = nextTrack;
     theTransmitter.play();
-  };
 
-  theTransmitter.addEventListener("ended", playNextTrack);
+    // After the time-based track, schedule the next main track in sequence
+    theTransmitter.addEventListener("ended", playMainTrack, { once: true });
+  };
 });
