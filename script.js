@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentMainTrackIndex;
 
+  // Flag to indicate if it's the first main track play
+  let isFirstMainTrack = true;
+
   // Fetch JSON file and load tracks
   fetch("tracks.json")
     .then((response) => response.json())
@@ -52,8 +55,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mainTracks.length === 0) return;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
+
     theTransmitter.addEventListener("loadedmetadata", () => {
-      theTransmitter.currentTime = getRandomStartTime(theTransmitter.duration);
+      if (isFirstMainTrack) {
+        // Set random start time only for the first main track
+        theTransmitter.currentTime = getRandomStartTime(
+          theTransmitter.duration,
+        );
+        isFirstMainTrack = false; // Disable further random starts for main tracks
+      }
       theTransmitter.play();
     });
 
