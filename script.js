@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mainTracks.length === 0) return;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
+    theTransmitter.currentTime = 0; // Reset to start from the beginning
 
     theTransmitter.addEventListener("loadedmetadata", () => {
       if (isFirstMainTrack) {
@@ -84,8 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nextTrack =
       availableTracks[Math.floor(Math.random() * availableTracks.length)];
-    usedPieces[currentMainTrackKey][nextTrack] = true;
     theTransmitter.src = nextTrack;
+    theTransmitter.currentTime = 0; // Reset to start from the beginning
+    usedPieces[currentMainTrackKey][nextTrack] = true;
     theTransmitter.play();
 
     theTransmitter.addEventListener("ended", playMainTrack, { once: true });
@@ -103,8 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nextTrack =
       availableTracks[Math.floor(Math.random() * availableTracks.length)];
-    usedPieces.lateNight[nextTrack] = true;
     theTransmitter.src = nextTrack;
+    theTransmitter.currentTime = 0; // Reset to start from the beginning
+    usedPieces.lateNight[nextTrack] = true;
     theTransmitter.play();
 
     theTransmitter.addEventListener("ended", playLateNightTrack, {
