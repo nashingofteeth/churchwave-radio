@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   let mainTracks = [];
   let timeBasedTracks = {};
+  let lateNightTracks = [];
 
   const currentTime = new Date();
   const currentHour = currentTime.getHours();
@@ -20,12 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timeOfDay = "lateNight";
   }
 
-  const usedPieces = {
-    0: {},
-    1: {},
-    2: {},
-    3: {},
-  };
+  let usedPieces = {};
 
   let currentMainTrackIndex;
 
@@ -35,8 +31,16 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((data) => {
       mainTracks = data.mainTracks;
       timeBasedTracks = data.timeBasedTracks;
-      currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
-      playMainTrack(); // Start with a random main track
+      lateNightTracks = data.lateNightTracks;
+
+      if (timeOfDay === "lateNight") {
+        usedPieces = { lateNight: {} };
+        playLateNightTrack();
+      } else {
+        usedPieces = { 0: {}, 1: {}, 2: {}, 3: {} };
+        currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+        playMainTrack();
+      }
     })
     .catch((error) => console.error("Error loading tracks:", error));
 
@@ -54,8 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
-
-    // Set up to play the next time-based track when this main track ends
     theTransmitter.addEventListener("ended", playNextTrack, { once: true });
   };
 
@@ -76,7 +78,27 @@ document.addEventListener("DOMContentLoaded", () => {
     theTransmitter.src = nextTrack;
     theTransmitter.play();
 
-    // After the time-based track, schedule the next main track in sequence
     theTransmitter.addEventListener("ended", playMainTrack, { once: true });
+  };
+
+  const playLateNightTrack = () => {
+    let availableTracks = lateNightTracks.filter(
+      (track) => !usedPieces.lateNight[track],
+    );
+
+    if (availableTracks.length === 0) {
+      usedPieces.lateNight = {};
+      availableTracks = lateNightTracks;
+    }
+
+    const nextTrack =
+      availableTracks[Math.floor(Math.random() * availableTracks.length)];
+    usedPieces.lateNight[nextTrack] = true;
+    theTransmitter.src = nextTrack;
+    theTransmitter.play();
+
+    theTransmitter.addEventListener("ended", playLateNightTrack, {
+      once: true,
+    });
   };
 });
