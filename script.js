@@ -150,4 +150,13 @@ document.addEventListener("DOMContentLoaded", () => {
       once: true,
     });
   };
+
+  skipButton.addEventListener("click", () => {
+    console.log("Skip button clicked");
+    theTransmitter.pause(); // Stop the current track
+
+    // Create and dispatch the ended event to trigger next in queue
+    const endedEvent = new Event("ended");
+    theTransmitter.dispatchEvent(endedEvent);
+  });
 });
