@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let mainTracks = [];
   let interludes = {};
   let lateNightLoFis = [];
+  const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
+  let currentMainTrackIndex;
+  let isFirstMainTrack = true;
 
   const updateTimeOfDay = () => {
     const currentHour = new Date().getHours();
@@ -25,9 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let timeOfDay = updateTimeOfDay();
-  const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
-  let currentMainTrackIndex;
-  let isFirstMainTrack = true;
 
   fetch("tracks.json")
     .then((response) => response.json())
@@ -101,13 +101,13 @@ document.addEventListener("DOMContentLoaded", () => {
     timeOfDay = updateTimeOfDay(); // Update time of day before checking
 
     if (timeOfDay === "morning") {
-      console.log("Transitioning to morning. Playing OVERTURE.");
-      theTransmitter.src = "media/01-album-pieces/00-OVERTURE-(demo).wav";
-      theTransmitter.currentTime = 0;
-      theTransmitter.play();
+      console.log("Transitioning to morning and restarting main track cycle.");
 
-      // After OVERTURE, continue with regular main track logic
-      theTransmitter.addEventListener("ended", playMainTrack, { once: true });
+      // Set currentMainTrackIndex to 4, so it starts at 0 when playMainTrack is called
+      currentMainTrackIndex = 4;
+
+      // Continue with the main track logic
+      playMainTrack();
       return;
     }
 
