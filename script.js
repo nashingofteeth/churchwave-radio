@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
+  const skipButton = document.getElementById("skipButton");
   let mainTracks = [];
   let interludes = {};
   let lateNightLoFis = [];
@@ -9,22 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateTimeOfDay = () => {
     const currentHour = new Date().getHours();
-
-    if (currentHour >= 0 && currentHour < 5) {
-      return "lateNight";
-    }
-    if (currentHour >= 5 && currentHour < 9) {
-      return "morning";
-    }
-    if (currentHour >= 9 && currentHour < 14) {
-      return "day";
-    }
-    if (currentHour >= 14 && currentHour < 19) {
-      return "evening";
-    }
-    if (currentHour >= 19 && currentHour < 24) {
-      return "night";
-    }
+    if (currentHour >= 0 && currentHour < 5) return "lateNight";
+    if (currentHour >= 5 && currentHour < 9) return "morning";
+    if (currentHour >= 9 && currentHour < 14) return "day";
+    if (currentHour >= 14 && currentHour < 19) return "evening";
+    if (currentHour >= 19 && currentHour < 24) return "night";
   };
 
   let timeOfDay = updateTimeOfDay();
@@ -51,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const playMainTrack = () => {
     if (mainTracks.length === 0) return;
-
     currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
@@ -72,9 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const playInterlude = () => {
-    timeOfDay = updateTimeOfDay(); // Update time of day before selecting interlude
+    timeOfDay = updateTimeOfDay();
 
-    // Check if time of day transitioned to "lateNight"
     if (timeOfDay === "lateNight") {
       console.log("Transitioning to late night. Switching to LoFi tracks.");
       playLateNightLoFi();
@@ -105,15 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const playLateNightLoFi = () => {
-    timeOfDay = updateTimeOfDay(); // Update time of day before checking
+    timeOfDay = updateTimeOfDay();
 
     if (timeOfDay === "morning") {
       console.log("Transitioning to morning and restarting main track cycle.");
-
-      // Set currentMainTrackIndex to 4, so it starts at 0 when playMainTrack is called
       currentMainTrackIndex = 4;
-
-      // Continue with the main track logic
       playMainTrack();
       return;
     }
@@ -134,12 +118,11 @@ document.addEventListener("DOMContentLoaded", () => {
     theTransmitter.currentTime = 0;
 
     theTransmitter.addEventListener("loadedmetadata", () => {
-      // Only set a random starting point for the first late night LoFi
       if (isFirstTrack) {
         theTransmitter.currentTime = getRandomStartTime(
           theTransmitter.duration,
         );
-        isFirstTrack = false; // Update the flag so it only applies once
+        isFirstTrack = false;
       }
       theTransmitter.play();
     });
@@ -151,11 +134,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  // Set up the skip button to trigger the end event
   skipButton.addEventListener("click", () => {
     console.log("Skip button clicked");
-    theTransmitter.pause(); // Stop the current track
-
-    // Create and dispatch the ended event to trigger next in queue
+    theTransmitter.pause();
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
   });
