@@ -74,6 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const playInterlude = () => {
     timeOfDay = updateTimeOfDay(); // Update time of day before selecting interlude
 
+    // Check if time of day transitioned to "lateNight"
+    if (timeOfDay === "lateNight") {
+      console.log("Transitioning to late night. Switching to LoFi tracks.");
+      playLateNightLoFi();
+      return;
+    }
+
     const currentMainTrackKey = currentMainTrackIndex.toString();
     let availableInterludes = interludes[currentMainTrackKey][timeOfDay].filter(
       (track) => !usedPieces[currentMainTrackKey][track],
