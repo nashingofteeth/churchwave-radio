@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
+  const startButton = document.getElementById("startButton");
   const skipButton = document.getElementById("skipButton");
+
   let mainTracks = [];
   let interludes = {};
   let lateNightLoFis = [];
@@ -19,21 +21,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let timeOfDay = updateTimeOfDay();
 
-  fetch("tracks.json")
-    .then((response) => response.json())
-    .then((data) => {
-      mainTracks = data.mainTracks;
-      interludes = data.interludes;
-      lateNightLoFis = data.lateNightLoFis;
+  const initialize = () => {
+    fetch("tracks.json")
+      .then((response) => response.json())
+      .then((data) => {
+        mainTracks = data.mainTracks;
+        interludes = data.interludes;
+        lateNightLoFis = data.lateNightLoFis;
 
-      if (timeOfDay === "lateNight") {
-        playLateNightLoFi();
-      } else {
-        currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
-        playMainTrack();
-      }
-    })
-    .catch((error) => console.error("Error loading tracks:", error));
+        if (timeOfDay === "lateNight") {
+          playLateNightLoFi();
+        } else {
+          currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+          playMainTrack();
+        }
+      })
+      .catch((error) => console.error("Error loading tracks:", error));
+  };
 
   const getRandomStartTime = (duration) => {
     return Math.floor(Math.random() * (duration * 0.9));
@@ -129,9 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     usedPieces.lateNight[nextLoFi] = true;
 
-    theTransmitter.addEventListener("ended", playLateNightLoFi, {
-      once: true,
-    });
+    theTransmitter.addEventListener("ended", playLateNightLoFi, { once: true });
   };
 
   // Set up the skip button to trigger the end event
@@ -141,22 +143,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
   });
-});
 
-// KEEP AWAKE
-let wakeLock = null;
-
-async function requestWakeLock() {
-  try {
-    wakeLock = await navigator.wakeLock.request("screen");
-    wakeLock.addEventListener("release", () => {
-      console.log("Wake Lock was released");
-    });
-    console.log("Wake Lock is active");
-  } catch (err) {
-    console.error(`${err.name}, ${err.message}`);
+  // KEEP AWAKE
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {
+        console.log("Wake Lock was released");
+      });
+      console.log("Wake Lock is active");
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
   }
-}
 
-// Request the wake lock
-requestWakeLock();
+  // Event handler to start the application
+  startButton.addEventListener("click", () => {
+    console.log("Start button clicked");
+    reset();
+    initialize();
+    requestWakeLock();
+  });
+
+  // Function to reset values and states within the application
+  function reset() {
+    isFirstTrack = true;
+    currentMainTrackIndex = undefined;
+    // Clear queue
+    theTransmitter.removeEventListener("ended", playMainTrack);
+    theTransmitter.removeEventListener("ended", playInterlude);
+    theTransmitter.removeEventListener("ended", playLateNightLoFi);
+  }
+});
