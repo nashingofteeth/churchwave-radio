@@ -6,16 +6,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateTimeOfDay = () => {
     const currentHour = new Date().getHours();
+
+    if (currentHour >= 0 && currentHour < 5) {
+      return "lateNight";
+    }
     if (currentHour >= 5 && currentHour < 9) {
       return "morning";
-    } else if (currentHour >= 9 && currentHour < 14) {
+    }
+    if (currentHour >= 9 && currentHour < 14) {
       return "day";
-    } else if (currentHour >= 14 && currentHour < 19) {
+    }
+    if (currentHour >= 14 && currentHour < 19) {
       return "evening";
-    } else if (currentHour >= 19 && currentHour < 24) {
+    }
+    if (currentHour >= 19 && currentHour < 24) {
       return "night";
-    } else {
-      return "lateNight";
     }
   };
 
@@ -48,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const playMainTrack = () => {
     if (mainTracks.length === 0) return;
+    currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
     console.log(`Playing main track: ${currentMainTrack}`);
@@ -63,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
       theTransmitter.play();
     });
 
-    currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
     theTransmitter.addEventListener("ended", playNextTrack, { once: true });
   };
 
