@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   let mainTracks = [];
-  let timeBasedTracks = {};
-  let lateNightTracks = [];
+  let interludes = {};
+  let lateNightLoFis = [];
 
   const updateTimeOfDay = () => {
     const currentHour = new Date().getHours();
@@ -33,12 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((response) => response.json())
     .then((data) => {
       mainTracks = data.mainTracks;
-      timeBasedTracks = data.timeBasedTracks;
-      lateNightTracks = data.lateNightTracks;
+      interludes = data.interludes;
+      lateNightLoFis = data.lateNightLoFis;
 
       if (timeOfDay === "lateNight") {
         usedPieces = { lateNight: {} };
-        playLateNightTrack();
+        playLateNightLoFi();
       } else {
         usedPieces = { 0: {}, 1: {}, 2: {}, 3: {} };
         currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
@@ -70,34 +70,36 @@ document.addEventListener("DOMContentLoaded", () => {
       theTransmitter.play();
     });
 
-    theTransmitter.addEventListener("ended", playNextTrack, { once: true });
+    theTransmitter.addEventListener("ended", playInterlude, { once: true });
   };
 
-  const playNextTrack = () => {
-    timeOfDay = updateTimeOfDay(); // Update time of day before selecting track
+  const playInterlude = () => {
+    timeOfDay = updateTimeOfDay(); // Update time of day before selecting interlude
 
     const currentMainTrackKey = currentMainTrackIndex.toString();
-    let availableTracks = timeBasedTracks[currentMainTrackKey][
-      timeOfDay
-    ].filter((track) => !usedPieces[currentMainTrackKey][track]);
+    let availableInterludes = interludes[currentMainTrackKey][timeOfDay].filter(
+      (track) => !usedPieces[currentMainTrackKey][track],
+    );
 
-    if (availableTracks.length === 0) {
+    if (availableInterludes.length === 0) {
       usedPieces[currentMainTrackKey] = {};
-      availableTracks = timeBasedTracks[currentMainTrackKey][timeOfDay];
+      availableInterludes = interludes[currentMainTrackKey][timeOfDay];
     }
 
-    const nextTrack =
-      availableTracks[Math.floor(Math.random() * availableTracks.length)];
-    theTransmitter.src = nextTrack;
-    console.log(`Playing time-based track: ${nextTrack}`);
+    const nextInterlude =
+      availableInterludes[
+        Math.floor(Math.random() * availableInterludes.length)
+      ];
+    theTransmitter.src = nextInterlude;
+    console.log(`Playing interlude track: ${nextInterlude}`);
     theTransmitter.currentTime = 0;
-    usedPieces[currentMainTrackKey][nextTrack] = true;
+    usedPieces[currentMainTrackKey][nextInterlude] = true;
     theTransmitter.play();
 
     theTransmitter.addEventListener("ended", playMainTrack, { once: true });
   };
 
-  const playLateNightTrack = () => {
+  const playLateNightLoFi = () => {
     timeOfDay = updateTimeOfDay(); // Update time of day before checking
 
     if (timeOfDay === "morning") {
@@ -111,24 +113,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    let availableTracks = lateNightTracks.filter(
+    let availableLoFis = lateNightLoFis.filter(
       (track) => !usedPieces.lateNight[track],
     );
 
-    if (availableTracks.length === 0) {
+    if (availableLoFis.length === 0) {
       usedPieces.lateNight = {};
-      availableTracks = lateNightTracks;
+      availableLoFis = lateNightLoFis;
     }
 
-    const nextTrack =
-      availableTracks[Math.floor(Math.random() * availableTracks.length)];
-    theTransmitter.src = nextTrack;
-    console.log(`Playing late night track: ${nextTrack}`);
+    const nextLoFi =
+      availableLoFis[Math.floor(Math.random() * availableLoFis.length)];
+    theTransmitter.src = nextLoFi;
+    console.log(`Playing late night lofi: ${nextLoFi}`);
     theTransmitter.currentTime = 0;
-    usedPieces.lateNight[nextTrack] = true;
+    usedPieces.lateNight[nextLoFi] = true;
     theTransmitter.play();
 
-    theTransmitter.addEventListener("ended", playLateNightTrack, {
+    theTransmitter.addEventListener("ended", playLateNightLoFi, {
       once: true,
     });
   };

@@ -5,7 +5,7 @@
     "media/01-album-pieces/02-SIDE_B-(demo).wav",
     "media/01-album-pieces/03-BONUS_TRACKS-(demo).wav"
   ],
-  "timeBasedTracks": {
+  "interludes": {
     "0": {
       "morning": [
         "media/02-interstitials/01/AMORN1-(scripture).wav",
@@ -95,7 +95,7 @@
       ]
     }
   },
-  "lateNightTracks": [
+  "lateNightLoFis": [
     "media/03-late-nite-lo-fis/00 unused mixtape - i feel ya.wav",
     "media/03-late-nite-lo-fis/00 unused mixtape - latter rain.wav",
     "media/03-late-nite-lo-fis/00 unused mixtape - lead me on.wav",
