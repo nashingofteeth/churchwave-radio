@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let lateNightLoFis = [];
   const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
   let currentMainTrackIndex;
-  let isFirstMainTrack = true;
+  let isFirstTrack = true;
 
   const updateTimeOfDay = () => {
     const currentHour = new Date().getHours();
@@ -59,11 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
     theTransmitter.currentTime = 0;
 
     theTransmitter.addEventListener("loadedmetadata", () => {
-      if (isFirstMainTrack) {
+      if (isFirstTrack) {
         theTransmitter.currentTime = getRandomStartTime(
           theTransmitter.duration,
         );
-        isFirstMainTrack = false;
+        isFirstTrack = false;
       }
       theTransmitter.play();
     });
@@ -132,8 +132,19 @@ document.addEventListener("DOMContentLoaded", () => {
     theTransmitter.src = nextLoFi;
     console.log(`Playing late night lofi: ${nextLoFi}`);
     theTransmitter.currentTime = 0;
+
+    theTransmitter.addEventListener("loadedmetadata", () => {
+      // Only set a random starting point for the first late night LoFi
+      if (isFirstTrack) {
+        theTransmitter.currentTime = getRandomStartTime(
+          theTransmitter.duration,
+        );
+        isFirstTrack = false; // Update the flag so it only applies once
+      }
+      theTransmitter.play();
+    });
+
     usedPieces.lateNight[nextLoFi] = true;
-    theTransmitter.play();
 
     theTransmitter.addEventListener("ended", playLateNightLoFi, {
       once: true,
