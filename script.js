@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const playMainTrack = () => {
     if (mainTracks.length === 0) return;
+
     currentMainTrackIndex = (currentMainTrackIndex + 1) % mainTracks.length;
     const currentMainTrack = mainTracks[currentMainTrackIndex];
     theTransmitter.src = currentMainTrack;
@@ -73,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const playNextTrack = () => {
+    timeOfDay = updateTimeOfDay(); // Update time of day before selecting track
+
     const currentMainTrackKey = currentMainTrackIndex.toString();
     let availableTracks = timeBasedTracks[currentMainTrackKey][
       timeOfDay
