@@ -83,8 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playLateNightLoFi() {
-    timeOfDay = getTimeOfDay();
-    if (timeOfDay === "morning") return playMainTrack();
+    timeOfDay = getTimeOfDay(simulatedDate);
+    if (timeOfDay !== "lateNight") {
+      currentMainTrackIndex = 3;
+      return playMainTrack();
+    }
 
     let availableLoFis = lateNightLoFis.filter(
       (track) => !usedPieces.lateNight[track],
