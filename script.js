@@ -9,10 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
   let currentMainTrackIndex;
   let isFirstTrack = true;
-  let timeOfDay = getTimeOfDay();
+  // Simulation setup
+  let simulatedDate = null; // Initialize with null for using real time by default
+  let timeOfDay;
 
-  function getTimeOfDay() {
-    const currentHour = new Date().getHours();
+  function getTimeOfDay(date = new Date()) {
+    const currentHour = date.getHours();
     if (currentHour >= 0 && currentHour < 5) return "lateNight";
     if (currentHour >= 5 && currentHour < 9) return "morning";
     if (currentHour >= 9 && currentHour < 14) return "day";
@@ -27,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mainTracks = data.mainTracks;
         interludes = data.interludes;
         lateNightLoFis = data.lateNightLoFis;
+        timeOfDay = getTimeOfDay(simulatedDate);
         if (timeOfDay === "lateNight") playLateNightLoFi();
         else {
           currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
@@ -63,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playInterlude() {
-    timeOfDay = getTimeOfDay();
+    timeOfDay = getTimeOfDay(simulatedDate);
     if (timeOfDay === "lateNight") return playLateNightLoFi();
 
     const currentMainTrackKey = currentMainTrackIndex.toString();
@@ -140,4 +143,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function getRandomStartTime(duration) {
     return Math.floor(Math.random() * (duration * 0.9));
   }
+
+  // Simulation function to set any time
+  const simulateTime = (hour) => {
+    simulatedDate = new Date();
+    simulatedDate.setHours(hour);
+    console.log(`Simulating time: ${getTimeOfDay(simulatedDate)}`);
+  }
+
+  window.simulateTimeOfDay = simulateTime;
+
+  // Example of simulating different times:
+  simulateTime(2); // Late Night
+  // simulateTime(8);  // Morning
+  // simulateTime(12); // Day
+  // simulateTime(16); // Evening
+  // simulateTime(21); // Night
 });
