@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let timeOfDay = updateTimeOfDay();
-  let usedPieces = {};
+  const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
   let currentMainTrackIndex;
   let isFirstMainTrack = true;
 
@@ -37,10 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
       lateNightLoFis = data.lateNightLoFis;
 
       if (timeOfDay === "lateNight") {
-        usedPieces = { lateNight: {} };
         playLateNightLoFi();
       } else {
-        usedPieces = { 0: {}, 1: {}, 2: {}, 3: {} };
         currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
         playMainTrack();
       }
