@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   const startButton = document.getElementById("startButton");
+  const seekButton = document.getElementById("seekButton");
   const skipButton = document.getElementById("skipButton");
 
   let mainTracks = [];
@@ -105,19 +106,32 @@ document.addEventListener("DOMContentLoaded", () => {
     playTrack(nextLoFi, playLateNightLoFi);
   }
 
-  startButton.addEventListener("click", () => {
-    console.log("Start button clicked");
+  function startPlayback() {
+    console.log("Start");
     reset();
     initialize();
     requestWakeLock();
-  });
-
-  skipButton.addEventListener("click", () => {
-    console.log("Skip button clicked");
+  }
+  function skipTrack() {
+    console.log("Skip");
     theTransmitter.pause();
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
-  });
+  }
+
+  function handleSeekButtonClick() {
+    timeOfDay = getTimeOfDay(simulatedDate);
+    if (timeOfDay === "lateNight") {
+      skipTrack();
+      return;
+    }
+
+    startPlayback();
+  }
+
+  seekButton.addEventListener("click", handleSeekButtonClick);
+  startButton.addEventListener("click", startPlayback);
+  skipButton.addEventListener("click", skipTrack);
 
   function reset() {
     isFirstTrack = true;
@@ -149,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     simulatedDate = new Date();
     simulatedDate.setHours(hour);
     console.log(`Simulating time: ${getTimeOfDay(simulatedDate)}`);
-  }
+  };
 
   window.simulateTimeOfDay = simulateTime;
 
