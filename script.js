@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
   let currentMainTrackIndex;
   let isFirstTrack = true;
-  // Simulation setup
   let simulatedDate = null; // Initialize with null for using real time by default
   let timeOfDay;
 
-  function getTimeOfDay(date = new Date()) {
+  function getTimeOfDay() {
+    const date = simulatedDate || new Date()
     const currentHour = date.getHours();
     if (currentHour >= 0 && currentHour < 5) return "lateNight";
     if (currentHour >= 5 && currentHour < 10) return "morning";
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mainTracks = data.mainTracks;
         interludes = data.interludes;
         lateNightLoFis = data.lateNightLoFis;
-        timeOfDay = getTimeOfDay(simulatedDate);
+        timeOfDay = getTimeOfDay();
         if (timeOfDay === "lateNight") playLateNightLoFi();
         else {
           currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playInterlude() {
-    timeOfDay = getTimeOfDay(simulatedDate);
+    timeOfDay = getTimeOfDay();
     if (timeOfDay === "lateNight") return playLateNightLoFi();
 
     const currentMainTrackKey = currentMainTrackIndex.toString();
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playLateNightLoFi() {
-    timeOfDay = getTimeOfDay(simulatedDate);
+    timeOfDay = getTimeOfDay();
     if (timeOfDay !== "lateNight") {
       currentMainTrackIndex = 3;
       return playMainTrack();
@@ -112,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initialize();
     requestWakeLock();
   }
+
   function skipTrack() {
     console.log("Skip");
     theTransmitter.pause();
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleSeekButtonClick() {
-    timeOfDay = getTimeOfDay(simulatedDate);
+    timeOfDay = getTimeOfDay();
     if (timeOfDay === "lateNight") {
       skipTrack();
       return;
@@ -165,12 +166,5 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Simulating time: ${getTimeOfDay(simulatedDate)}`);
   };
 
-  window.simulateTimeOfDay = simulateTime;
-
-  // Example of simulating different times:
-  simulateTime(2); // Late Night
-  // simulateTime(8);  // Morning
-  // simulateTime(12); // Day
-  // simulateTime(16); // Evening
-  // simulateTime(21); // Night
+  window.simulateTime = simulateTime;
 });
