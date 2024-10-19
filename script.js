@@ -16,9 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function getTimeOfDay(date = new Date()) {
     const currentHour = date.getHours();
     if (currentHour >= 0 && currentHour < 5) return "lateNight";
-    if (currentHour >= 5 && currentHour < 9) return "morning";
-    if (currentHour >= 9 && currentHour < 14) return "day";
-    if (currentHour >= 14 && currentHour < 19) return "evening";
+    if (currentHour >= 5 && currentHour < 10) return "morning";
+    if (currentHour >= 10 && currentHour < 16) return "day";
+    if (currentHour >= 16 && currentHour < 19) return "evening";
     if (currentHour >= 19 && currentHour < 24) return "night";
   }
 
