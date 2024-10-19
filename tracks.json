@@ -1,171 +1,171 @@
 {
   "mainTracks": [
-    "media/01-album-pieces/00-OVERTURE-(demo).wav",
-    "media/01-album-pieces/01-SIDE_A-(demo).wav",
-    "media/01-album-pieces/02-SIDE_B-(demo).wav",
-    "media/01-album-pieces/03-BONUS_TRACKS-(demo).wav"
+    "media/01-album-pieces/00-OVERTURE-(demo).mp3",
+    "media/01-album-pieces/01-SIDE_A-(demo).mp3",
+    "media/01-album-pieces/02-SIDE_B-(demo).mp3",
+    "media/01-album-pieces/03-BONUS-TRACKS-(demo).mp3"
   ],
   "interludes": {
     "0": {
       "morning": [
-        "media/02-interstitials/01/AMORN1-(scripture).wav",
-        "media/02-interstitials/01/AMORN2-(bumper).wav",
-        "media/02-interstitials/01/AMORN3-(bumper).wav"
+        "media/02-interstitials/01/AMORN1-(scripture).mp3",
+        "media/02-interstitials/01/AMORN2-(bumper).mp3",
+        "media/02-interstitials/01/AMORN3-(bumper).mp3"
       ],
       "day": [
-        "media/02-interstitials/01/DAY1-(music).wav",
-        "media/02-interstitials/01/DAY2-(bumper).wav",
-        "media/02-interstitials/01/DAY3-(bumper).wav"
+        "media/02-interstitials/01/DAY1-(music).mp3",
+        "media/02-interstitials/01/DAY2-(bumper).mp3",
+        "media/02-interstitials/01/DAY3-(bumper).mp3"
       ],
       "evening": [
-        "media/02-interstitials/01/EVENING1-(music).wav",
-        "media/02-interstitials/01/EVENING2-(bumper).wav",
-        "media/02-interstitials/01/EVENING3-(bumper).wav"
+        "media/02-interstitials/01/EVENING1-(music).mp3",
+        "media/02-interstitials/01/EVENING2-(bumper).mp3",
+        "media/02-interstitials/01/EVENING3-(bumper).mp3"
       ],
       "night": [
-        "media/02-interstitials/01/NIGHT1-(music).wav",
-        "media/02-interstitials/01/NIGHT2-(bumper).wav",
-        "media/02-interstitials/01/NIGHT3-(bumper).wav"
+        "media/02-interstitials/01/NIGHT1-(music).mp3",
+        "media/02-interstitials/01/NIGHT2-(bumper).mp3",
+        "media/02-interstitials/01/NIGHT3-(bumper).mp3"
       ]
     },
     "1": {
       "morning": [
-        "media/02-interstitials/02/AMORN1-(music).wav",
-        "media/02-interstitials/02/AMORN2-(message from evila).wav",
-        "media/02-interstitials/02/AMORN3-(bumper).wav"
+        "media/02-interstitials/02/AMORN1-(music).mp3",
+        "media/02-interstitials/02/AMORN2-(message).mp3",
+        "media/02-interstitials/02/AMORN3-(bumper).mp3"
       ],
       "day": [
-        "media/02-interstitials/02/DAY1-(music).wav",
-        "media/02-interstitials/02/DAY2-(message from evila).wav",
-        "media/02-interstitials/02/DAY3-(bumper).wav"
+        "media/02-interstitials/02/DAY1-(music).mp3",
+        "media/02-interstitials/02/DAY2-(message).mp3",
+        "media/02-interstitials/02/DAY3-(bumper).mp3"
       ],
       "evening": [
-        "media/02-interstitials/02/EVENING1-(music).wav",
-        "media/02-interstitials/02/EVENING2-(message from evila).wav",
-        "media/02-interstitials/02/EVENING3-(bumper).wav"
+        "media/02-interstitials/02/EVENING1-(music).mp3",
+        "media/02-interstitials/02/EVENING2-(message).mp3",
+        "media/02-interstitials/02/EVENING3-(bumper).mp3"
       ],
       "night": [
-        "media/02-interstitials/02/NIGHT1-(music).wav",
-        "media/02-interstitials/02/NIGHT2-(tiktok edit).wav",
-        "media/02-interstitials/02/NIGHT3-(bumper).wav"
+        "media/02-interstitials/02/NIGHT1-(music).mp3",
+        "media/02-interstitials/02/NIGHT2-(tiktok).mp3",
+        "media/02-interstitials/02/NIGHT3-(bumper).mp3"
       ]
     },
     "2": {
       "morning": [
-        "media/02-interstitials/03/AMORN1-(music).wav",
-        "media/02-interstitials/03/AMORN2-(ad bumper).wav",
-        "media/02-interstitials/03/AMORN3-(scripture).wav"
+        "media/02-interstitials/03/AMORN1-(music).mp3",
+        "media/02-interstitials/03/AMORN2-(ad).mp3",
+        "media/02-interstitials/03/AMORN3-(scripture).mp3"
       ],
       "day": [
-        "media/02-interstitials/03/DAY1-(music).wav",
-        "media/02-interstitials/03/DAY2-(ad bumper).wav",
-        "media/02-interstitials/03/DAY3-(website bumper).wav"
+        "media/02-interstitials/03/DAY1-(music).mp3",
+        "media/02-interstitials/03/DAY2-(ad).mp3",
+        "media/02-interstitials/03/DAY3-(website).mp3"
       ],
       "evening": [
-        "media/02-interstitials/03/EVENING1-(tiktok edit).wav",
-        "media/02-interstitials/03/EVENING2-(ad bumper).wav",
-        "media/02-interstitials/03/EVENING3-(scripture).wav"
+        "media/02-interstitials/03/EVENING1-(tiktok).mp3",
+        "media/02-interstitials/03/EVENING2-(ad).mp3",
+        "media/02-interstitials/03/EVENING3-(scripture).mp3"
       ],
       "night": [
-        "media/02-interstitials/03/NIGHT1-(music).wav",
-        "media/02-interstitials/03/NIGHT2-(ad bumper).wav",
-        "media/02-interstitials/03/NIGHT3-(website bumper).wav"
+        "media/02-interstitials/03/NIGHT1-(music).mp3",
+        "media/02-interstitials/03/NIGHT2-(ad).mp3",
+        "media/02-interstitials/03/NIGHT3-(website).mp3"
       ]
     },
     "3": {
       "morning": [
-        "media/02-interstitials/04/AMORN1-(music).wav",
-        "media/02-interstitials/04/AMORN2-(music).wav",
-        "media/02-interstitials/04/AMORN3-(music).wav"
+        "media/02-interstitials/04/AMORN1-(music).mp3",
+        "media/02-interstitials/04/AMORN2-(music).mp3",
+        "media/02-interstitials/04/AMORN3-(music).mp3"
       ],
       "day": [
-        "media/02-interstitials/04/DAY1-(music).wav",
-        "media/02-interstitials/04/DAY2-(music).wav",
-        "media/02-interstitials/04/DAY3-(music).wav"
+        "media/02-interstitials/04/DAY1-(music).mp3",
+        "media/02-interstitials/04/DAY2-(music).mp3",
+        "media/02-interstitials/04/DAY3-(music).mp3"
       ],
       "evening": [
-        "media/02-interstitials/04/EVENING1-(music).wav",
-        "media/02-interstitials/04/EVENING2-(music).wav",
-        "media/02-interstitials/04/EVENING3-(news).wav"
+        "media/02-interstitials/04/EVENING1-(music).mp3",
+        "media/02-interstitials/04/EVENING2-(music).mp3",
+        "media/02-interstitials/04/EVENING3-(news).mp3"
       ],
       "night": [
-        "media/02-interstitials/04/NIGHT1-(music).wav",
-        "media/02-interstitials/04/NIGHT2-(music).wav",
-        "media/02-interstitials/04/NIGHT3-(bumper).wav"
+        "media/02-interstitials/04/NIGHT1-(music).mp3",
+        "media/02-interstitials/04/NIGHT2-(music).mp3",
+        "media/02-interstitials/04/NIGHT3-(bumper).mp3"
       ]
     }
   },
   "lateNightLoFis": [
-    "media/03-late-nite-lo-fis/00um-i_feel_ya.wav",
-    "media/03-late-nite-lo-fis/00um-latter_rain.wav",
-    "media/03-late-nite-lo-fis/00um-lead_me_on.wav",
-    "media/03-late-nite-lo-fis/01S-01.wav",
-    "media/03-late-nite-lo-fis/01S-03.wav",
-    "media/03-late-nite-lo-fis/01S-04.wav",
-    "media/03-late-nite-lo-fis/01S-05.wav",
-    "media/03-late-nite-lo-fis/01S-07-08.wav",
-    "media/03-late-nite-lo-fis/01S-09.wav",
-    "media/03-late-nite-lo-fis/01S-11-12.wav",
-    "media/03-late-nite-lo-fis/01S-16.wav",
-    "media/03-late-nite-lo-fis/01S-18.wav",
-    "media/03-late-nite-lo-fis/02TBOE-01.wav",
-    "media/03-late-nite-lo-fis/02TBOE-02.wav",
-    "media/03-late-nite-lo-fis/02TBOE-03-04a.wav",
-    "media/03-late-nite-lo-fis/02TBOE-04b.wav",
-    "media/03-late-nite-lo-fis/02TBOE-05a-05b.wav",
-    "media/03-late-nite-lo-fis/02TBOE-06.wav",
-    "media/03-late-nite-lo-fis/02TBOE-07.wav",
-    "media/03-late-nite-lo-fis/02TBOE-08a-08b.wav",
-    "media/03-late-nite-lo-fis/02TBOE-09.wav",
-    "media/03-late-nite-lo-fis/02TBOE-10.wav",
-    "media/03-late-nite-lo-fis/02TBOE-11.wav",
-    "media/03-late-nite-lo-fis/03TW-02.wav",
-    "media/03-late-nite-lo-fis/03TW-04-05.wav",
-    "media/03-late-nite-lo-fis/03TW-06.wav",
-    "media/03-late-nite-lo-fis/03TW-07.wav",
-    "media/03-late-nite-lo-fis/03TW-09.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-01.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-02.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-03.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-06.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-07.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-08.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-11.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-16.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-17.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-18.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-19.wav",
-    "media/03-late-nite-lo-fis/04TRPP1-20-21.wav",
-    "media/03-late-nite-lo-fis/05HE-01.wav",
-    "media/03-late-nite-lo-fis/05HE-02.wav",
-    "media/03-late-nite-lo-fis/05HE-03-04.wav",
-    "media/03-late-nite-lo-fis/05HE-05.wav",
-    "media/03-late-nite-lo-fis/05HE-07.wav",
-    "media/03-late-nite-lo-fis/05HE-08.wav",
-    "media/03-late-nite-lo-fis/05HE-11-13.wav",
-    "media/03-late-nite-lo-fis/06ES-01.wav",
-    "media/03-late-nite-lo-fis/06ES-02.wav",
-    "media/03-late-nite-lo-fis/06ES-04.wav",
-    "media/03-late-nite-lo-fis/06ES-05.wav",
-    "media/03-late-nite-lo-fis/06ES-06.wav",
-    "media/03-late-nite-lo-fis/06ES-07.wav",
-    "media/03-late-nite-lo-fis/06ES-08.wav",
-    "media/03-late-nite-lo-fis/06ES-09.wav",
-    "media/03-late-nite-lo-fis/06ES-11.wav",
-    "media/03-late-nite-lo-fis/06ES-12.wav",
-    "media/03-late-nite-lo-fis/06ES-13-14.wav",
-    "media/03-late-nite-lo-fis/06ES-15.wav",
-    "media/03-late-nite-lo-fis/06ES-16.wav",
-    "media/03-late-nite-lo-fis/06ES-17.wav",
-    "media/03-late-nite-lo-fis/06ES-18.wav",
-    "media/03-late-nite-lo-fis/07o-Darkness.wav",
-    "media/03-late-nite-lo-fis/07o-God_in_America_again.wav",
-    "media/03-late-nite-lo-fis/07o-freedom_calls.wav",
-    "media/03-late-nite-lo-fis/07o-noir_beach.wav",
-    "media/03-late-nite-lo-fis/07o-surrender_paradise.wav",
-    "media/03-late-nite-lo-fis/08-2Evila-b-radio_edit_i.wav",
-    "media/03-late-nite-lo-fis/08-2Evila-b-what_we_sow_today_p2.wav",
-    "media/03-late-nite-lo-fis/08-2Evila-radio_edit_ii-b.wav",
-    "media/03-late-nite-lo-fis/08-2Evila-radio_edit_iii-secret_message-b-day_a-coming-b.wav"
+    "media/03-late-nite-lo-fis/00um-i_feel_ya.mp3",
+    "media/03-late-nite-lo-fis/00um-latter_rain.mp3",
+    "media/03-late-nite-lo-fis/00um-lead_me_on.mp3",
+    "media/03-late-nite-lo-fis/01S-01.mp3",
+    "media/03-late-nite-lo-fis/01S-03.mp3",
+    "media/03-late-nite-lo-fis/01S-04.mp3",
+    "media/03-late-nite-lo-fis/01S-05.mp3",
+    "media/03-late-nite-lo-fis/01S-07-08.mp3",
+    "media/03-late-nite-lo-fis/01S-09.mp3",
+    "media/03-late-nite-lo-fis/01S-11-12.mp3",
+    "media/03-late-nite-lo-fis/01S-16.mp3",
+    "media/03-late-nite-lo-fis/01S-18.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-01.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-02.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-03-04a.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-04b.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-05a-05b.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-06.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-07.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-08a-08b.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-09.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-10.mp3",
+    "media/03-late-nite-lo-fis/02TBOE-11.mp3",
+    "media/03-late-nite-lo-fis/03TW-02.mp3",
+    "media/03-late-nite-lo-fis/03TW-04-05.mp3",
+    "media/03-late-nite-lo-fis/03TW-06.mp3",
+    "media/03-late-nite-lo-fis/03TW-07.mp3",
+    "media/03-late-nite-lo-fis/03TW-09.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-01e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-02e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-03e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-06e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-07e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-08e.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-11.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-16.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-17.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-18.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-19.mp3",
+    "media/03-late-nite-lo-fis/04TRPP1-20-21.mp3",
+    "media/03-late-nite-lo-fis/05HE-01.mp3",
+    "media/03-late-nite-lo-fis/05HE-02.mp3",
+    "media/03-late-nite-lo-fis/05HE-03-04.mp3",
+    "media/03-late-nite-lo-fis/05HE-05.mp3",
+    "media/03-late-nite-lo-fis/05HE-07.mp3",
+    "media/03-late-nite-lo-fis/05HE-08.mp3",
+    "media/03-late-nite-lo-fis/05HE-11-13.mp3",
+    "media/03-late-nite-lo-fis/06ES-01.mp3",
+    "media/03-late-nite-lo-fis/06ES-02.mp3",
+    "media/03-late-nite-lo-fis/06ES-04.mp3",
+    "media/03-late-nite-lo-fis/06ES-05.mp3",
+    "media/03-late-nite-lo-fis/06ES-06.mp3",
+    "media/03-late-nite-lo-fis/06ES-07.mp3",
+    "media/03-late-nite-lo-fis/06ES-08.mp3",
+    "media/03-late-nite-lo-fis/06ES-09.mp3",
+    "media/03-late-nite-lo-fis/06ES-11.mp3",
+    "media/03-late-nite-lo-fis/06ES-12.mp3",
+    "media/03-late-nite-lo-fis/06ES-13-14.mp3",
+    "media/03-late-nite-lo-fis/06ES-15.mp3",
+    "media/03-late-nite-lo-fis/06ES-16.mp3",
+    "media/03-late-nite-lo-fis/06ES-17.mp3",
+    "media/03-late-nite-lo-fis/06ES-18.mp3",
+    "media/03-late-nite-lo-fis/07o-Darkness.mp3",
+    "media/03-late-nite-lo-fis/07o-God_in_America_again.mp3",
+    "media/03-late-nite-lo-fis/07o-freedom_calls.mp3",
+    "media/03-late-nite-lo-fis/07o-noir_beach.mp3",
+    "media/03-late-nite-lo-fis/07o-surrender_paradise.mp3",
+    "media/03-late-nite-lo-fis/08-2Evila-b-radio_edit_i.mp3",
+    "media/03-late-nite-lo-fis/08-2Evila-b-what_we_sow_today_p2.mp3",
+    "media/03-late-nite-lo-fis/08-2Evila-radio_edit_ii-b.mp3",
+    "media/03-late-nite-lo-fis/08-2Evila-radio_edit_iii-secret_message-b-day_a-coming-b.mp3"
   ]
 }
