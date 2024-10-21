@@ -55,7 +55,7 @@ a {
     animation: marquee 18s linear infinite;
 }
 .marqueeItem {
-    padding-right: 10rem;
+    padding-right: 150px;
     white-space: nowrap;
 }
 @keyframes marquee {

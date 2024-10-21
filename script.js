@@ -54,9 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
           isFirstTrack = false;
         }
         theTransmitter.play();
-
-        loadingIndicator.style.display = "none";
-        document.getElementById("revealed").style.display = "block";
       },
       { once: true },
     );
@@ -140,6 +137,11 @@ document.addEventListener("DOMContentLoaded", () => {
     loadingIndicator.style.display = "block";
     startPlayback();
     startButton.style.display = "none";
+
+    theTransmitter.addEventListener("playing", () => {
+      loadingIndicator.style.display = "none";
+      document.getElementById("revealed").style.display = "block";
+    });
   });
 
   function reset() {
