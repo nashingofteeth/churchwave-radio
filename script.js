@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   const startButton = document.getElementById("startButton");
   const seekButton = document.getElementById("seekButton");
-  const skipButton = document.getElementById("skipButton");
 
   let mainTracks = [];
   let interludes = {};
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let timeOfDay;
 
   function getTimeOfDay() {
-    const date = simulatedDate || new Date()
+    const date = simulatedDate || new Date();
     const currentHour = date.getHours();
     if (currentHour >= 0 && currentHour < 5) return "lateNight";
     if (currentHour >= 5 && currentHour < 10) return "morning";
@@ -119,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
   }
+  window.skipTrack = skipTrack;
 
   function handleSeekButtonClick() {
     timeOfDay = getTimeOfDay();
@@ -131,8 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   seekButton.addEventListener("click", handleSeekButtonClick);
-  startButton.addEventListener("click", startPlayback);
-  skipButton.addEventListener("click", skipTrack);
+
+  startButton.addEventListener("click", () => {
+    startPlayback();
+    startButton.style.display = "none";
+    document.getElementById("revealed").style.display = "block";
+  });
 
   function reset() {
     isFirstTrack = true;
