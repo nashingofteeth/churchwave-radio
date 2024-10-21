@@ -34,24 +34,22 @@ button {
     text-align: justify;
 }
 .marquee {
-    position: absolute;
+    position: fixed;
     left: 0;
     overflow: hidden;
     box-sizing: border-box;
     width: 100%;
 }
 #topMarquee {
-    position: absolute;
     top: 0;
 }
 #bottomMarquee {
-    position: fixed;
     bottom: 0;
 }
 .marqueeContent {
     display: flex;
     width: max-content;
-    animation: marquee 15s linear infinite;
+    animation: marquee 18s linear infinite;
 }
 .marqueeItem {
     padding-right: 10rem;
