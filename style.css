@@ -40,6 +40,14 @@ button {
     box-sizing: border-box;
     width: 100%;
 }
+#topMarquee {
+    position: absolute;
+    top: 0;
+}
+#bottomMarquee {
+    position: fixed;
+    bottom: 0;
+}
 .marqueeContent {
     display: flex;
     width: max-content;
