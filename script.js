@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   const startButton = document.getElementById("startButton");
   const seekButton = document.getElementById("seekButton");
+  const loadingIndicator = document.getElementById("loading");
 
   let mainTracks = [];
   let interludes = {};
@@ -53,6 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
           isFirstTrack = false;
         }
         theTransmitter.play();
+
+        loadingIndicator.style.display = "none";
+        document.getElementById("revealed").style.display = "block";
       },
       { once: true },
     );
@@ -133,9 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
   seekButton.addEventListener("click", handleSeekButtonClick);
 
   startButton.addEventListener("click", () => {
+    loadingIndicator.style.display = "block";
     startPlayback();
     startButton.style.display = "none";
-    document.getElementById("revealed").style.display = "block";
   });
 
   function reset() {
