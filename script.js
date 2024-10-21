@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Start");
     reset();
     initialize();
-    requestWakeLock();
+    // requestWakeLock();
   }
 
   function skipTrack() {
