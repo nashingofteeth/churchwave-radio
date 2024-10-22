@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Start");
     reset();
     initialize();
-    // requestWakeLock();
   }
 
   function skipTrack() {
@@ -151,18 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
     theTransmitter.removeEventListener("ended", playMainTrack);
     theTransmitter.removeEventListener("ended", playInterlude);
     theTransmitter.removeEventListener("ended", playLateNightLoFi);
-  }
-
-  async function requestWakeLock() {
-    try {
-      const wakeLock = await navigator.wakeLock.request("screen");
-      wakeLock.addEventListener("release", () => {
-        console.log("Wake Lock was released");
-      });
-      console.log("Wake Lock is active");
-    } catch (err) {
-      console.error(`${err.name}, ${err.message}`);
-    }
   }
 
   function getRandomStartTime(duration) {
