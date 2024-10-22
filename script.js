@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   const startButton = document.getElementById("startButton");
   const seekButton = document.getElementById("seekButton");
-  const loadingIndicator = document.getElementById("loading");
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  const playingIndicator = document.getElementById("playingIndicator");
 
   let mainTracks = [];
   let interludes = {};
@@ -141,6 +142,19 @@ document.addEventListener("DOMContentLoaded", () => {
       loadingIndicator.style.display = "none";
       document.getElementById("revealed").style.display = "block";
     });
+  });
+
+  theTransmitter.addEventListener("pause", () => {
+    playingIndicator.classList.remove("playing");
+  });
+  theTransmitter.addEventListener("waiting", () => {
+    playingIndicator.classList.remove("playing");
+  });
+  theTransmitter.addEventListener("ended", () => {
+    playingIndicator.classList.remove("playing");
+  });
+  theTransmitter.addEventListener("playing", () => {
+    playingIndicator.classList.add("playing");
   });
 
   function reset() {

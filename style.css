@@ -70,7 +70,7 @@ a {
     }
 }
 
-.pulsing {
+.playing .pulsing {
     animation: pulse 3s infinite;
 }
 @keyframes pulse {
@@ -85,15 +85,36 @@ a {
     }
 }
 
-#musicNotes {
+.musicNotes {
     margin-bottom: 5px;
+    height: 30px;
     display: flex;
     justify-content: space-between;
 }
 .musicNote {
     display: inline-block;
-    animation: pulseNote 1s infinite;
     color: #ff00ff;
+    animation: rotateNote 2s infinite;
+}
+.musicNote::after {
+    content: "\23F3";
+}
+.playing .musicNote {
+    animation: pulseNote 1s infinite;
+}
+.playing .musicNote.eighth::after {
+    content: "\266A";
+}
+.playing .musicNote.beamedEighth::after {
+    content: "\266B";
+}
+@keyframes rotateNote {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 @keyframes pulseNote {
     0% {
