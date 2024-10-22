@@ -58,6 +58,9 @@ a {
     padding-right: 150px;
     white-space: nowrap;
 }
+.marqueeItem::after {
+    content: " \2627 TUNE IN TO THE TRUTH \2627 HIS MESSAGE IS CLEAR \2627 OPEN YOUR MIND TO THE TRUTH \2627 LET THE HOLY SPIRIT GUIDE YOU \2627 YOUR JOURNEY BEGINS HERE \2627";
+}
 @keyframes marquee {
     from {
         transform: translateX(0%);
