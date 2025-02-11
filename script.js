@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isFirstTrack = true;
   let simulatedDate = null; // Initialize with null for using real time by default
   let timeOfDay;
+  let fadeOutInterval = null;
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -178,4 +179,28 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   window.simulateTime = simulateTime;
+
+  const fadeAndSkip = () => {
+    if (fadeOutInterval) return; // Prevent multiple fades
+
+    const fadeOutDuration = 2000; // 2 seconds fade
+    const steps = 20; // Number of volume steps
+    const originalVolume = theTransmitter.volume;
+    const volumeStep = originalVolume / steps;
+    let currentStep = 0;
+
+    fadeOutInterval = setInterval(() => {
+      currentStep++;
+      theTransmitter.volume = Math.max(0, originalVolume - (volumeStep * currentStep));
+
+      if (currentStep >= steps) {
+        clearInterval(fadeOutInterval);
+        fadeOutInterval = null;
+        theTransmitter.volume = originalVolume; // Reset volume for next track
+        skipTrack(); // Skip to next track
+      }
+    }, fadeOutDuration / steps);
+  };
+
+  window.fadeAndSkip = fadeAndSkip;
 });
