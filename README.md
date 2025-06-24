@@ -1,4 +1,4 @@
-# ChurchWave Radio Configuration Guide
+# Churchwave Radio Configuration Guide
 
 This project is a comprehensive media processing system for radio station management. It scans your media directory structure and generates a `tracks.json` file that organizes content for both algorithmic selection and scheduled playback.
 
@@ -337,5 +337,3 @@ To customize the system for your needs:
 2. **Add new genres**: Add entries to the `genres` section
 3. **Add scheduled recurrence types**: Add new entries to `scheduled.recurrenceTypes`
 4. **Modify processing behavior**: Adjust values in the `processing` section
-
-The system is designed to be flexible and adapt to your specific radio station needs while maintaining a clean, organized structure.
