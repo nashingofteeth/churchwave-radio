@@ -1,0 +1,113 @@
+{
+  "mediaDirectory": "./media",
+  "outputFile": "tracks.json",
+  "directories": {
+    "algorithmic": {
+      "path": "algorithmic",
+      "category": "algorithmic",
+      "subdirectories": {
+        "lateNightLoFis": {
+          "path": "late-nite-lo-fis",
+          "category": "lateNightLoFis"
+        },
+        "morning": {
+          "path": "morning",
+          "category": "morningMusic",
+          "subdirectories": {
+            "country": {
+              "path": "country",
+              "genre": "country"
+            },
+            "rock": {
+              "path": "rock",
+              "genre": "rock"
+            },
+            "praise": {
+              "path": "praise",
+              "genre": "praise"
+            }
+          }
+        },
+        "standard": {
+          "path": "standard",
+          "category": "standardTracks"
+        },
+        "junk": {
+          "path": "junk",
+          "category": "junkContent",
+          "subdirectories": {
+            "ads": {
+              "path": "ads",
+              "type": "ads"
+            },
+            "scripture": {
+              "path": "scripture",
+              "type": "scripture"
+            },
+            "interludes": {
+              "path": "interludes",
+              "type": "interludes"
+            },
+            "bumpers": {
+              "path": "bumpers",
+              "type": "bumpers"
+            },
+            "ads2": {
+              "path": "ads-2",
+              "type": "ads2"
+            }
+          }
+        }
+      }
+    },
+    "scheduled": {
+      "path": "scheduled",
+      "category": "scheduled",
+      "recurrenceTypes": {
+        "dates": {
+          "name": "dates",
+          "description": "Specific dates (YYYY-MM-DD folders)",
+          "supportsGenres": false,
+          "structure": "dates/YYYY-MM-DD/HH-MM-SS"
+        },
+        "days": {
+          "name": "days",
+          "description": "Days of the week",
+          "supportsGenres": false,
+          "structure": "days/dayname/HH-MM-SS"
+        },
+        "daily": {
+          "name": "daily",
+          "description": "Daily recurring schedule",
+          "supportsGenres": true,
+          "structure": "daily/HH-MM-SS[/genre]"
+        }
+      }
+    }
+  },
+  "genres": {
+    "country": {
+      "name": "country",
+      "displayName": "Country"
+    },
+    "rock": {
+      "name": "rock",
+      "displayName": "Rock"
+    },
+    "praise": {
+      "name": "praise",
+      "displayName": "Praise & Worship"
+    }
+  },
+  "fileExtensions": {
+    "audio": [".mp3"]
+  },
+  "processing": {
+    "progressReportInterval": 50,
+    "concurrentDurationScans": 10,
+    "useCachedDurations": true
+  },
+  "metadata": {
+    "version": "3.0"
+  }
+}
