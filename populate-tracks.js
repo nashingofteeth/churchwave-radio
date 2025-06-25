@@ -594,20 +594,6 @@ async function main() {
     console.log(`\n📊 Metadata summary:`);
     console.log(`   Total files: ${data.metadata.totalFiles}`);
 
-    // Show some example durations with file keys
-    const filesWithDurations = Object.entries(data.files)
-      .filter(([_, fileInfo]) => fileInfo.duration > 0)
-      .slice(0, 5);
-
-    if (filesWithDurations.length > 0) {
-      console.log(`\n🎵 Sample files with durations:`);
-      filesWithDurations.forEach(([key, fileInfo]) => {
-        const minutes = Math.floor(fileInfo.duration / 60);
-        const seconds = fileInfo.duration % 60;
-        console.log(`   ${key}: ${fileInfo.filename} (${minutes}:${seconds.toString().padStart(2, '0')})`);
-      });
-    }
-
   } catch (error) {
     console.error('❌ Error generating tracks.json:', error.message);
     process.exit(1);
