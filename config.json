@@ -89,7 +89,7 @@
     "audio": [".mp3"]
   },
   "processing": {
-    "progressReportInterval": 50,
+    "progressReportInterval": 10,
     "concurrentDurationScans": 10,
     "useCachedDurations": true
   },
