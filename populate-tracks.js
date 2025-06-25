@@ -591,6 +591,53 @@ async function main() {
 
     console.log(`   Scheduled Entries: ${data.categories.scheduled.length} scheduled items`);
 
+    // Detailed scheduled tracks overview
+    if (data.categories.scheduled.length > 0) {
+      console.log(`\n📅 Scheduled Tracks Overview:`);
+      
+      // Group scheduled items by recurrence type
+      const scheduledByType = {};
+      data.categories.scheduled.forEach(item => {
+        const type = item.date ? 'dates' : (item.recurrence || 'daily');
+        if (!scheduledByType[type]) {
+          scheduledByType[type] = [];
+        }
+        scheduledByType[type].push(item);
+      });
+
+      // Display each recurrence type
+      for (const [recurrenceType, items] of Object.entries(scheduledByType)) {
+        console.log(`\n   ${recurrenceType.toUpperCase()} (${items.length} items):`);
+        
+        // Sort items for better display
+        const sortedItems = items.sort((a, b) => {
+          if (a.date && b.date) return a.date.localeCompare(b.date);
+          if (a.recurrence && b.recurrence) return a.recurrence.localeCompare(b.recurrence);
+          return a.time.localeCompare(b.time);
+        });
+
+        sortedItems.forEach(item => {
+          const fileInfo = data.files[item.trackKey];
+          const timeStr = item.time;
+          const durationStr = fileInfo.duration ? ` (${Math.floor(fileInfo.duration / 60)}:${(fileInfo.duration % 60).toString().padStart(2, '0')})` : '';
+          
+          if (item.date) {
+            // Date-specific items
+            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
+            console.log(`     ${item.date} ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
+          } else if (item.recurrence && item.recurrence !== 'daily') {
+            // Day-specific items
+            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
+            console.log(`     ${item.recurrence} ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
+          } else {
+            // Daily items
+            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
+            console.log(`     ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
+          }
+        });
+      }
+    }
+
     console.log(`\n📊 Metadata summary:`);
     console.log(`   Total files: ${data.metadata.totalFiles}`);
 
