@@ -12,21 +12,7 @@
         },
         "morning": {
           "path": "morning",
-          "category": "morningMusic",
-          "subdirectories": {
-            "country": {
-              "path": "country",
-              "genre": "country"
-            },
-            "rock": {
-              "path": "rock",
-              "genre": "rock"
-            },
-            "praise": {
-              "path": "praise",
-              "genre": "praise"
-            }
-          }
+          "category": "morningMusic"
         },
         "standard": {
           "path": "standard",
@@ -87,15 +73,15 @@
   },
   "genres": {
     "country": {
-      "name": "country",
+      "path": "genre-country",
       "displayName": "Country"
     },
     "rock": {
-      "name": "rock",
+      "path": "genre-rock",
       "displayName": "Rock"
     },
     "praise": {
-      "name": "praise",
+      "path": "genre-praise",
       "displayName": "Praise & Worship"
     }
   },

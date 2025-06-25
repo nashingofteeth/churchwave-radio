@@ -126,7 +126,7 @@ function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, catego
       case 'lateNightLoFis':
         const lateNightFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
         for (const fileInfo of lateNightFiles) {
-          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.lateNightLoFis);
+          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.lateNightLoFis);
         }
         break;
 
@@ -137,7 +137,7 @@ function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, catego
       case 'standard':
         const standardFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
         for (const fileInfo of standardFiles) {
-          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.standardTracks);
+          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.standardTracks);
         }
         break;
 
@@ -148,35 +148,35 @@ function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, catego
   }
 }
 
-// Process morning music tracks
+// Process morning music tracks with flexible genre support
 function processMorningMusic(mainDirPath, basePath, config, fileIndex, existingFiles, files, categories) {
-  if (!config.subdirectories) {
-    return;
-  }
-
   const morningSubdirs = fs.readdirSync(mainDirPath, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => item.name);
 
   for (const subdir of morningSubdirs) {
     const subdirPath = path.join(mainDirPath, subdir);
-    let targetArray = [];
-    let genreKey = '';
 
-    // Find matching subdirectory config
-    for (const [key, subdirConfig] of Object.entries(config.subdirectories)) {
-      if (subdirConfig.path === subdir) {
-        genreKey = key;
-        targetArray = categories.morningMusic[key];
-        break;
-      }
-    }
+    // Check if this is a genre directory (starts with 'genre-')
+    if (subdir.startsWith('genre-')) {
+      const genreKey = subdir.replace('genre-', '');
 
-    if (targetArray) {
-      const morningFiles = scanDirectory(subdirPath, `${basePath}/${subdir}`);
-      for (const fileInfo of morningFiles) {
-        addFileToCollection(fileInfo, fileIndex, existingFiles, files, targetArray);
+      // Only process if genre is configured
+      if (mediaConfig.genres[genreKey]) {
+        if (!categories.algorithmic.morningMusic[genreKey]) {
+          categories.algorithmic.morningMusic[genreKey] = [];
+        }
+
+        const morningFiles = scanDirectory(subdirPath, `${basePath}/${subdir}`);
+        for (const fileInfo of morningFiles) {
+          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.morningMusic[genreKey]);
+        }
+      } else {
+        console.warn(`Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${subdir}`);
       }
+    } else {
+      // Ignore non-genre directories in morning music
+      console.warn(`Warning: Non-genre directory '${subdir}' found in morning music - ignoring (use genre-* format)`);
     }
   }
 }
@@ -202,7 +202,7 @@ function processJunkContent(mainDirPath, basePath, config, fileIndex, existingFi
     for (const [key, subdirConfig] of Object.entries(config.subdirectories)) {
       if (subdirConfig.path === subdir) {
         typeKey = subdirConfig.type;
-        targetArray = categories.junkContent[typeKey];
+        targetArray = categories.algorithmic.junkContent[typeKey];
         break;
       }
     }
@@ -319,10 +319,9 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
   }
 }
 
-// Process scheduled daily recurrence with genre support
+// Process scheduled daily recurrence with flexible genre support
 function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
   const scheduledConfig = mediaConfig.directories.scheduled;
-  const availableGenres = Object.keys(mediaConfig.genres);
   const times = fs.readdirSync(recurrencePath, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => item.name)
@@ -341,26 +340,33 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
     // Check if this time directory has genre subdirectories (only for daily)
     const timeContents = fs.readdirSync(timePath, { withFileTypes: true });
     const genreSubdirs = timeContents.filter(item =>
-      item.isDirectory() && availableGenres.includes(item.name)
+      item.isDirectory() && item.name.startsWith('genre-')
     );
 
     if (genreSubdirs.length > 0) {
       // Handle genre subdirectories
       for (const genreItem of genreSubdirs) {
-        const genrePath = path.join(timePath, genreItem.name);
-        const scheduledFiles = scanDirectory(
-          genrePath,
-          `${scheduledConfig.path}/${recurrence}/${timeDir}/${genreItem.name}`,
-          'scheduled',
-          genreItem.name
-        );
+        const genreKey = genreItem.name.replace('genre-', '');
 
-        for (const fileInfo of scheduledFiles) {
-          addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
-            time: timeString,
-            recurrence: recurrence,
-            genre: genreItem.name
-          });
+        // Only process if genre is configured
+        if (mediaConfig.genres[genreKey]) {
+          const genrePath = path.join(timePath, genreItem.name);
+          const scheduledFiles = scanDirectory(
+            genrePath,
+            `${scheduledConfig.path}/${recurrence}/${timeDir}/${genreItem.name}`,
+            'scheduled',
+            genreKey
+          );
+
+          for (const fileInfo of scheduledFiles) {
+            addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
+              time: timeString,
+              recurrence: recurrence,
+              genre: genreKey
+            });
+          }
+        } else {
+          console.warn(`Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${genreItem.name}`);
         }
       }
     } else {
@@ -425,23 +431,28 @@ function organizeTracksByStructure() {
 
   const existingFiles = loadExistingTracks();
   const files = {};
+
+  // Build categories structure dynamically based on config
   const categories = {
-    lateNightLoFis: [],
-    morningMusic: {
-      country: [],
-      rock: [],
-      praise: []
-    },
-    standardTracks: [],
-    junkContent: {
-      ads: [],
-      scripture: [],
-      interludes: [],
-      bumpers: [],
-      ads2: []
+    algorithmic: {
+      lateNightLoFis: [],
+      morningMusic: {},
+      standardTracks: [],
+      junkContent: {
+        ads: [],
+        scripture: [],
+        interludes: [],
+        bumpers: [],
+        ads2: []
+      }
     },
     scheduled: []
   };
+
+  // Initialize morning music genres dynamically
+  for (const genreKey of Object.keys(mediaConfig.genres)) {
+    categories.algorithmic.morningMusic[genreKey] = [];
+  }
 
   // Scan each main directory
   const mainDirs = fs.readdirSync(mediaDir, { withFileTypes: true })
@@ -491,7 +502,7 @@ async function scanDurations(files) {
   }
 
   if (filesToScan.length > 0) {
-    console.log(`🎵 Scanning durations for ${filesToScan.length} new/changed tracks...`);
+    console.log(`🎵 Scanning durations for ${filesToScan.length} new tracks...`);
 
     let processed = 0;
 
@@ -561,17 +572,22 @@ async function main() {
     console.log('📊 File statistics:');
 
     const data = JSON.parse(newTracksContent);
-    console.log(`   Late Night Lo-Fis: ${data.categories.lateNightLoFis.length} tracks`);
-    console.log(`   Morning Country: ${data.categories.morningMusic.country.length} tracks`);
-    console.log(`   Morning Rock: ${data.categories.morningMusic.rock.length} tracks`);
-    console.log(`   Morning Praise: ${data.categories.morningMusic.praise.length} tracks`);
-    console.log(`   Standard Tracks: ${data.categories.standardTracks.length} tracks`);
+    console.log(`   Late Night Lo-Fis: ${data.categories.algorithmic.lateNightLoFis.length} tracks`);
 
-    console.log(`   Junk - Ads: ${data.categories.junkContent.ads.length} tracks`);
-    console.log(`   Junk - Scripture: ${data.categories.junkContent.scripture.length} tracks`);
-    console.log(`   Junk - Interludes: ${data.categories.junkContent.interludes.length} tracks`);
-    console.log(`   Junk - Bumpers: ${data.categories.junkContent.bumpers.length} tracks`);
-    console.log(`   Junk - Ads 2: ${data.categories.junkContent.ads2.length} tracks`);
+    // Display morning music by genre
+    console.log('   Morning Music:');
+    for (const [genreKey, tracks] of Object.entries(data.categories.algorithmic.morningMusic)) {
+      const displayName = mediaConfig.genres[genreKey]?.displayName || genreKey;
+      console.log(`     ${displayName}: ${tracks.length} tracks`);
+    }
+
+    console.log(`   Standard Tracks: ${data.categories.algorithmic.standardTracks.length} tracks`);
+
+    console.log(`   Junk - Ads: ${data.categories.algorithmic.junkContent.ads.length} tracks`);
+    console.log(`   Junk - Scripture: ${data.categories.algorithmic.junkContent.scripture.length} tracks`);
+    console.log(`   Junk - Interludes: ${data.categories.algorithmic.junkContent.interludes.length} tracks`);
+    console.log(`   Junk - Bumpers: ${data.categories.algorithmic.junkContent.bumpers.length} tracks`);
+    console.log(`   Junk - Ads 2: ${data.categories.algorithmic.junkContent.ads2.length} tracks`);
 
     console.log(`   Scheduled Entries: ${data.categories.scheduled.length} scheduled items`);
 

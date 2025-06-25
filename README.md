@@ -32,13 +32,15 @@ media/
     │   ├── track1.mp3
     │   └── track2.mp3
     ├── morning/                 # Morning music by genre
-    │   ├── country/
+    │   ├── genre-country/       # Country music (genre prefix required)
     │   │   ├── song1.mp3
     │   │   └── song2.mp3
-    │   ├── rock/
+    │   ├── genre-rock/          # Rock music
     │   │   └── song3.mp3
-    │   └── praise/
-    │       └── song4.mp3
+    │   ├── genre-praise/        # Praise music
+    │   │   └── song4.mp3
+    │   └── genre-worship/       # Worship music (any genre can be added)
+    │       └── song5.mp3
     ├── standard/                # General music library
     │   ├── regular1.mp3
     │   └── regular2.mp3
@@ -63,12 +65,14 @@ media/
 └── scheduled/
     ├── daily/                   # Every day at specific times
     │   ├── 06-00-00/           # 6:00:00 AM daily
-    │   │   ├── country/        # Genre-specific (daily only)
+    │   │   ├── genre-country/  # Genre-specific (daily only, with prefix)
     │   │   │   └── morning-country.mp3
-    │   │   ├── rock/
+    │   │   ├── genre-rock/
     │   │   │   └── morning-rock.mp3
-    │   │   └── praise/
-    │   │       └── morning-praise.mp3
+    │   │   ├── genre-praise/
+    │   │   │   └── morning-praise.mp3
+    │   │   └── genre-worship/  # Any configured genre can be used
+    │   │       └── morning-worship.mp3
     │   └── 18-00-00/           # 6:00:00 PM daily
     │       └── evening-show.mp3
     ├── dates/                   # Specific calendar dates
@@ -108,21 +112,7 @@ The `config.json` file controls all system behavior:
     },
     "morning": {
       "path": "morning",
-      "category": "morningMusic",
-      "subdirectories": {
-        "country": {
-          "path": "country",
-          "genre": "country"
-        },
-        "rock": {
-          "path": "rock",
-          "genre": "rock"
-        },
-        "praise": {
-          "path": "praise",
-          "genre": "praise"
-        }
-      }
+      "category": "morningMusic"
     },
     "standard": {
       "path": "standard",
@@ -191,11 +181,12 @@ The `config.json` file controls all system behavior:
 ### Daily (`daily/`)
 Content that plays every day at specific times.
 - **Folder format**: `HH-MM-SS` (24-hour format)
-- **Genre support**: Yes (country, rock, praise subdirectories allowed)
+- **Genre support**: Yes (any configured genre with `genre-` prefix)
 - **Examples**:
   - `daily/17-00-00/` = 5:00:00 PM daily
-  - `daily/06-30-15/country/` = 6:30:15 AM daily, country music
-  - `daily/20-00-00/` = 8:00:00 PM daily
+  - `daily/06-30-15/genre-country/` = 6:30:15 AM daily, country music
+  - `daily/20-00-00/genre-worship/` = 8:00:00 PM daily, worship music
+  - `daily/12-00-00/` = 12:00:00 PM daily (no genre)
 
 ### Days (`days/`)
 Content that plays on specific days of the week.
@@ -217,24 +208,40 @@ Content that plays on specific calendar dates.
 
 ## Genre Configuration
 
-Define the music genres available in your system:
+Define the music genres available in your system. **All genre directories must be prefixed with `genre-`**:
 
 ```json
 "genres": {
   "country": {
-    "name": "country",
+    "path": "genre-country",
     "displayName": "Country"
   },
   "rock": {
-    "name": "rock",
+    "path": "genre-rock", 
     "displayName": "Rock"
   },
   "praise": {
-    "name": "praise",
+    "path": "genre-praise",
     "displayName": "Praise & Worship"
+  },
+  "worship": {
+    "path": "genre-worship",
+    "displayName": "Worship"
+  },
+  "contemporary": {
+    "path": "genre-contemporary",
+    "displayName": "Contemporary Christian"
   }
 }
 ```
+
+### Genre System Features:
+- **Flexible**: Add any genre with any name
+- **Prefix required**: All genre directories must start with `genre-`
+- **Auto-discovery**: Genres found in directories but not configured will be ignored with warnings
+- **Display names**: Each genre can have a user-friendly display name
+- **Key matching**: The genre key should match the folder name after `genre-` prefix
+- **Genre-only**: Morning music only accepts `genre-*` directories, non-genre directories are ignored
 
 ## Processing Configuration
 
@@ -289,9 +296,12 @@ This will:
 ```
 📊 File statistics:
    Late Night Lo-Fis: 45 tracks
-   Morning Country: 120 tracks
-   Morning Rock: 89 tracks
-   Morning Praise: 67 tracks
+   Morning Music:
+     Country: 120 tracks
+     Rock: 89 tracks
+     Praise & Worship: 67 tracks
+     Worship: 45 tracks
+     Contemporary Christian: 23 tracks
    Standard Tracks: 1,234 tracks
    Junk - Ads: 25 tracks
    Junk - Scripture: 15 tracks
@@ -303,8 +313,10 @@ This will:
 
 ## Important Notes
 
+- **Genre directories must use `genre-` prefix** (e.g., `genre-country`, `genre-rock`)
 - **Genre subdirectories are only supported in the `daily` scheduled recurrence type**
 - **Unknown recurrence types will be ignored** (not processed)
+- **Unknown genres will be ignored** (directories found but not configured)
 - Time directories use 24-hour format with hyphens (e.g., `09-30-00` for 9:30:00 AM)
 - Date directories use YYYY-MM-DD format (e.g., `2024-12-25`)
 - Day directories must use full day names in lowercase (e.g., `monday`)
@@ -326,6 +338,13 @@ Make sure all time directories use `HH-MM-SS` format:
 - ❌ `09-30` (missing seconds)
 - ❌ `9-30-00` (missing leading zero)
 
+### Invalid Genre Formats
+Make sure all genre directories use the `genre-` prefix:
+- ✅ `genre-country` (correct prefix)
+- ✅ `genre-contemporary` (any name after prefix)
+- ❌ `country` (missing prefix)
+- ❌ `genre_country` (underscore instead of hyphen)
+
 ### Missing Directories
 The validation script will warn about missing directories. Create them as needed or update your configuration to match your actual structure.
 
@@ -334,6 +353,7 @@ The validation script will warn about missing directories. Create them as needed
 To customize the system for your needs:
 
 1. **Change directory names**: Update the `path` properties in the configuration
-2. **Add new genres**: Add entries to the `genres` section
+2. **Add new genres**: Add entries to the `genres` section with `genre-` prefix in path
 3. **Add scheduled recurrence types**: Add new entries to `scheduled.recurrenceTypes`
 4. **Modify processing behavior**: Adjust values in the `processing` section
+5. **Genre flexibility**: Create any `genre-*` directories and configure them in the config file
