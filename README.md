@@ -13,10 +13,39 @@ The configuration system allows you to customize:
 
 ## Quick Start
 
-1. **Set up your media directory** according to the structure below
-2. **Configure settings** in `config.json`
-3. **Validate configuration**: `node validate-config.js`
-4. **Generate tracks file**: `node populate-tracks.js`
+1. **Install Node.js** (see Installation section below)
+2. **Set up your media directory** according to the structure below
+3. **Configure settings** in `config.json`
+4. **Validate configuration**: `node validate-config.js`
+5. **Generate tracks file**: `node populate-tracks.js`
+
+## Installation
+
+### Installing Node.js on Windows
+
+1. **Download Node.js**:
+   - Go to https://nodejs.org/
+   - Download the Windows Installer (LTS version recommended)
+   - Choose the 64-bit version for most modern Windows systems
+
+2. **Run the Installer**:
+   - Double-click the downloaded `.msi` file
+   - Follow the installation wizard
+   - Accept the license agreement
+   - Choose installation location (default is recommended)
+   - Make sure "Add to PATH" is checked
+
+3. **Verify Installation**:
+   - Open Command Prompt or PowerShell
+   - Type `node --version` and press Enter
+   - Type `npm --version` and press Enter
+   - Both should display version numbers
+
+4. **Install FFmpeg** (required for audio duration scanning):
+   - Download FFmpeg from https://ffmpeg.org/download.html#build-windows
+   - Extract the files to a folder (e.g., `C:\ffmpeg`)
+   - Add the `bin` folder to your system PATH environment variable
+   - Restart Command Prompt and verify with `ffmpeg -version`
 
 ## Media Directory Structure
 
@@ -365,10 +394,7 @@ This will:
 ## Troubleshooting
 
 ### FFmpeg Not Found
-If you get an FFmpeg error:
-- **macOS**: `brew install ffmpeg`
-- **Ubuntu**: `sudo apt install ffmpeg`
-- **Windows**: Download from https://ffmpeg.org/
+If you get an FFmpeg error, make sure FFmpeg is properly installed and added to your PATH environment variable (see Installation section above).
 
 ### Invalid Time Formats
 Make sure all time directories use `HH-MM-SS` format:
