@@ -108,19 +108,29 @@ The `config.json` file controls all system behavior:
   "subdirectories": {
     "lateNightLoFis": {
       "path": "late-nite-lo-fis",
-      "category": "lateNightLoFis"
+      "category": "lateNightLoFis",
+      "startTime": "00:00:00",
+      "endTime": "05:00:00",
+      "description": "Late night ambient tracks"
     },
     "morning": {
       "path": "morning",
-      "category": "morningMusic"
+      "category": "morningMusic",
+      "startTime": "05:00:00",
+      "endTime": "08:00:00",
+      "description": "Morning praise music"
     },
     "standard": {
       "path": "standard",
-      "category": "standardTracks"
+      "category": "standardTracks",
+      "startTime": "08:00:00",
+      "endTime": "23:59:59",
+      "description": "Standard daytime programming"
     },
     "junk": {
       "path": "junk",
       "category": "junkContent",
+      "description": "Mixed throughout the day, not time-specific",
       "subdirectories": {
         "ads": {
           "path": "ads",
@@ -175,6 +185,32 @@ The `config.json` file controls all system behavior:
   }
 }
 ```
+
+## Time Slot Configuration
+
+The algorithmic content is associated with specific time slots that define when each category should be played. Time slot information is included in each subdirectory configuration:
+
+### Time Slots
+- **Late Night Lo-Fis** (00:00:00 - 05:00:00): Ambient tracks for overnight hours
+- **Morning Music** (05:00:00 - 08:00:00): Morning praise music
+- **Standard Tracks** (08:00:00 - 23:59:59): General daytime programming
+- **Junk Content**: Mixed throughout the day, not time-specific
+
+### Time Slot Configuration Format
+Each time-sensitive subdirectory includes timing information:
+```json
+"subdirectories": {
+  "categoryName": {
+    "path": "folder-name",
+    "category": "categoryName",
+    "startTime": "HH:MM:SS",
+    "endTime": "HH:MM:SS", 
+    "description": "Description of when this plays"
+  }
+}
+```
+
+**Note**: This time slot information is separate from the folder structure and tracks.json output. It will be used by the player application to determine which algorithmic content to play at different times of day.
 
 ## Scheduled Content Types
 
@@ -280,6 +316,8 @@ This will verify:
 - Genre configurations are complete
 - Scheduled recurrence types are valid
 - Date and time folder formats are correct
+- Only MP3 files are configured
+- Algorithmic time slots are properly configured
 
 ### Generate Tracks File
 ```bash
@@ -354,6 +392,7 @@ To customize the system for your needs:
 
 1. **Change directory names**: Update the `path` properties in the configuration
 2. **Add new genres**: Add entries to the `genres` section with `genre-` prefix in path
-3. **Add scheduled recurrence types**: Add new entries to `scheduled.recurrenceTypes`
-4. **Modify processing behavior**: Adjust values in the `processing` section
-5. **Genre flexibility**: Create any `genre-*` directories and configure them in the config file
+4. **Add scheduled recurrence types**: Add new entries to `scheduled.recurrenceTypes`
+5. **Modify processing behavior**: Adjust values in the `processing` section
+6. **Genre flexibility**: Create any `genre-*` directories and configure them in the config file
+7. **Adjust time slots**: Modify `timeSlots` to change when algorithmic content plays

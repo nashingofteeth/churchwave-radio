@@ -8,19 +8,29 @@
       "subdirectories": {
         "lateNightLoFis": {
           "path": "late-nite-lo-fis",
-          "category": "lateNightLoFis"
+          "category": "lateNightLoFis",
+          "startTime": "00:00:00",
+          "endTime": "05:00:00",
+          "description": "Late night ambient tracks"
         },
         "morning": {
           "path": "morning",
-          "category": "morningMusic"
+          "category": "morningMusic",
+          "startTime": "05:00:00",
+          "endTime": "08:00:00",
+          "description": "Morning praise music"
         },
         "standard": {
           "path": "standard",
-          "category": "standardTracks"
+          "category": "standardTracks",
+          "startTime": "08:00:00",
+          "endTime": "23:59:59",
+          "description": "Standard daytime programming"
         },
         "junk": {
           "path": "junk",
           "category": "junkContent",
+          "description": "Mixed throughout the day, not time-specific",
           "subdirectories": {
             "ads": {
               "path": "ads",
