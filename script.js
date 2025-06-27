@@ -8,12 +8,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let mainTracks = [];
   let interludes = {};
   let lateNightLoFis = [];
+  let scheduledTracks = [];
+  let tracksData = {};
   const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
+  const usedScheduledTracks = {};
   let currentMainTrackIndex;
   let isFirstTrack = true;
   let simulatedDate = null; // Initialize with null for using real time by default
   let timeOfDay;
   let fadeOutInterval = null;
+  let currentScheduledTrack = null;
+  let scheduledCheckInterval = null;
+  let upcomingScheduledBuffer = 60; // 1 minute buffer in seconds
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -32,24 +38,38 @@ document.addEventListener("DOMContentLoaded", () => {
         mainTracks = data.mainTracks;
         interludes = data.interludes;
         lateNightLoFis = data.lateNightLoFis;
-        timeOfDay = getTimeOfDay();
-        if (timeOfDay === "lateNight") playLateNightLoFi();
-        else {
-          currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
-          playMainTrack();
+        scheduledTracks = data.categories.scheduled || [];
+        tracksData = data.files;
+
+        // Check for scheduled tracks first
+        const activeScheduledTrack = getActiveScheduledTrack();
+        if (activeScheduledTrack) {
+          playScheduledTrack(activeScheduledTrack);
+        } else {
+          timeOfDay = getTimeOfDay();
+          if (timeOfDay === "lateNight") playLateNightLoFi();
+          else {
+            currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+            playMainTrack();
+          }
         }
+
+        // Start checking for upcoming scheduled tracks
+        startScheduledTrackMonitoring();
       })
       .catch((error) => console.error("Error loading tracks:", error));
   }
 
-  function playTrack(trackUrl, callback) {
+  function playTrack(trackUrl, callback, startTime = null) {
     theTransmitter.src = trackUrl;
     console.log(`Playing track: ${trackUrl}`);
     theTransmitter.currentTime = 0;
     theTransmitter.addEventListener(
       "loadedmetadata",
       () => {
-        if (isFirstTrack) {
+        if (startTime !== null) {
+          theTransmitter.currentTime = Math.min(startTime, theTransmitter.duration - 1);
+        } else if (isFirstTrack) {
           theTransmitter.currentTime = getRandomStartTime(
             theTransmitter.duration,
           );
@@ -117,12 +137,25 @@ document.addEventListener("DOMContentLoaded", () => {
   function skipTrack() {
     console.log("Skip");
     theTransmitter.pause();
+
+    // Clear any active scheduled track
+    if (currentScheduledTrack) {
+      currentScheduledTrack = null;
+    }
+
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
   }
   window.skipTrack = skipTrack;
 
   function handleSeekButtonClick() {
+    // Check for scheduled tracks first
+    const activeScheduledTrack = getActiveScheduledTrack();
+    if (activeScheduledTrack) {
+      playScheduledTrack(activeScheduledTrack);
+      return;
+    }
+
     timeOfDay = getTimeOfDay();
     if (timeOfDay === "lateNight") {
       skipTrack();
@@ -161,24 +194,330 @@ document.addEventListener("DOMContentLoaded", () => {
   function reset() {
     isFirstTrack = true;
     currentMainTrackIndex = undefined;
+    currentScheduledTrack = null;
     theTransmitter.pause();
+
+    // Remove all event listeners
     theTransmitter.removeEventListener("ended", playMainTrack);
     theTransmitter.removeEventListener("ended", playInterlude);
     theTransmitter.removeEventListener("ended", playLateNightLoFi);
+
+    // Clear intervals
+    if (scheduledCheckInterval) {
+      clearInterval(scheduledCheckInterval);
+      scheduledCheckInterval = null;
+    }
+
+    if (fadeOutInterval) {
+      clearInterval(fadeOutInterval);
+      fadeOutInterval = null;
+    }
   }
 
   function getRandomStartTime(duration) {
     return Math.floor(Math.random() * (duration * 0.9));
   }
 
-  // Simulation function to set any time
-  const simulateTime = (hour) => {
-    simulatedDate = new Date();
-    simulatedDate.setHours(hour);
-    console.log(`Simulating time: ${getTimeOfDay(simulatedDate)}`);
+  // Enhanced simulation function to set date and time to the second
+  const simulateTime = (hour, minute = 0, second = 0, date = null) => {
+    simulatedDate = date ? new Date(date) : new Date();
+    simulatedDate.setHours(hour, minute, second, 0);
+    console.log(`Simulating time: ${simulatedDate.toLocaleString('en-US', { timeZone: 'America/New_York' })}`);
   };
 
+  // Timezone conversion utilities
+  function getCurrentTimeInEST() {
+    const date = simulatedDate || new Date();
+    return new Date(date.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  }
+
+  function parseTimeString(timeStr) {
+    const [hours, minutes, seconds = 0] = timeStr.split(':').map(Number);
+    return { hours, minutes, seconds };
+  }
+
+  function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
+    const baseDate = referenceDate || getCurrentTimeInEST();
+    const { hours, minutes, seconds } = parseTimeString(scheduledTrack.time);
+
+    let scheduledDate = new Date(baseDate);
+    scheduledDate.setHours(hours, minutes, seconds, 0);
+
+    // Handle different recurrence types
+    if (scheduledTrack.recurrence === 'daily') {
+      // Daily tracks can play today or tomorrow
+      const now = getCurrentTimeInEST();
+      if (scheduledDate < now) {
+        scheduledDate.setDate(scheduledDate.getDate() + 1);
+      }
+    } else if (scheduledTrack.recurrence && scheduledTrack.recurrence.startsWith('2024-')) {
+      // Specific date
+      const [year, month, day] = scheduledTrack.recurrence.split('-').map(Number);
+      scheduledDate = new Date(year, month - 1, day, hours, minutes, seconds);
+    } else if (scheduledTrack.date) {
+      // Handle date field
+      const [year, month, day] = scheduledTrack.date.split('-').map(Number);
+      scheduledDate = new Date(year, month - 1, day, hours, minutes, seconds);
+    } else if (scheduledTrack.recurrence && ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(scheduledTrack.recurrence.toLowerCase())) {
+      // Day of week scheduling
+      const dayMap = {
+        'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+        'thursday': 4, 'friday': 5, 'saturday': 6
+      };
+      const targetDay = dayMap[scheduledTrack.recurrence.toLowerCase()];
+      const currentDay = scheduledDate.getDay();
+
+      let daysUntilTarget = targetDay - currentDay;
+      if (daysUntilTarget < 0 || (daysUntilTarget === 0 && scheduledDate < baseDate)) {
+        daysUntilTarget += 7;
+      }
+
+      scheduledDate.setDate(scheduledDate.getDate() + daysUntilTarget);
+    }
+
+    return scheduledDate;
+  }
+
+  function getActiveScheduledTrack() {
+    const now = getCurrentTimeInEST();
+    const activeTracks = scheduledTracks.filter(track => {
+      try {
+        const trackKey = `${track.time}-${track.recurrence || track.date}`;
+
+        // Skip if used in last 24 hours
+        if (usedScheduledTracks[trackKey] &&
+            now - usedScheduledTracks[trackKey] < 24 * 60 * 60 * 1000) {
+          return false;
+        }
+
+        const scheduledTime = getScheduledTrackTime(track);
+        const trackData = tracksData[track.trackKey];
+
+        if (!trackData || !trackData.duration) return false;
+
+        const trackEndTime = new Date(scheduledTime.getTime() + trackData.duration * 1000);
+
+        return now >= scheduledTime && now <= trackEndTime;
+      } catch (error) {
+        console.error('Error checking scheduled track:', track, error);
+        return false;
+      }
+    });
+
+    // If multiple tracks are active, select one randomly
+    if (activeTracks.length > 1) {
+      return activeTracks[Math.floor(Math.random() * activeTracks.length)];
+    }
+
+    return activeTracks[0] || null;
+  }
+
+  function getUpcomingScheduledTrack() {
+    const now = getCurrentTimeInEST();
+    const bufferTime = new Date(now.getTime() + upcomingScheduledBuffer * 1000);
+
+    return scheduledTracks.find(track => {
+      try {
+        const trackKey = `${track.time}-${track.recurrence || track.date}`;
+
+        // Skip if used in last 24 hours
+        if (usedScheduledTracks[trackKey] &&
+            now - usedScheduledTracks[trackKey] < 24 * 60 * 60 * 1000) {
+          return false;
+        }
+
+        const scheduledTime = getScheduledTrackTime(track);
+        return scheduledTime >= now && scheduledTime <= bufferTime;
+      } catch (error) {
+        console.error('Error checking upcoming scheduled track:', track, error);
+        return false;
+      }
+    });
+  }
+
+  function playScheduledTrack(scheduledTrack) {
+    if (!scheduledTrack || !tracksData[scheduledTrack.trackKey]) {
+      console.error('Invalid scheduled track or track data not found:', scheduledTrack);
+      returnToAlgorithmicPlayback();
+      return;
+    }
+
+    const trackData = tracksData[scheduledTrack.trackKey];
+
+    try {
+      const scheduledTime = getScheduledTrackTime(scheduledTrack);
+      const now = getCurrentTimeInEST();
+
+      // Calculate offset for resume functionality
+      const offsetSeconds = Math.max(0, (now - scheduledTime) / 1000);
+
+      // Check if track would be over by now
+      if (offsetSeconds >= trackData.duration) {
+        console.log('Scheduled track would be finished, returning to algorithmic playback');
+        returnToAlgorithmicPlayback();
+        return;
+      }
+
+      currentScheduledTrack = scheduledTrack;
+
+      console.log(`Playing scheduled track: ${trackData.filename} (offset: ${offsetSeconds.toFixed(1)}s)`);
+
+      // Mark as used
+      const trackKey = `${scheduledTrack.time}-${scheduledTrack.recurrence || scheduledTrack.date}`;
+      usedScheduledTracks[trackKey] = now;
+
+      // Play the track
+      theTransmitter.src = trackData.path;
+      theTransmitter.currentTime = 0;
+
+      theTransmitter.addEventListener("loadedmetadata", () => {
+        theTransmitter.currentTime = Math.min(offsetSeconds, theTransmitter.duration - 1);
+        theTransmitter.play();
+      }, { once: true });
+
+      theTransmitter.addEventListener("ended", () => {
+        currentScheduledTrack = null;
+        // Check for next scheduled track, otherwise return to algorithmic
+        const nextScheduled = getActiveScheduledTrack();
+        if (nextScheduled) {
+          playScheduledTrack(nextScheduled);
+        } else {
+          returnToAlgorithmicPlayback();
+        }
+      }, { once: true });
+
+      theTransmitter.addEventListener("error", () => {
+        console.error('Error playing scheduled track:', trackData.filename);
+        currentScheduledTrack = null;
+        returnToAlgorithmicPlayback();
+      }, { once: true });
+
+    } catch (error) {
+      console.error('Error in playScheduledTrack:', error);
+      currentScheduledTrack = null;
+      returnToAlgorithmicPlayback();
+    }
+  }
+
+  function returnToAlgorithmicPlayback() {
+    timeOfDay = getTimeOfDay();
+    if (timeOfDay === "lateNight") {
+      playLateNightLoFi();
+    } else {
+      currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+      playMainTrack();
+    }
+  }
+
+  function startScheduledTrackMonitoring() {
+    // Clear existing interval
+    if (scheduledCheckInterval) {
+      clearInterval(scheduledCheckInterval);
+    }
+
+    // Check every 30 seconds for upcoming scheduled tracks
+    scheduledCheckInterval = setInterval(() => {
+      if (currentScheduledTrack) return; // Already playing scheduled content
+
+      const upcomingTrack = getUpcomingScheduledTrack();
+      if (upcomingTrack) {
+        console.log(`Upcoming scheduled track detected: ${tracksData[upcomingTrack.trackKey]?.filename}`);
+        fadeAndTransitionToScheduled(upcomingTrack);
+      }
+    }, 30000);
+  }
+
+  function fadeAndTransitionToScheduled(scheduledTrack) {
+    if (fadeOutInterval || currentScheduledTrack) return; // Prevent multiple fades or if already scheduled
+
+    const fadeOutDuration = 3000; // 3 seconds fade
+    const steps = 30;
+    const originalVolume = theTransmitter.volume;
+    const volumeStep = originalVolume / steps;
+    let currentStep = 0;
+
+    console.log(`Fading out current track for scheduled track: ${tracksData[scheduledTrack.trackKey]?.filename}`);
+
+    fadeOutInterval = setInterval(() => {
+      currentStep++;
+      theTransmitter.volume = Math.max(0, originalVolume - (volumeStep * currentStep));
+
+      if (currentStep >= steps) {
+        clearInterval(fadeOutInterval);
+        fadeOutInterval = null;
+        theTransmitter.volume = originalVolume; // Reset volume for next track
+        theTransmitter.pause();
+
+        // Wait for the exact scheduled time
+        const scheduledTime = getScheduledTrackTime(scheduledTrack);
+        const now = getCurrentTimeInEST();
+        const waitTime = Math.max(0, scheduledTime - now);
+
+        if (waitTime > 0) {
+          setTimeout(() => {
+            playScheduledTrack(scheduledTrack);
+          }, waitTime);
+        } else {
+          playScheduledTrack(scheduledTrack);
+        }
+      }
+    }, fadeOutDuration / steps);
+  }
+
   window.simulateTime = simulateTime;
+
+  // Additional debug functions
+  window.getActiveScheduled = () => {
+    const active = getActiveScheduledTrack();
+    if (active) {
+      console.log('Active scheduled track:', {
+        time: active.time,
+        recurrence: active.recurrence || active.date,
+        filename: tracksData[active.trackKey]?.filename
+      });
+    }
+    return active;
+  };
+
+  window.getUpcomingScheduled = () => {
+    const upcoming = getUpcomingScheduledTrack();
+    if (upcoming) {
+      console.log('Upcoming scheduled track:', {
+        time: upcoming.time,
+        recurrence: upcoming.recurrence || upcoming.date,
+        filename: tracksData[upcoming.trackKey]?.filename,
+        scheduledFor: getScheduledTrackTime(upcoming)
+      });
+    }
+    return upcoming;
+  };
+
+  window.clearUsedScheduled = () => {
+    Object.keys(usedScheduledTracks).forEach(key => delete usedScheduledTracks[key]);
+    console.log('Cleared all used scheduled tracks');
+  };
+
+  window.setScheduledBuffer = (seconds) => {
+    upcomingScheduledBuffer = seconds;
+    console.log(`Set scheduled buffer to ${seconds} seconds`);
+  };
+
+  window.forceScheduledTrack = (trackIndex) => {
+    const track = scheduledTracks[trackIndex];
+    if (track) {
+      console.log('Forcing scheduled track:', tracksData[track.trackKey]?.filename);
+      fadeAndTransitionToScheduled(track);
+    } else {
+      console.log('Track not found at index:', trackIndex);
+    }
+  };
+
+  window.listScheduledTracks = () => {
+    console.log('All scheduled tracks:');
+    scheduledTracks.forEach((track, index) => {
+      console.log(`${index}: ${track.time} (${track.recurrence || track.date}) - ${tracksData[track.trackKey]?.filename}`);
+    });
+  };
 
   const fadeAndSkip = () => {
     if (fadeOutInterval) return; // Prevent multiple fades
