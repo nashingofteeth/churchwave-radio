@@ -583,18 +583,19 @@ async function main() {
 
     console.log(`   Standard Tracks: ${data.categories.algorithmic.standardTracks.length} tracks`);
 
-    console.log(`   Junk - Ads: ${data.categories.algorithmic.junkContent.ads.length} tracks`);
-    console.log(`   Junk - Scripture: ${data.categories.algorithmic.junkContent.scripture.length} tracks`);
-    console.log(`   Junk - Interludes: ${data.categories.algorithmic.junkContent.interludes.length} tracks`);
-    console.log(`   Junk - Bumpers: ${data.categories.algorithmic.junkContent.bumpers.length} tracks`);
-    console.log(`   Junk - Ads 2: ${data.categories.algorithmic.junkContent.ads2.length} tracks`);
+    console.log('   Junk Content:');
+    console.log(`     Ads: ${data.categories.algorithmic.junkContent.ads.length} tracks`);
+    console.log(`     Scripture: ${data.categories.algorithmic.junkContent.scripture.length} tracks`);
+    console.log(`     Interludes: ${data.categories.algorithmic.junkContent.interludes.length} tracks`);
+    console.log(`     Bumpers: ${data.categories.algorithmic.junkContent.bumpers.length} tracks`);
+    console.log(`     Ads 2: ${data.categories.algorithmic.junkContent.ads2.length} tracks`);
 
     console.log(`   Scheduled Entries: ${data.categories.scheduled.length} scheduled items`);
 
     // Detailed scheduled tracks overview
     if (data.categories.scheduled.length > 0) {
       console.log(`\n📅 Scheduled Tracks Overview:`);
-      
+
       // Group scheduled items by recurrence type
       const scheduledByType = {};
       data.categories.scheduled.forEach(item => {
@@ -608,31 +609,62 @@ async function main() {
       // Display each recurrence type
       for (const [recurrenceType, items] of Object.entries(scheduledByType)) {
         console.log(`\n   ${recurrenceType.toUpperCase()} (${items.length} items):`);
-        
-        // Sort items for better display
-        const sortedItems = items.sort((a, b) => {
-          if (a.date && b.date) return a.date.localeCompare(b.date);
-          if (a.recurrence && b.recurrence) return a.recurrence.localeCompare(b.recurrence);
-          return a.time.localeCompare(b.time);
+
+        // Group items by time code to display horizontally
+        const itemsByTime = {};
+        items.forEach(item => {
+          if (!itemsByTime[item.time]) {
+            itemsByTime[item.time] = [];
+          }
+          itemsByTime[item.time].push(item);
         });
 
-        sortedItems.forEach(item => {
-          const fileInfo = data.files[item.trackKey];
-          const timeStr = item.time;
-          const durationStr = fileInfo.duration ? ` (${Math.floor(fileInfo.duration / 60)}:${(fileInfo.duration % 60).toString().padStart(2, '0')})` : '';
-          
-          if (item.date) {
-            // Date-specific items
-            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
-            console.log(`     ${item.date} ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
-          } else if (item.recurrence && item.recurrence !== 'daily') {
-            // Day-specific items
-            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
-            console.log(`     ${item.recurrence} ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
-          } else {
-            // Daily items
-            const genreStr = item.genre ? ` [${mediaConfig.genres[item.genre]?.displayName || item.genre}]` : '';
-            console.log(`     ${timeStr}${genreStr}: ${fileInfo.filename}${durationStr}`);
+        // Sort time codes and display items grouped by time
+        const sortedTimes = Object.keys(itemsByTime).sort();
+
+        sortedTimes.forEach(timeCode => {
+          const timeItems = itemsByTime[timeCode];
+
+          // Group items by genre at this timecode
+          const genresByTime = {};
+          timeItems.forEach(item => {
+            const genreKey = item.genre || 'no-genre';
+            if (!genresByTime[genreKey]) {
+              genresByTime[genreKey] = [];
+            }
+            genresByTime[genreKey].push(item);
+          });
+
+          // Display timecode first
+          console.log(`     ${timeCode}:`);
+
+          // Display each genre group under the timecode
+          for (const [genreKey, genreItems] of Object.entries(genresByTime)) {
+            // Sort items within the same genre by date/recurrence
+            const sortedGenreItems = genreItems.sort((a, b) => {
+              if (a.date && b.date) return a.date.localeCompare(b.date);
+              if (a.recurrence && b.recurrence) return a.recurrence.localeCompare(b.recurrence);
+              return 0;
+            });
+
+            const genreDisplay = genreKey === 'no-genre' ? '' : `[${mediaConfig.genres[genreKey]?.displayName || genreKey}] `;
+
+            // Create horizontal display of filenames for this genre
+            const filenames = sortedGenreItems.map(item => {
+              const fileInfo = data.files[item.trackKey];
+              const durationStr = fileInfo.duration ? ` (${Math.floor(fileInfo.duration / 60)}:${(fileInfo.duration % 60).toString().padStart(2, '0')})` : '';
+
+              let prefix = '';
+              if (item.date) {
+                prefix = `${item.date}: `;
+              } else if (item.recurrence && item.recurrence !== 'daily') {
+                prefix = `${item.recurrence}: `;
+              }
+
+              return `${prefix}${fileInfo.filename}${durationStr}`;
+            });
+
+            console.log(`       ${genreDisplay}${filenames.join(', ')}`);
           }
         });
       }
