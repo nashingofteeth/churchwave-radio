@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let scheduledCheckInterval = null;
   let upcomingScheduledBuffer = 60; // 1 minute buffer in seconds
   let immediateScheduledBuffer = 30; // 30 seconds for immediate next track
+  let simulatedTimeInterval = null;
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -219,10 +220,15 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(scheduledCheckInterval);
       scheduledCheckInterval = null;
     }
-
+    
     if (fadeOutInterval) {
       clearInterval(fadeOutInterval);
       fadeOutInterval = null;
+    }
+    
+    if (simulatedTimeInterval) {
+      clearInterval(simulatedTimeInterval);
+      simulatedTimeInterval = null;
     }
   }
 
@@ -235,7 +241,36 @@ document.addEventListener("DOMContentLoaded", () => {
     simulatedDate = date ? new Date(date) : new Date();
     simulatedDate.setHours(hour, minute, second, 0);
     console.log(`Simulating time: ${simulatedDate.toLocaleString('en-US', { timeZone: 'America/New_York' })}`);
+    
+    // Start continuous time progression
+    startSimulatedTimeProgression();
   };
+
+  function startSimulatedTimeProgression() {
+    // Clear any existing time progression
+    if (simulatedTimeInterval) {
+      clearInterval(simulatedTimeInterval);
+    }
+    
+    // Progress time by 1 second every 1000ms (real time)
+    simulatedTimeInterval = setInterval(() => {
+      if (simulatedDate) {
+        simulatedDate.setSeconds(simulatedDate.getSeconds() + 1);
+        
+        // Optional: Log time every minute for debugging
+        if (simulatedDate.getSeconds() === 0) {
+          console.log(`Simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
+        }
+      }
+    }, 1000);
+  }
+
+  function stopSimulatedTimeProgression() {
+    if (simulatedTimeInterval) {
+      clearInterval(simulatedTimeInterval);
+      simulatedTimeInterval = null;
+    }
+  }
 
   // Timezone conversion utilities
   function getCurrentTimeInEST() {
@@ -622,6 +657,36 @@ document.addEventListener("DOMContentLoaded", () => {
   window.cleanupUsage = () => {
     cleanupExpiredUsage();
     console.log('Cleaned up expired usage tracking');
+  };
+  
+  window.stopTimeProgression = () => {
+    stopSimulatedTimeProgression();
+    console.log('Stopped simulated time progression');
+  };
+  
+  window.resumeTimeProgression = () => {
+    if (simulatedDate) {
+      startSimulatedTimeProgression();
+      console.log('Resumed simulated time progression');
+    } else {
+      console.log('No simulated time set - use simulateTime() first');
+    }
+  };
+  
+  window.getCurrentSimulatedTime = () => {
+    if (simulatedDate) {
+      console.log(`Current simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
+      return simulatedDate;
+    } else {
+      console.log('No simulated time active - using real time');
+      return new Date();
+    }
+  };
+  
+  window.clearSimulatedTime = () => {
+    stopSimulatedTimeProgression();
+    simulatedDate = null;
+    console.log('Cleared simulated time - now using real time');
   };
 
   const fadeAndSkip = () => {
