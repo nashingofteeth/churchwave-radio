@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let upcomingScheduledBuffer = 60; // 1 minute buffer in seconds
   let immediateScheduledBuffer = 30; // 30 seconds for immediate next track
   let simulatedTimeInterval = null;
+  let fadeOutDuration = 3000; // 3 seconds in milliseconds
+  let pendingScheduledFade = null;
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -220,15 +222,20 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(scheduledCheckInterval);
       scheduledCheckInterval = null;
     }
-    
+
     if (fadeOutInterval) {
       clearInterval(fadeOutInterval);
       fadeOutInterval = null;
     }
-    
+
     if (simulatedTimeInterval) {
       clearInterval(simulatedTimeInterval);
       simulatedTimeInterval = null;
+    }
+
+    if (pendingScheduledFade) {
+      clearTimeout(pendingScheduledFade);
+      pendingScheduledFade = null;
     }
   }
 
@@ -241,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
     simulatedDate = date ? new Date(date) : new Date();
     simulatedDate.setHours(hour, minute, second, 0);
     console.log(`Simulating time: ${simulatedDate.toLocaleString('en-US', { timeZone: 'America/New_York' })}`);
-    
+
     // Start continuous time progression
     startSimulatedTimeProgression();
   };
@@ -251,12 +258,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (simulatedTimeInterval) {
       clearInterval(simulatedTimeInterval);
     }
-    
+
     // Progress time by 1 second every 1000ms (real time)
     simulatedTimeInterval = setInterval(() => {
       if (simulatedDate) {
         simulatedDate.setSeconds(simulatedDate.getSeconds() + 1);
-        
+
         // Optional: Log time every minute for debugging
         if (simulatedDate.getSeconds() === 0) {
           console.log(`Simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
@@ -529,28 +536,47 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(scheduledCheckInterval);
     }
 
-    // Check every 30 seconds for upcoming scheduled tracks
+    // Check every 5 seconds for upcoming scheduled tracks
     scheduledCheckInterval = setInterval(() => {
       if (currentScheduledTrack) return; // Already playing scheduled content
 
       const upcomingTrack = getUpcomingScheduledTrack();
-      if (upcomingTrack) {
-        console.log(`Upcoming scheduled track detected: ${tracksData[upcomingTrack.trackKey]?.filename}`);
-        fadeAndTransitionToScheduled(upcomingTrack);
+      if (upcomingTrack && !pendingScheduledFade) {
+        scheduleExactFadeForTrack(upcomingTrack);
       }
-    }, 30000);
+    }, 5000);
+  }
+
+  function scheduleExactFadeForTrack(scheduledTrack) {
+    const scheduledTime = getScheduledTrackTime(scheduledTrack);
+    const fadeStartTime = new Date(scheduledTime.getTime() - fadeOutDuration);
+    const now = getCurrentTimeInEST();
+    const timeUntilFade = fadeStartTime - now;
+
+    if (timeUntilFade <= 0) {
+      // Should start fading now
+      fadeAndTransitionToScheduled(scheduledTrack);
+      return;
+    }
+
+    console.log(`Scheduling fade for ${tracksData[scheduledTrack.trackKey]?.filename} in ${Math.round(timeUntilFade / 1000)} seconds`);
+
+    // Schedule the fade to start exactly 3 seconds before track start
+    pendingScheduledFade = setTimeout(() => {
+      pendingScheduledFade = null;
+      fadeAndTransitionToScheduled(scheduledTrack);
+    }, timeUntilFade);
   }
 
   function fadeAndTransitionToScheduled(scheduledTrack) {
     if (fadeOutInterval || currentScheduledTrack) return; // Prevent multiple fades or if already scheduled
 
-    const fadeOutDuration = 3000; // 3 seconds fade
     const steps = 30;
     const originalVolume = theTransmitter.volume;
     const volumeStep = originalVolume / steps;
     let currentStep = 0;
 
-    console.log(`Fading out current track for scheduled track: ${tracksData[scheduledTrack.trackKey]?.filename}`);
+    console.log(`Starting 3-second fade for scheduled track: ${tracksData[scheduledTrack.trackKey]?.filename}`);
 
     fadeOutInterval = setInterval(() => {
       currentStep++;
@@ -562,18 +588,8 @@ document.addEventListener("DOMContentLoaded", () => {
         theTransmitter.volume = originalVolume; // Reset volume for next track
         theTransmitter.pause();
 
-        // Wait for the exact scheduled time
-        const scheduledTime = getScheduledTrackTime(scheduledTrack);
-        const now = getCurrentTimeInEST();
-        const waitTime = Math.max(0, scheduledTime - now);
-
-        if (waitTime > 0) {
-          setTimeout(() => {
-            playScheduledTrack(scheduledTrack);
-          }, waitTime);
-        } else {
-          playScheduledTrack(scheduledTrack);
-        }
+        // Should start immediately since fade was timed to end at scheduled time
+        playScheduledTrack(scheduledTrack);
       }
     }, fadeOutDuration / steps);
   }
@@ -614,6 +630,11 @@ document.addEventListener("DOMContentLoaded", () => {
   window.setScheduledBuffer = (seconds) => {
     upcomingScheduledBuffer = seconds;
     console.log(`Set scheduled buffer to ${seconds} seconds`);
+  };
+
+  window.setFadeOutDuration = (milliseconds) => {
+    fadeOutDuration = milliseconds;
+    console.log(`Set fade out duration to ${milliseconds} milliseconds`);
   };
 
   window.setImmediateBuffer = (seconds) => {
@@ -658,12 +679,12 @@ document.addEventListener("DOMContentLoaded", () => {
     cleanupExpiredUsage();
     console.log('Cleaned up expired usage tracking');
   };
-  
+
   window.stopTimeProgression = () => {
     stopSimulatedTimeProgression();
     console.log('Stopped simulated time progression');
   };
-  
+
   window.resumeTimeProgression = () => {
     if (simulatedDate) {
       startSimulatedTimeProgression();
@@ -672,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log('No simulated time set - use simulateTime() first');
     }
   };
-  
+
   window.getCurrentSimulatedTime = () => {
     if (simulatedDate) {
       console.log(`Current simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
@@ -682,7 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return new Date();
     }
   };
-  
+
   window.clearSimulatedTime = () => {
     stopSimulatedTimeProgression();
     simulatedDate = null;
@@ -692,7 +713,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const fadeAndSkip = () => {
     if (fadeOutInterval) return; // Prevent multiple fades
 
-    const fadeOutDuration = 2000; // 2 seconds fade
     const steps = 20; // Number of volume steps
     const originalVolume = theTransmitter.volume;
     const volumeStep = originalVolume / steps;
