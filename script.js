@@ -10,8 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let lateNightLoFis = [];
   let scheduledTracks = [];
   let tracksData = {};
+  let config = {};
   const usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
-  const usedScheduledTracks = {};
+  const usedScheduledFiles = {};
   let currentMainTrackIndex;
   let isFirstTrack = true;
   let simulatedDate = null; // Initialize with null for using real time by default
@@ -32,14 +33,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initialize() {
-    fetch("tracks.json")
+    // Load config first
+    fetch("config.json")
       .then((response) => response.json())
-      .then((data) => {
-        mainTracks = data.mainTracks;
-        interludes = data.interludes;
-        lateNightLoFis = data.lateNightLoFis;
-        scheduledTracks = data.categories.scheduled || [];
-        tracksData = data.files;
+      .then((configData) => {
+        config = configData;
+        // Load tracks data
+        return Promise.all([
+          fetch("tracks.json").then(r => r.json()),
+          fetch("tracks-old.json").then(r => r.json())
+        ]);
+      })
+      .then(([newTracks, oldTracks]) => {
+        // Use old tracks structure temporarily
+        mainTracks = oldTracks.mainTracks;
+        interludes = oldTracks.interludes;
+        lateNightLoFis = oldTracks.lateNightLoFis;
+
+        // Use new scheduled tracks structure
+        scheduledTracks = newTracks.categories?.scheduled || [];
+        tracksData = newTracks.files || {};
 
         // Check for scheduled tracks first
         const activeScheduledTrack = getActiveScheduledTrack();
@@ -101,9 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
       availableInterludes = interludes[currentMainTrackKey][timeOfDay];
     }
     const nextInterlude =
-      availableInterludes[
-        Math.floor(Math.random() * availableInterludes.length)
-      ];
+      availableInterludes[Math.floor(Math.random() * availableInterludes.length)];
     usedPieces[currentMainTrackKey][nextInterlude] = true;
     playTrack(nextInterlude, playMainTrack);
   }
@@ -228,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Timezone conversion utilities
   function getCurrentTimeInEST() {
     const date = simulatedDate || new Date();
-    return new Date(date.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    return new Date(date.toLocaleString("en-US", { timeZone: config.timezone }));
   }
 
   function parseTimeString(timeStr) {
@@ -282,18 +293,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const now = getCurrentTimeInEST();
     const activeTracks = scheduledTracks.filter(track => {
       try {
-        const trackKey = `${track.time}-${track.recurrence || track.date}`;
+        const trackData = tracksData[track.trackKey]; // track.trackKey references files array
 
-        // Skip if used in last 24 hours
-        if (usedScheduledTracks[trackKey] &&
-            now - usedScheduledTracks[trackKey] < 24 * 60 * 60 * 1000) {
+        if (!trackData || !trackData.duration) return false;
+
+        // Skip if this file has been used in last 24 hours
+        if (usedScheduledFiles[track.trackKey] &&
+            now - usedScheduledFiles[track.trackKey] < 24 * 60 * 60 * 1000) {
           return false;
         }
 
         const scheduledTime = getScheduledTrackTime(track);
-        const trackData = tracksData[track.trackKey];
-
-        if (!trackData || !trackData.duration) return false;
 
         const trackEndTime = new Date(scheduledTime.getTime() + trackData.duration * 1000);
 
@@ -318,11 +328,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return scheduledTracks.find(track => {
       try {
-        const trackKey = `${track.time}-${track.recurrence || track.date}`;
+        const trackData = tracksData[track.trackKey]; // track.trackKey references files array
 
-        // Skip if used in last 24 hours
-        if (usedScheduledTracks[trackKey] &&
-            now - usedScheduledTracks[trackKey] < 24 * 60 * 60 * 1000) {
+        if (!trackData) return false;
+
+        // Skip if this file has been used in last 24 hours
+        if (usedScheduledFiles[track.trackKey] &&
+            now - usedScheduledFiles[track.trackKey] < 24 * 60 * 60 * 1000) {
           return false;
         }
 
@@ -362,9 +374,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log(`Playing scheduled track: ${trackData.filename} (offset: ${offsetSeconds.toFixed(1)}s)`);
 
-      // Mark as used
-      const trackKey = `${scheduledTrack.time}-${scheduledTrack.recurrence || scheduledTrack.date}`;
-      usedScheduledTracks[trackKey] = now;
+      // Mark this file as used for 24-hour exclusion
+      usedScheduledFiles[scheduledTrack.trackKey] = now;
 
       // Play the track
       theTransmitter.src = trackData.path;
@@ -493,8 +504,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   window.clearUsedScheduled = () => {
-    Object.keys(usedScheduledTracks).forEach(key => delete usedScheduledTracks[key]);
-    console.log('Cleared all used scheduled tracks');
+    Object.keys(usedScheduledFiles).forEach(key => delete usedScheduledFiles[key]);
+    console.log('Cleared all used scheduled files');
   };
 
   window.setScheduledBuffer = (seconds) => {
