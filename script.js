@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentScheduledTrack = null;
   let scheduledCheckInterval = null;
   let upcomingScheduledBuffer = 60; // 1 minute buffer in seconds
+  let immediateScheduledBuffer = 30; // 30 seconds for immediate next track
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -289,8 +290,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return scheduledDate;
   }
 
+  function cleanupExpiredUsage() {
+    const now = getCurrentTimeInEST();
+    const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+
+    Object.keys(usedScheduledFiles).forEach(filePath => {
+      if (usedScheduledFiles[filePath].getTime() < twentyFourHoursAgo) {
+        delete usedScheduledFiles[filePath];
+      }
+    });
+  }
+
   function getActiveScheduledTrack() {
     const now = getCurrentTimeInEST();
+
+    // Clean up expired usage tracking
+    cleanupExpiredUsage();
+
     const activeTracks = scheduledTracks.filter(track => {
       try {
         const trackData = tracksData[track.trackKey]; // track.trackKey references files array
@@ -298,8 +314,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!trackData || !trackData.duration) return false;
 
         // Skip if this file has been used in last 24 hours
-        if (usedScheduledFiles[track.trackKey] &&
-            now - usedScheduledFiles[track.trackKey] < 24 * 60 * 60 * 1000) {
+        if (usedScheduledFiles[trackData.path] &&
+          now - usedScheduledFiles[trackData.path] < 24 * 60 * 60 * 1000) {
           return false;
         }
 
@@ -314,27 +330,42 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // If multiple tracks are active, select one randomly
-    if (activeTracks.length > 1) {
-      return activeTracks[Math.floor(Math.random() * activeTracks.length)];
-    }
+    // Implement recurrence hierarchy: dates > days > daily
+    return selectTrackByHierarchy(activeTracks);
+  }
 
-    return activeTracks[0] || null;
+  function selectTrackByHierarchy(tracks) {
+    if (tracks.length === 0) return null;
+    if (tracks.length === 1) return tracks[0];
+
+    // Separate tracks by recurrence type
+    const dateTracks = tracks.filter(track => track.date);
+    const dailyTracks = tracks.filter(track => track.recurrence === 'daily');
+    const dayTracks = tracks.filter(track => track.recurrence && track.recurrence !== 'daily');
+
+    // Priority: dates > days > daily
+    if (dateTracks.length > 0) {
+      return dateTracks[Math.floor(Math.random() * dateTracks.length)];
+    } else if (dayTracks.length > 0) {
+      return dayTracks[Math.floor(Math.random() * dayTracks.length)];
+    } else if (dailyTracks.length > 0) {
+      return dailyTracks[Math.floor(Math.random() * dailyTracks.length)];
+    }
   }
 
   function getUpcomingScheduledTrack() {
     const now = getCurrentTimeInEST();
     const bufferTime = new Date(now.getTime() + upcomingScheduledBuffer * 1000);
 
-    return scheduledTracks.find(track => {
+    const upcomingTracks = scheduledTracks.filter(track => {
       try {
         const trackData = tracksData[track.trackKey]; // track.trackKey references files array
 
         if (!trackData) return false;
 
         // Skip if this file has been used in last 24 hours
-        if (usedScheduledFiles[track.trackKey] &&
-            now - usedScheduledFiles[track.trackKey] < 24 * 60 * 60 * 1000) {
+        if (usedScheduledFiles[trackData.path] &&
+          now - usedScheduledFiles[trackData.path] < 24 * 60 * 60 * 1000) {
           return false;
         }
 
@@ -345,6 +376,36 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
       }
     });
+
+    // Apply hierarchy to upcoming tracks as well
+    return selectTrackByHierarchy(upcomingTracks);
+  }
+
+  function getImmediateNextScheduledTrack() {
+    const now = getCurrentTimeInEST();
+    const immediateBufferTime = new Date(now.getTime() + immediateScheduledBuffer * 1000);
+
+    const immediateTracks = scheduledTracks.filter(track => {
+      try {
+        const trackData = tracksData[track.trackKey];
+
+        if (!trackData) return false;
+
+        // Skip if this file has been used in last 24 hours
+        if (usedScheduledFiles[trackData.path] &&
+          now - usedScheduledFiles[trackData.path] < 24 * 60 * 60 * 1000) {
+          return false;
+        }
+
+        const scheduledTime = getScheduledTrackTime(track);
+        return scheduledTime >= now && scheduledTime <= immediateBufferTime;
+      } catch (error) {
+        console.error('Error checking immediate next scheduled track:', track, error);
+        return false;
+      }
+    });
+
+    return selectTrackByHierarchy(immediateTracks);
   }
 
   function playScheduledTrack(scheduledTrack) {
@@ -388,12 +449,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       theTransmitter.addEventListener("ended", () => {
         currentScheduledTrack = null;
-        // Check for next scheduled track, otherwise return to algorithmic
-        const nextScheduled = getActiveScheduledTrack();
-        if (nextScheduled) {
-          playScheduledTrack(nextScheduled);
+        // Check for immediate next scheduled track (within 30 seconds)
+        const immediateNext = getImmediateNextScheduledTrack();
+        if (immediateNext) {
+          console.log('Immediate next scheduled track found, playing now');
+          playScheduledTrack(immediateNext);
         } else {
-          returnToAlgorithmicPlayback();
+          // Check for any currently active scheduled track
+          const nextScheduled = getActiveScheduledTrack();
+          if (nextScheduled) {
+            playScheduledTrack(nextScheduled);
+          } else {
+            returnToAlgorithmicPlayback();
+          }
         }
       }, { once: true });
 
@@ -513,6 +581,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Set scheduled buffer to ${seconds} seconds`);
   };
 
+  window.setImmediateBuffer = (seconds) => {
+    immediateScheduledBuffer = seconds;
+    console.log(`Set immediate scheduled buffer to ${seconds} seconds`);
+  };
+
   window.forceScheduledTrack = (trackIndex) => {
     const track = scheduledTracks[trackIndex];
     if (track) {
@@ -526,8 +599,29 @@ document.addEventListener("DOMContentLoaded", () => {
   window.listScheduledTracks = () => {
     console.log('All scheduled tracks:');
     scheduledTracks.forEach((track, index) => {
-      console.log(`${index}: ${track.time} (${track.recurrence || track.date}) - ${tracksData[track.trackKey]?.filename}`);
+      const recurrenceType = track.date ? 'DATE' :
+        track.recurrence === 'daily' ? 'DAILY' :
+          track.recurrence ? 'DAY' : 'OTHER';
+      console.log(`${index}: ${track.time} (${track.recurrence || track.date}) [${recurrenceType}] - ${tracksData[track.trackKey]?.filename}`);
     });
+  };
+
+  window.getImmediateNext = () => {
+    const immediate = getImmediateNextScheduledTrack();
+    if (immediate) {
+      console.log('Immediate next scheduled track:', {
+        time: immediate.time,
+        recurrence: immediate.recurrence || immediate.date,
+        filename: tracksData[immediate.trackKey]?.filename,
+        scheduledFor: getScheduledTrackTime(immediate)
+      });
+    }
+    return immediate;
+  };
+
+  window.cleanupUsage = () => {
+    cleanupExpiredUsage();
+    console.log('Cleaned up expired usage tracking');
   };
 
   const fadeAndSkip = () => {
