@@ -13,7 +13,7 @@ async function getDuration(filePath) {
   try {
     const { stdout } = await execAsync(`ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${filePath}"`);
     const duration = parseFloat(stdout.trim());
-    return isNaN(duration) ? null : Math.round(duration);
+    return Number.isNaN(duration) ? null : Math.round(duration);
   } catch (error) {
     console.warn(`Warning: Could not get duration for ${filePath}: ${error.message}`);
     return null;
@@ -83,7 +83,7 @@ function addFileToCollection(fileInfo, fileIndex, existingFiles, files, targetAr
   // Check if we have existing duration data
   if (mediaConfig.processing.useCachedDurations) {
     const existingFile = Object.values(existingFiles).find(f => f.path === fileInfo.path);
-    if (existingFile && existingFile.duration) {
+    if (existingFile?.duration) {
       fileInfo.duration = existingFile.duration;
     }
   }
@@ -98,7 +98,7 @@ function addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files,
   // Check if we have existing duration data
   if (mediaConfig.processing.useCachedDurations) {
     const existingFile = Object.values(existingFiles).find(f => f.path === fileInfo.path);
-    if (existingFile && existingFile.duration) {
+    if (existingFile?.duration) {
       fileInfo.duration = existingFile.duration;
     }
   }
@@ -123,23 +123,25 @@ function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, catego
     }
 
     switch (subdirKey) {
-      case 'lateNightLoFis':
+      case 'lateNightLoFis': {
         const lateNightFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
         for (const fileInfo of lateNightFiles) {
           addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.lateNightLoFis);
         }
         break;
+      }
 
       case 'morning':
         processMorningMusic(subdirPath, `${config.path}/${subdirConfig.path}`, subdirConfig, fileIndex, existingFiles, files, categories);
         break;
 
-      case 'standard':
+      case 'standard': {
         const standardFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
         for (const fileInfo of standardFiles) {
           addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.standardTracks);
         }
         break;
+      }
 
       case 'junk':
         processJunkContent(subdirPath, `${config.path}/${subdirConfig.path}`, subdirConfig, fileIndex, existingFiles, files, categories);
@@ -222,7 +224,7 @@ function isValidDateFormat(dateStr) {
   if (!dateRegex.test(dateStr)) return false;
 
   const date = new Date(dateStr);
-  return date instanceof Date && !isNaN(date) && date.toISOString().slice(0, 10) === dateStr;
+  return date instanceof Date && !Number.isNaN(date) && date.toISOString().slice(0, 10) === dateStr;
 }
 
 // Validate time format (HH-MM-SS)

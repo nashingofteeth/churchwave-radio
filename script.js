@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function scheduleTrackChain(chain) {
-    chain.forEach((chainItem, index) => {
+    chain.forEach((chainItem) => {
       const { track, startTime, isChained, chainedStartTime } = chainItem;
       const actualStartTime = isChained ? chainedStartTime : startTime;
       const now = getCurrentTime();
