@@ -28,9 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const chainGapThreshold = 10; // seconds - if tracks end within this time, chain them
 
   // Event listener management
-  let eventListeners = [];
-  let audioEventListeners = [];
-  let uiEventListenersInitialized = false;
+  let currentTrackListeners = [];
+  let scheduledTrackListeners = [];
 
   function getTimeOfDay() {
     const date = simulatedDate || new Date();
@@ -43,15 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initialize() {
-    // Clean up any existing event listeners before initializing
-    cleanupAllEventListeners();
-
-    // Initialize UI event listeners once
-    if (!uiEventListenersInitialized) {
-      initializeUIEventListeners();
-      uiEventListenersInitialized = true;
-    }
-
     // Load config first
     fetch("config.json")
       .then((response) => response.json())
@@ -89,8 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playTrack(trackUrl, callback, startTime = null) {
-    // Clean up any existing audio event listeners first
-    cleanupAudioEventListeners();
+    // Clean up any existing current track listeners first
+    cleanupCurrentTrackListeners();
 
     theTransmitter.src = trackUrl;
     console.log(`Playing track: ${trackUrl}`);
@@ -110,8 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const endedHandler = callback;
 
-    addAudioEventListener("loadedmetadata", loadedMetadataHandler, { once: true });
-    addAudioEventListener("ended", endedHandler, { once: true });
+    addCurrentTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
+    addCurrentTrackListener("ended", endedHandler, { once: true });
   }
 
   function playMainTrack() {
@@ -170,10 +160,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Clear any active scheduled track
     if (currentScheduledTrack) {
       currentScheduledTrack = null;
+      cleanupScheduledTrackListeners();
+    } else {
+      cleanupCurrentTrackListeners();
     }
-
-    // Clean up any existing audio event listeners before triggering ended event
-    cleanupAudioEventListeners();
 
     const endedEvent = new Event("ended");
     theTransmitter.dispatchEvent(endedEvent);
@@ -198,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeUIEventListeners() {
-    addEventListenerTracked(seekButton, "click", handleSeekButtonClick);
+    seekButton.addEventListener("click", handleSeekButtonClick);
 
     const startButtonHandler = () => {
       loadingIndicator.style.display = "block";
@@ -210,28 +200,24 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("revealed").style.display = "block";
       };
 
-      addAudioEventListener("playing", playingHandler, { once: true });
+      theTransmitter.addEventListener("playing", playingHandler, { once: true });
     };
 
-    addEventListenerTracked(startButton, "click", startButtonHandler);
+    startButton.addEventListener("click", startButtonHandler);
 
-    const pauseHandler = () => {
+    // These UI indicator listeners are permanent
+    theTransmitter.addEventListener("pause", () => {
       playingIndicator.classList.remove("playing");
-    };
-    const waitingHandler = () => {
+    });
+    theTransmitter.addEventListener("waiting", () => {
       playingIndicator.classList.remove("playing");
-    };
-    const endedIndicatorHandler = () => {
+    });
+    theTransmitter.addEventListener("ended", () => {
       playingIndicator.classList.remove("playing");
-    };
-    const playingIndicatorHandler = () => {
+    });
+    theTransmitter.addEventListener("playing", () => {
       playingIndicator.classList.add("playing");
-    };
-
-    addAudioEventListener("pause", pauseHandler);
-    addAudioEventListener("waiting", waitingHandler);
-    addAudioEventListener("ended", endedIndicatorHandler);
-    addAudioEventListener("playing", playingIndicatorHandler);
+    });
   }
 
   function reset() {
@@ -239,9 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
     currentMainTrackIndex = undefined;
     currentScheduledTrack = null;
     theTransmitter.pause();
-
-    // Remove all tracked event listeners
-    cleanupAllEventListeners();
 
     // Clear intervals and timeouts
     if (fadeOutInterval) {
@@ -263,7 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isInScheduledMode = false;
-    uiEventListenersInitialized = false;
   }
 
   function getRandomStartTime(duration) {
@@ -271,41 +253,52 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Event listener management functions
-  function addEventListenerTracked(element, eventType, handler, options = {}) {
-    element.addEventListener(eventType, handler, options);
-    eventListeners.push({ element, eventType, handler, options });
-  }
-
-  function addAudioEventListener(eventType, handler, options = {}) {
+  function addCurrentTrackListener(eventType, handler, options = {}) {
     theTransmitter.addEventListener(eventType, handler, options);
-    audioEventListeners.push({ eventType, handler, options });
+    currentTrackListeners.push({ eventType, handler, options });
   }
 
-  function cleanupAudioEventListeners() {
-    audioEventListeners.forEach(({ eventType, handler }) => {
+  function addScheduledTrackListener(eventType, handler, options = {}) {
+    theTransmitter.addEventListener(eventType, handler, options);
+    scheduledTrackListeners.push({ eventType, handler, options });
+  }
+
+  function cleanupCurrentTrackListeners() {
+    currentTrackListeners.forEach(({ eventType, handler }) => {
       try {
         theTransmitter.removeEventListener(eventType, handler);
       } catch (error) {
-        console.warn('Error removing audio event listener:', error);
+        console.warn('Error removing current track listener:', error);
       }
     });
-    audioEventListeners = [];
+    currentTrackListeners = [];
   }
 
-  function cleanupAllEventListeners() {
-    // Clean up regular event listeners
-    eventListeners.forEach(({ element, eventType, handler }) => {
+  function cleanupScheduledTrackListeners() {
+    scheduledTrackListeners.forEach(({ eventType, handler }) => {
       try {
-        element.removeEventListener(eventType, handler);
+        theTransmitter.removeEventListener(eventType, handler);
       } catch (error) {
-        console.warn('Error removing event listener:', error);
+        console.warn('Error removing scheduled track listener:', error);
       }
     });
-    eventListeners = [];
-
-    // Clean up audio event listeners
-    cleanupAudioEventListeners();
+    scheduledTrackListeners = [];
   }
+
+  // Private console debugging tool - clears ALL event listeners
+  function forceCleanupAllEventListeners() {
+    cleanupCurrentTrackListeners();
+    cleanupScheduledTrackListeners();
+
+    // Nuclear option - remove all event listeners from theTransmitter
+    const newTransmitter = theTransmitter.cloneNode(true);
+    theTransmitter.parentNode.replaceChild(newTransmitter, theTransmitter);
+
+    console.log('All event listeners forcibly removed - reinitialization required');
+  }
+  
+  // Expose to console for debugging
+  window.forceCleanupAllEventListeners = forceCleanupAllEventListeners;
 
   // Enhanced simulation function to set date and time to the second
   const simulateTime = (hour, minute = 0, second = 0, date = null) => {
@@ -656,8 +649,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Entering scheduled mode: ${trackData.filename} (offset: ${offsetSeconds.toFixed(1)}s)`);
     usedScheduledFiles[track.trackKey] = now;
 
-    // Clean up any existing audio event listeners first
-    cleanupAudioEventListeners();
+    // Clean up any existing current track listeners first
+    cleanupCurrentTrackListeners();
 
     theTransmitter.src = trackData.path;
     theTransmitter.currentTime = 0;
@@ -672,9 +665,9 @@ document.addEventListener("DOMContentLoaded", () => {
       returnToAlgorithmicPlayback();
     };
 
-    addAudioEventListener("loadedmetadata", loadedMetadataHandler, { once: true });
-    addAudioEventListener("ended", onScheduledTrackEnd, { once: true });
-    addAudioEventListener("error", errorHandler, { once: true });
+    addScheduledTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
+    addScheduledTrackListener("ended", onScheduledTrackEnd, { once: true });
+    addScheduledTrackListener("error", errorHandler, { once: true });
   }
 
   function playScheduledTrackDirect(track) {
@@ -685,8 +678,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Playing chained scheduled track: ${trackData.filename}`);
     usedScheduledFiles[track.trackKey] = now;
 
-    // Clean up any existing audio event listeners first
-    cleanupAudioEventListeners();
+    // Clean up any existing current track listeners first
+    cleanupCurrentTrackListeners();
 
     theTransmitter.src = trackData.path;
     theTransmitter.currentTime = 0;
@@ -700,13 +693,14 @@ document.addEventListener("DOMContentLoaded", () => {
       returnToAlgorithmicPlayback();
     };
 
-    addAudioEventListener("loadedmetadata", loadedMetadataHandler, { once: true });
-    addAudioEventListener("ended", onScheduledTrackEnd, { once: true });
-    addAudioEventListener("error", errorHandler, { once: true });
+    addScheduledTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
+    addScheduledTrackListener("ended", onScheduledTrackEnd, { once: true });
+    addScheduledTrackListener("error", errorHandler, { once: true });
   }
 
   function onScheduledTrackEnd() {
     currentScheduledTrack = null;
+    cleanupScheduledTrackListeners();
     returnToAlgorithmicPlayback();
   }
 
@@ -813,4 +807,5 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('Cleared simulated time - now using real time');
   };
 
+  initializeUIEventListeners();
 });
