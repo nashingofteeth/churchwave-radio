@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const theTransmitter = document.getElementById("theTransmitter");
   const startButton = document.getElementById("startButton");
-  const seekButton = document.getElementById("seekButton");
   const loadingIndicator = document.getElementById("loadingIndicator");
   const playingIndicator = document.getElementById("playingIndicator");
 
@@ -170,26 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   window.skipTrack = skipTrack;
 
-  function handleSeekButtonClick() {
-    // Check for scheduled tracks first
-    const activeScheduledTrack = getActiveScheduledTrack();
-    if (activeScheduledTrack) {
-      enterScheduledMode(activeScheduledTrack);
-      return;
-    }
-
-    timeOfDay = getTimeOfDay();
-    if (timeOfDay === "lateNight") {
-      skipTrack();
-      return;
-    }
-
-    startPlayback();
-  }
-
   function initializeUIEventListeners() {
-    seekButton.addEventListener("click", handleSeekButtonClick);
-
     const startButtonHandler = () => {
       loadingIndicator.style.display = "block";
       startPlayback();
