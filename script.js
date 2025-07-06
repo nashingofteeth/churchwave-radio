@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentHour >= 19 && currentHour < 24) return "night";
   }
 
-  function initialize() {
+  function load() {
     // Load config first
     fetch("config.json")
       .then((response) => response.json())
@@ -61,20 +61,22 @@ document.addEventListener("DOMContentLoaded", () => {
         // Use new scheduled tracks structure
         scheduledTracks = newTracks.categories?.scheduled || [];
         tracksData = newTracks.files || {};
-
-        // Initialize scheduled track system
-        const playingScheduledTrack = initializeScheduledSystem();
-
-        if (!playingScheduledTrack) {
-          timeOfDay = getTimeOfDay();
-          if (timeOfDay === "lateNight") playLateNightLoFi();
-          else {
-            currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
-            playMainTrack();
-          }
-        }
       })
       .catch((error) => console.error("Error loading tracks:", error));
+  }
+
+  function initialize() {
+    // Initialize scheduled track system
+    const playingScheduledTrack = initializeScheduledSystem();
+
+    if (!playingScheduledTrack) {
+      timeOfDay = getTimeOfDay();
+      if (timeOfDay === "lateNight") playLateNightLoFi();
+      else {
+        currentMainTrackIndex = Math.floor(Math.random() * mainTracks.length);
+        playMainTrack();
+      }
+    }
   }
 
   function playTrack(trackUrl, callback, startTime = null) {
@@ -276,18 +278,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log('All event listeners forcibly removed - reinitialization required');
   }
-  
+
   // Expose to console for debugging
   window.forceCleanupAllEventListeners = forceCleanupAllEventListeners;
 
-  // Enhanced simulation function to set date and time to the second
+  // Simulation function to set date and time to the second
   const simulateTime = (hour, minute = 0, second = 0, date = null) => {
+    // Reset application to clear existing state
+    reset();
+
+    // Set the simulated date
     simulatedDate = date ? new Date(date) : new Date();
     simulatedDate.setHours(hour, minute, second, 0);
-    console.log(`Simulating time: ${simulatedDate.toLocaleString('en-US', { timeZone: 'America/New_York' })}`);
+    console.log(`Simulating time: ${getLocaleString(simulatedDate)}`);
 
     // Start continuous time progression
     startSimulatedTimeProgression();
+
+    // Reinitialize the application with simulated time
+    initialize();
+
   };
 
   function startSimulatedTimeProgression() {
@@ -303,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Optional: Log time every minute for debugging
         if (simulatedDate.getSeconds() === 0) {
-          console.log(`Simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
+          console.log(`Simulated time: ${getLocaleString(simulatedDate)}`);
         }
       }
     }, 1000);
@@ -319,7 +329,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Timezone conversion utilities
   function getCurrentTime() {
     const date = simulatedDate || new Date();
-    return new Date(date.toLocaleString("en-US", { timeZone: config.timezone }));
+    return new Date(getLocaleString(date));
+  }
+
+  // Get locale string for a date
+  function getLocaleString(date) {
+    return date.toLocaleString("en-US", { timeZone: config.timezone || "America/New_York" });
   }
 
   function parseTimeString(timeStr) {
@@ -773,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.getCurrentSimulatedTime = () => {
     if (simulatedDate) {
-      console.log(`Current simulated time: ${simulatedDate.toLocaleString('en-US', { timeZone: config.timezone || 'America/New_York' })}`);
+      console.log(`Current simulated time: ${getLocaleString(simulatedDate)}`);
       return simulatedDate;
     } else {
       console.log('No simulated time active - using real time');
@@ -785,7 +800,13 @@ document.addEventListener("DOMContentLoaded", () => {
     stopSimulatedTimeProgression();
     simulatedDate = null;
     console.log('Cleared simulated time - now using real time');
+
+    // Reset and reinitialize with real time
+    // This ensures a clean transition back to real-time scheduling
+    reset();
+    initialize();
   };
 
+  load();
   initializeUIEventListeners();
 });
