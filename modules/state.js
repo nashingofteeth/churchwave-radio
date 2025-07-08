@@ -50,6 +50,7 @@ export const state = {
   hourlyScheduleTimeout: null,
   hourlyCleanupTimeout: null,
   chainGapThreshold: 10, // seconds - if tracks end within this time, chain them
+  inCleanupProcess: false, // Flag to prevent recursive cleanup operations
 
   // Event listener management
   currentTrackListeners: [],

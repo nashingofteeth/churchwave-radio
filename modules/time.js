@@ -34,7 +34,14 @@ export function getAlgorithmicTimeSlot() {
 export function getCurrentTime() {
   const state = getState();
   const date = state.simulatedDate || new Date();
-  return new Date(getLocaleString(date));
+
+  if (state.config.timezone) {
+    // Convert to locale string with timezone and then back to Date
+    return new Date(date.toLocaleString("en-US", { timeZone: state.config.timezone }));
+  } else {
+    // If no timezone is set, just return a clone of the date
+    return new Date(date);
+  }
 }
 
 export function getLocaleString(date) {

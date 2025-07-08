@@ -30,7 +30,7 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
   const baseDate = referenceDate || getCurrentTime();
   const { hours, minutes, seconds } = parseTimeString(scheduledTrack.time);
 
-  let scheduledDate = new Date(baseDate);
+  let scheduledDate = new Date(baseDate.getTime());
   scheduledDate.setHours(hours, minutes, seconds, 0);
 
   // Handle different recurrence types
@@ -80,8 +80,12 @@ export function getActiveScheduledTrack() {
   const state = getState();
   const now = getCurrentTime();
 
-  // Clean up expired usage tracking
-  cleanupExpiredUsage();
+  // Clean up expired usage tracking but only if not already in a cleanup process
+  if (!state.inCleanupProcess) {
+    updateState({ inCleanupProcess: true });
+    cleanupExpiredUsage();
+    updateState({ inCleanupProcess: false });
+  }
 
   const activeTracks = state.scheduledTracks.filter(track => {
     try {
@@ -156,9 +160,10 @@ export function returnToAlgorithmicPlayback() {
 export function scheduleHourBlock(hour) {
   const state = getState();
   const now = getCurrentTime();
-  const blockStart = new Date(now);
+
+  const blockStart = new Date(now.getTime());
   blockStart.setHours(hour, 0, 0, 0);
-  const blockEnd = new Date(blockStart);
+  const blockEnd = new Date(blockStart.getTime());
   blockEnd.setHours(hour + 1, 0, 0, 0);
 
   // Get all scheduled tracks for this hour
@@ -317,7 +322,7 @@ export function onScheduledTrackTimeout(track, isChained) {
 
 export function scheduleNextHourUpdate() {
   const now = getCurrentTime();
-  const nextHour = new Date(now);
+  const nextHour = new Date(now.getTime());
   nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
   const timeUntilNextHour = nextHour - now;
 

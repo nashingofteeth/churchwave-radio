@@ -87,9 +87,8 @@ export function setupHourlyCleanup() {
     clearTimeout(state.hourlyCleanupTimeout);
   }
 
-  // Calculate time until next hour
   const now = getCurrentTime();
-  const nextHour = new Date(now);
+  const nextHour = new Date(now.getTime());
   nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
   const timeUntilNextHour = nextHour - now;
 
@@ -120,6 +119,10 @@ export function skipTrack() {
 
   // Fade out current track and play next
   state.theTransmitter.pause();
+
+  const timeSlot = getAlgorithmicTimeSlot();
+  updateState({ timeOfDay: timeSlot });
+
   playAlgorithmicTrack();
 }
 

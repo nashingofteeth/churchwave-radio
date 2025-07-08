@@ -54,8 +54,6 @@ export function playAlgorithmicTrack() {
       return playLateNightLoFi();
     case "morning":
       return playMorningTrack();
-    case "standard":
-      return playStandardTrack();
     default:
       return playStandardTrack();
   }
@@ -63,12 +61,7 @@ export function playAlgorithmicTrack() {
 
 export function playLateNightLoFi() {
   const state = getState();
-  const timeSlot = getAlgorithmicTimeSlot();
-  updateState({ timeOfDay: timeSlot });
-
-  if (timeSlot !== "lateNight") {
-    return playAlgorithmicTrack();
-  }
+  updateState({ timeOfDay: "lateNightLoFis" });  // Use consistent name with case statement
 
   const lateNightTracks = state.algorithmicCategories.lateNightLoFis || [];
   let availableTracks = lateNightTracks.filter(
@@ -82,7 +75,7 @@ export function playLateNightLoFi() {
 
   if (availableTracks.length === 0) {
     console.error('No late night tracks available');
-    return;
+    return playStandardTrack(); // Fallback to standard tracks instead of recursion
   }
 
   const selectedTrackKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
@@ -90,7 +83,7 @@ export function playLateNightLoFi() {
 
   if (!trackData) {
     console.error('Track data not found for key:', selectedTrackKey);
-    return;
+    return playStandardTrack(); // Fallback to standard tracks
   }
 
   state.usedAlgorithmicTracks.lateNight[selectedTrackKey] = true;
@@ -103,7 +96,7 @@ export function playMorningTrack() {
 
   if (!genre) {
     console.error('No morning genre selected');
-    return playStandardTrack();
+    return playStandardTrack(); // Directly call standard track function
   }
 
   const genreTracks = state.algorithmicCategories.morningMusic?.[genre] || [];
@@ -118,7 +111,7 @@ export function playMorningTrack() {
 
   if (availableTracks.length === 0) {
     console.error('No morning tracks available for genre:', genre);
-    return playStandardTrack();
+    return playStandardTrack(); // Directly call standard track function
   }
 
   const selectedTrackKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
