@@ -15,9 +15,16 @@ export const state = {
   tracksData: {},
   config: {},
 
+  // Algorithmic track categories
+  algorithmicCategories: {},
+
   // Usage tracking
-  usedPieces: { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} },
   usedScheduledFiles: {},
+  usedAlgorithmicTracks: {
+    lateNight: {},
+    morning: {},
+    standard: {}
+  },
 
   // Playback state
   currentMainTrackIndex: undefined,
@@ -29,10 +36,19 @@ export const state = {
   simulatedTimeInterval: null,
   fadeOutDuration: 3000, // 3 seconds in milliseconds
 
+  // Algorithmic state
+  currentMorningGenre: null,
+  lastGenreChangeHour: null,
+  junkCycleOrder: [],
+  junkCycleIndex: 0,
+  preScheduledJunkOnly: false,
+  preScheduledNonBumperJunkOnly: false,
+
   // Scheduling state
   isInScheduledMode: false,
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
+  hourlyCleanupTimeout: null,
   chainGapThreshold: 10, // seconds - if tracks end within this time, chain them
 
   // Event listener management
@@ -58,8 +74,18 @@ export function updateState(updates) {
   Object.assign(state, updates);
 }
 
-export function resetUsedPieces() {
-  state.usedPieces = { 0: {}, 1: {}, 2: {}, 3: {}, lateNight: {} };
+export function resetUsedAlgorithmicTracks() {
+  state.usedAlgorithmicTracks = {
+    lateNight: {},
+    morning: {},
+    standard: {}
+  };
+}
+
+export function clearUsedAlgorithmicTracksForCategory(category) {
+  if (state.usedAlgorithmicTracks[category]) {
+    state.usedAlgorithmicTracks[category] = {};
+  }
 }
 
 export function resetUsedScheduledFiles() {

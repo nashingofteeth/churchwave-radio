@@ -2,15 +2,33 @@
 
 import { getState } from './state.js';
 
-export function getTimeOfDay() {
+export function getAlgorithmicTimeSlot() {
   const state = getState();
-  const date = state.simulatedDate || new Date();
-  const currentHour = date.getHours();
-  if (currentHour >= 0 && currentHour < 5) return "lateNight";
-  if (currentHour >= 5 && currentHour < 10) return "morning";
-  if (currentHour >= 10 && currentHour < 16) return "day";
-  if (currentHour >= 16 && currentHour < 19) return "evening";
-  if (currentHour >= 19 && currentHour < 24) return "night";
+  const currentTime = getCurrentTime();
+  const currentHour = currentTime.getHours();
+
+  // Get time slots from config
+  const algorithmicTimeSlots = state.config.directories.algorithmic.subdirectories;
+
+  // Check each time slot to find which one the current time falls into
+  for (const [slotName, slotConfig] of Object.entries(algorithmicTimeSlots)) {
+    const startTime = parseTimeString(slotConfig.startTime);
+    const endTime = parseTimeString(slotConfig.endTime);
+
+    // Handle time slots that cross midnight
+    if (startTime.hours > endTime.hours) {
+      if (currentHour >= startTime.hours || currentHour < endTime.hours) {
+        return slotName;
+      }
+    } else {
+      if (currentHour >= startTime.hours && currentHour < endTime.hours) {
+        return slotName;
+      }
+    }
+  }
+
+  // Default fallback
+  return "standard";
 }
 
 export function getCurrentTime() {
@@ -27,6 +45,23 @@ export function getLocaleString(date) {
 export function parseTimeString(timeStr) {
   const [hours, minutes, seconds = 0] = timeStr.split(':').map(Number);
   return { hours, minutes, seconds };
+}
+
+export function getRandomStartTime(duration) {
+  return Math.floor(Math.random() * (duration * 0.9));
+}
+
+// Simulation function to set date and time to the second
+// Note: This function is wrapped in the app module to avoid circular dependencies
+export function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
+  const state = getState();
+
+  // Set the simulated date
+  state.simulatedDate = date ? new Date(date) : new Date();
+  state.simulatedDate.setHours(hour, minute, second, 0);
+  console.log(`Simulating time: ${getLocaleString(state.simulatedDate)}`);
+
+  return state.simulatedDate;
 }
 
 export function startSimulatedTimeProgression() {
@@ -56,21 +91,4 @@ export function stopSimulatedTimeProgression() {
     clearInterval(state.simulatedTimeInterval);
     state.simulatedTimeInterval = null;
   }
-}
-
-export function getRandomStartTime(duration) {
-  return Math.floor(Math.random() * (duration * 0.9));
-}
-
-// Simulation function to set date and time to the second
-// Note: This function is wrapped in the app module to avoid circular dependencies
-export function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
-  const state = getState();
-
-  // Set the simulated date
-  state.simulatedDate = date ? new Date(date) : new Date();
-  state.simulatedDate.setHours(hour, minute, second, 0);
-  console.log(`Simulating time: ${getLocaleString(state.simulatedDate)}`);
-
-  return state.simulatedDate;
 }

@@ -1,9 +1,9 @@
 // Scheduling module for managing scheduled tracks
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
-import { playLateNightLoFi, playMainTrack } from './player.js';
+import { playAlgorithmicTrack } from './player.js';
 import { getState, updateState } from './state.js';
-import { getCurrentTime, getTimeOfDay, parseTimeString } from './time.js';
+import { getCurrentTime, getAlgorithmicTimeSlot, parseTimeString } from './time.js';
 
 export function initializeScheduledSystem() {
   const now = getCurrentTime();
@@ -113,10 +113,26 @@ export function selectTrackByHierarchy(tracks) {
   if (tracks.length === 0) return null;
   if (tracks.length === 1) return tracks[0];
 
+  // Filter by genre if we're in morning time slot
+  const state = getState();
+  const timeSlot = getAlgorithmicTimeSlot();
+  let filteredTracks = tracks;
+
+  if (timeSlot === 'morning' && state.currentMorningGenre) {
+    const genreMatchedTracks = tracks.filter(track => {
+      const trackData = state.tracksData[track.trackKey];
+      return trackData && trackData.genre === state.currentMorningGenre;
+    });
+
+    if (genreMatchedTracks.length > 0) {
+      filteredTracks = genreMatchedTracks;
+    }
+  }
+
   // Separate tracks by recurrence type
-  const dateTracks = tracks.filter(track => track.date);
-  const dayTracks = tracks.filter(track => track.recurrence && track.recurrence !== 'daily');
-  const dailyTracks = tracks.filter(track => track.recurrence === 'daily');
+  const dateTracks = filteredTracks.filter(track => track.date);
+  const dayTracks = filteredTracks.filter(track => track.recurrence && track.recurrence !== 'daily');
+  const dailyTracks = filteredTracks.filter(track => track.recurrence === 'daily');
 
   // Priority: dates > days > daily
   // Pick randomly from each category
@@ -130,17 +146,11 @@ export function selectTrackByHierarchy(tracks) {
 }
 
 export function returnToAlgorithmicPlayback() {
-  const state = getState();
   updateState({ isInScheduledMode: false });
-  const timeOfDay = getTimeOfDay();
-  updateState({ timeOfDay });
+  const timeSlot = getAlgorithmicTimeSlot();
+  updateState({ timeOfDay: timeSlot });
 
-  if (timeOfDay === "lateNight") {
-    playLateNightLoFi();
-  } else {
-    updateState({ currentMainTrackIndex: Math.floor(Math.random() * state.mainTracks.length) });
-    playMainTrack();
-  }
+  playAlgorithmicTrack();
 }
 
 export function scheduleHourBlock(hour) {
@@ -248,6 +258,28 @@ export function scheduleTrackChain(chain) {
 
     const timeUntilStart = actualStartTime - now;
     const timeUntilFade = timeUntilStart - state.fadeOutDuration;
+    const timeUntil15Min = timeUntilStart - (15 * 60 * 1000); // 15 minutes before
+    const timeUntil5Min = timeUntilStart - (5 * 60 * 1000); // 5 minutes before
+
+    // Schedule 15-minute warning
+    if (timeUntil15Min > 0) {
+      const warning15Timeout = setTimeout(() => {
+        console.log('15-minute warning: switching to junk-only mode');
+        updateState({ preScheduledJunkOnly: true });
+      }, timeUntil15Min);
+
+      state.scheduledTimeouts.push(warning15Timeout);
+    }
+
+    // Schedule 5-minute warning
+    if (timeUntil5Min > 0) {
+      const warning5Timeout = setTimeout(() => {
+        console.log('5-minute warning: switching to non-bumper junk-only mode');
+        updateState({ preScheduledNonBumperJunkOnly: true });
+      }, timeUntil5Min);
+
+      state.scheduledTimeouts.push(warning5Timeout);
+    }
 
     // Schedule fade (if not chained)
     if (!isChained && timeUntilFade > 0) {
@@ -376,7 +408,11 @@ export function playScheduledTrackDirect(track) {
 }
 
 export function onScheduledTrackEnd() {
-  updateState({ currentScheduledTrack: null });
+  updateState({
+    currentScheduledTrack: null,
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false
+  });
   cleanupScheduledTrackListeners();
   returnToAlgorithmicPlayback();
 }

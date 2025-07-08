@@ -1,9 +1,9 @@
 // Core module for main application functions
 
-import { playLateNightLoFi, playMainTrack } from './player.js';
+import { playAlgorithmicTrack } from './player.js';
 import { clearAllScheduledTimeouts, initializeScheduledSystem } from './scheduling.js';
-import { getState, updateState } from './state.js';
-import { getTimeOfDay, stopSimulatedTimeProgression } from './time.js';
+import { getState, updateState, clearUsedAlgorithmicTracksForCategory } from './state.js';
+import { getAlgorithmicTimeSlot, stopSimulatedTimeProgression, getCurrentTime } from './time.js';
 
 export async function load() {
 
@@ -12,22 +12,33 @@ export async function load() {
     const response = await fetch("config.json");
     const configData = await response.json();
     updateState({ config: configData });
-    const [newTracks, oldTracks] = await Promise.all([
-      fetch("tracks.json").then(r => r.json()),
-      fetch("tracks-old.json").then(r_1 => r_1.json())
-    ]);
-    // Use old tracks structure temporarily
+    const tracksResponse = await fetch("tracks.json");
+    const tracksData = await tracksResponse.json();
+
     updateState({
-      mainTracks: oldTracks.mainTracks,
-      interludes: oldTracks.interludes,
-      lateNightLoFis: oldTracks.lateNightLoFis,
-      // Use new scheduled tracks structure
-      scheduledTracks: newTracks.categories?.scheduled || [],
-      tracksData: newTracks.files || {}
+      // Use new tracks structure
+      scheduledTracks: tracksData.categories?.scheduled || [],
+      tracksData: tracksData.files || {},
+      algorithmicCategories: tracksData.categories?.algorithmic || {}
     });
+
+    // Initialize junk cycle order
+    initializeJunkCycleOrder();
+
   } catch (error) {
     return console.error("Error loading tracks:", error);
   }
+}
+
+function initializeJunkCycleOrder() {
+  const state = getState();
+  const junkTypes = ['ads', 'scripture', 'interludes', 'ads2', 'bumpers'];
+  // Create random order for junk content cycling
+  const shuffled = [...junkTypes].sort(() => Math.random() - 0.5);
+  updateState({
+    junkCycleOrder: shuffled,
+    junkCycleIndex: 0
+  });
 }
 
 export function initialize() {
@@ -37,22 +48,79 @@ export function initialize() {
   const playingScheduledTrack = initializeScheduledSystem();
 
   if (!playingScheduledTrack) {
-    const timeOfDay = getTimeOfDay();
-    updateState({ timeOfDay });
+    const timeSlot = getAlgorithmicTimeSlot();
+    updateState({ timeOfDay: timeSlot });
 
-    if (timeOfDay === "lateNight") {
-      playLateNightLoFi();
-    } else {
-      updateState({ currentMainTrackIndex: Math.floor(Math.random() * state.mainTracks.length) });
-      playMainTrack();
+    // Set morning genre if in morning time slot
+    if (timeSlot === "morning") {
+      setMorningGenre();
     }
+
+    // Set up hourly cleanup for algorithmic tracks
+    setupHourlyCleanup();
+
+    playAlgorithmicTrack();
   }
+}
+
+export function setMorningGenre() {
+  const state = getState();
+  const currentHour = (state.simulatedDate || new Date()).getHours();
+
+  // Only change genre if we're at a new hour
+  if (state.lastGenreChangeHour !== currentHour) {
+    const genres = ['country', 'rock', 'praise'];
+    const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
+    updateState({
+      currentMorningGenre: selectedGenre,
+      lastGenreChangeHour: currentHour
+    });
+    console.log(`Morning genre set to: ${selectedGenre} for hour ${currentHour}`);
+  }
+}
+
+export function setupHourlyCleanup() {
+  const state = getState();
+
+  // Clear any existing hourly cleanup
+  if (state.hourlyCleanupTimeout) {
+    clearTimeout(state.hourlyCleanupTimeout);
+  }
+
+  // Calculate time until next hour
+  const now = getCurrentTime();
+  const nextHour = new Date(now);
+  nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+  const timeUntilNextHour = nextHour - now;
+
+  const hourlyCleanupTimeout = setTimeout(() => {
+    // Clear used algorithmic tracks
+    clearUsedAlgorithmicTracksForCategory('lateNight');
+    clearUsedAlgorithmicTracksForCategory('morning');
+    clearUsedAlgorithmicTracksForCategory('standard');
+
+    console.log('Hourly cleanup: cleared used algorithmic tracks');
+
+    // Schedule next cleanup
+    setupHourlyCleanup();
+  }, timeUntilNextHour);
+
+  updateState({ hourlyCleanupTimeout });
 }
 
 export function startPlayback() {
   console.log("Starting playback");
   reset();
   initialize();
+}
+
+export function skipTrack() {
+  const state = getState();
+  console.log("Skipping track");
+
+  // Fade out current track and play next
+  state.theTransmitter.pause();
+  playAlgorithmicTrack();
 }
 
 export function reset() {
@@ -62,8 +130,19 @@ export function reset() {
     isFirstTrack: true,
     currentMainTrackIndex: undefined,
     currentScheduledTrack: null,
-    isInScheduledMode: false
+    isInScheduledMode: false,
+    currentMorningGenre: null,
+    lastGenreChangeHour: null,
+    junkCycleIndex: 0,
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false
   });
+
+  // Clear hourly cleanup timeout
+  if (state.hourlyCleanupTimeout) {
+    clearTimeout(state.hourlyCleanupTimeout);
+    updateState({ hourlyCleanupTimeout: null });
+  }
 
   state.theTransmitter.pause();
 

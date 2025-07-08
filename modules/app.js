@@ -1,9 +1,9 @@
 // Main app module that imports and initializes all modules
 
-import { initialize, load, reset, startPlayback } from './core.js';
+import { initialize, load, reset, skipTrack, startPlayback } from './core.js';
 import { forceCleanupAllEventListeners, initializeUIEventListeners } from './events.js';
 import { cleanupExpiredUsage, clearAllScheduledTimeouts, getActiveScheduledTrack, initializeScheduledSystem } from './scheduling.js';
-import { getState, initializeDOMElements } from './state.js';
+import { getState, initializeDOMElements, updateState } from './state.js';
 import { getLocaleString, setSimulatedTime, startSimulatedTimeProgression, stopSimulatedTimeProgression } from './time.js';
 
 // Initialize the application
@@ -46,6 +46,8 @@ window.startSimulatedTimeProgression = startSimulatedTimeProgression;
 window.stopSimulatedTimeProgression = stopSimulatedTimeProgression;
 
 // Additional debug functions
+window.skipTrack = skipTrack;
+
 window.getActiveScheduled = () => {
   const state = getState();
   const active = getActiveScheduledTrack();
@@ -136,11 +138,44 @@ window.clearSimulatedTime = () => {
   initialize();
 };
 
+window.getAlgorithmicState = () => {
+  const state = getState();
+  console.log('Algorithmic state:', {
+    currentMorningGenre: state.currentMorningGenre,
+    lastGenreChangeHour: state.lastGenreChangeHour,
+    junkCycleOrder: state.junkCycleOrder,
+    junkCycleIndex: state.junkCycleIndex,
+    preScheduledJunkOnly: state.preScheduledJunkOnly,
+    preScheduledNonBumperJunkOnly: state.preScheduledNonBumperJunkOnly,
+    usedAlgorithmicTracks: state.usedAlgorithmicTracks
+  });
+  return state;
+};
+
+window.clearAlgorithmicUsage = () => {
+  const state = getState();
+  state.usedAlgorithmicTracks = {
+    lateNight: {},
+    morning: {},
+    standard: {}
+  };
+  console.log('Cleared algorithmic usage tracking');
+};
+
+window.setPreScheduledWarnings = (junkOnly = false, nonBumperJunkOnly = false) => {
+  updateState({
+    preScheduledJunkOnly: junkOnly,
+    preScheduledNonBumperJunkOnly: nonBumperJunkOnly
+  });
+  console.log(`Set pre-scheduled warnings: junkOnly=${junkOnly}, nonBumperJunkOnly=${nonBumperJunkOnly}`);
+};
+
 // Public API
 export default {
   initApp,
   startPlayback,
   reset,
+  skipTrack,
   simulateTime,
   startSimulatedTimeProgression,
   stopSimulatedTimeProgression
