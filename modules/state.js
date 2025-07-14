@@ -7,16 +7,9 @@ export const state = {
   loadingIndicator: null,
   playingIndicator: null,
 
-  // Track data
-  mainTracks: [],
-  interludes: {},
-  lateNightLoFis: [],
-  scheduledTracks: [],
-  tracksData: {},
+  // Preprocessed track data
+  preprocessed: null,
   config: {},
-
-  // Algorithmic track categories
-  algorithmicCategories: {},
 
   // Usage tracking
   usedScheduledFiles: {},
@@ -27,7 +20,6 @@ export const state = {
   },
 
   // Playback state
-  currentMainTrackIndex: undefined,
   isFirstTrack: true,
   simulatedDate: null, // Initialize with null for using real time by default
   timeOfDay: undefined,

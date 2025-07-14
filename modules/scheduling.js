@@ -3,7 +3,7 @@
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
 import { getState, updateState } from './state.js';
-import { getCurrentTime, getAlgorithmicTimeSlot, parseTimeString } from './time.js';
+import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function initializeScheduledSystem() {
   const now = getCurrentTime();
@@ -27,6 +27,12 @@ export function initializeScheduledSystem() {
 }
 
 export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
+  // Validate input
+  if (!scheduledTrack || !scheduledTrack.time) {
+    console.warn('Invalid scheduled track or missing time property');
+    return null;
+  }
+
   const baseDate = referenceDate || getCurrentTime();
   const { hours, minutes, seconds } = parseTimeString(scheduledTrack.time);
 
@@ -79,17 +85,12 @@ export function cleanupExpiredUsage() {
 export function getActiveScheduledTrack() {
   const state = getState();
   const now = getCurrentTime();
+  const currentHour = now.getHours();
+  const hourlyTracks = state.preprocessed.scheduledTracks.byHour[currentHour] || [];
 
-  // Clean up expired usage tracking but only if not already in a cleanup process
-  if (!state.inCleanupProcess) {
-    updateState({ inCleanupProcess: true });
-    cleanupExpiredUsage();
-    updateState({ inCleanupProcess: false });
-  }
-
-  const activeTracks = state.scheduledTracks.filter(track => {
+  const activeTracks = hourlyTracks.filter(track => {
     try {
-      const trackData = state.tracksData[track.trackKey]; // track.trackKey references files array
+      const trackData = track.trackData;
 
       if (!trackData || !trackData.duration) return false;
 
@@ -100,7 +101,6 @@ export function getActiveScheduledTrack() {
       }
 
       const scheduledTime = getScheduledTrackTime(track);
-
       const trackEndTime = new Date(scheduledTime.getTime() + trackData.duration * 1000);
 
       return now >= scheduledTime && now <= trackEndTime;
@@ -124,8 +124,7 @@ export function selectTrackByHierarchy(tracks) {
 
   if (timeSlot === 'morning' && state.currentMorningGenre) {
     const genreMatchedTracks = tracks.filter(track => {
-      const trackData = state.tracksData[track.trackKey];
-      return trackData && trackData.genre === state.currentMorningGenre;
+      return track.genre === state.currentMorningGenre;
     });
 
     if (genreMatchedTracks.length > 0) {
@@ -133,19 +132,17 @@ export function selectTrackByHierarchy(tracks) {
     }
   }
 
-  // Separate tracks by recurrence type
-  const dateTracks = filteredTracks.filter(track => track.date);
-  const dayTracks = filteredTracks.filter(track => track.recurrence && track.recurrence !== 'daily');
-  const dailyTracks = filteredTracks.filter(track => track.recurrence === 'daily');
+  // Use priority-based selection for preprocessed tracks
+  const tracksByPriority = { 1: [], 2: [], 3: [] };
+  filteredTracks.forEach(track => {
+    tracksByPriority[track.priority].push(track);
+  });
 
-  // Priority: dates > days > daily
-  // Pick randomly from each category
-  if (dateTracks.length > 0) {
-    return dateTracks[Math.floor(Math.random() * dateTracks.length)];
-  } else if (dayTracks.length > 0) {
-    return dayTracks[Math.floor(Math.random() * dayTracks.length)];
-  } else if (dailyTracks.length > 0) {
-    return dailyTracks[Math.floor(Math.random() * dailyTracks.length)];
+  // Priority: 1 (dates) > 2 (days) > 3 (daily)
+  for (let priority = 1; priority <= 3; priority++) {
+    if (tracksByPriority[priority].length > 0) {
+      return tracksByPriority[priority][Math.floor(Math.random() * tracksByPriority[priority].length)];
+    }
   }
 }
 
@@ -161,15 +158,17 @@ export function scheduleHourBlock(hour) {
   const state = getState();
   const now = getCurrentTime();
 
-  const blockStart = new Date(now.getTime());
-  blockStart.setHours(hour, 0, 0, 0);
-  const blockEnd = new Date(blockStart.getTime());
-  blockEnd.setHours(hour + 1, 0, 0, 0);
+  // Clean up expired usage tracking but only if not already in a cleanup process
+  if (!state.inCleanupProcess) {
+    updateState({ inCleanupProcess: true });
+    cleanupExpiredUsage();
+    updateState({ inCleanupProcess: false });
+  }
 
-  // Get all scheduled tracks for this hour
-  const hourTracks = state.scheduledTracks.filter(track => {
+  const hourTracks = state.preprocessed.scheduledTracks.byHour[hour] || [];
+  const filteredTracks = hourTracks.filter(track => {
     try {
-      const trackData = state.tracksData[track.trackKey];
+      const trackData = track.trackData;
       if (!trackData) return false;
 
       // Skip if used in last 24 hours
@@ -178,8 +177,7 @@ export function scheduleHourBlock(hour) {
         return false;
       }
 
-      const scheduledTime = getScheduledTrackTime(track);
-      return scheduledTime >= blockStart && scheduledTime < blockEnd;
+      return true;
     } catch (error) {
       console.error('Error checking track for hour block:', track, error);
       return false;
@@ -187,7 +185,7 @@ export function scheduleHourBlock(hour) {
   });
 
   // Apply hierarchy and sort by time
-  const prioritizedTracks = selectTracksWithHierarchy(hourTracks);
+  const prioritizedTracks = selectTracksWithHierarchy(filteredTracks);
   prioritizedTracks.sort((a, b) => {
     const timeA = getScheduledTrackTime(a);
     const timeB = getScheduledTrackTime(b);
@@ -223,7 +221,9 @@ export function createTrackChain(tracks) {
   const chain = [];
   for (let i = 0; i < tracks.length; i++) {
     const track = tracks[i];
-    const trackData = state.tracksData[track.trackKey];
+    const trackData = track.trackData;
+    const filename = trackData.filename;
+
     const startTime = getScheduledTrackTime(track);
     const endTime = new Date(startTime.getTime() + trackData.duration * 1000);
 
@@ -242,7 +242,7 @@ export function createTrackChain(tracks) {
       if (gap <= state.chainGapThreshold && gap >= 0) {
         chainItem.isChained = true;
         chainItem.chainedStartTime = prevItem.endTime;
-        console.log(`Chaining ${trackData.filename} (${gap}s gap)`);
+        console.log(`Chaining ${filename} (${gap}s gap)`);
       }
     }
 
@@ -348,7 +348,7 @@ export function enterScheduledMode(track) {
     currentScheduledTrack: track
   });
 
-  const trackData = state.tracksData[track.trackKey];
+  const trackData = track.trackData;
   const scheduledTime = getScheduledTrackTime(track);
   const now = getCurrentTime();
   const offsetSeconds = Math.max(0, (now - scheduledTime) / 1000);
@@ -386,7 +386,8 @@ export function enterScheduledMode(track) {
 export function playScheduledTrackDirect(track) {
   const state = getState();
   updateState({ currentScheduledTrack: track });
-  const trackData = state.tracksData[track.trackKey];
+
+  const trackData = track.trackData;
   const now = getCurrentTime();
 
   console.log(`Playing chained scheduled track: ${trackData.filename}`);

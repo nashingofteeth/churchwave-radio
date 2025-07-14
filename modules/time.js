@@ -12,6 +12,8 @@ export function getAlgorithmicTimeSlot() {
 
   // Check each time slot to find which one the current time falls into
   for (const [slotName, slotConfig] of Object.entries(algorithmicTimeSlots)) {
+    if (!slotConfig.startTime || !slotConfig.endTime) continue;
+
     const startTime = parseTimeString(slotConfig.startTime);
     const endTime = parseTimeString(slotConfig.endTime);
 

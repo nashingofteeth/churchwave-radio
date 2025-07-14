@@ -2,39 +2,46 @@
 
 import { playAlgorithmicTrack } from './player.js';
 import { clearAllScheduledTimeouts, initializeScheduledSystem } from './scheduling.js';
-import { getState, updateState, clearUsedAlgorithmicTracksForCategory } from './state.js';
-import { getAlgorithmicTimeSlot, stopSimulatedTimeProgression, getCurrentTime } from './time.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
+import { getCurrentTime, stopSimulatedTimeProgression } from './time.js';
 
 export async function load() {
 
   // Load config first
   try {
     const response = await fetch("config.json");
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.status} ${response.statusText}`);
+    }
     const configData = await response.json();
     updateState({ config: configData });
+
     const tracksResponse = await fetch("tracks.json");
+    if (!tracksResponse.ok) {
+      throw new Error(`Failed to load tracks: ${tracksResponse.status} ${tracksResponse.statusText}`);
+    }
     const tracksData = await tracksResponse.json();
 
+    if (!tracksData.preprocessed) {
+      throw new Error('Tracks data missing preprocessed information');
+    }
+
     updateState({
-      // Use new tracks structure
-      scheduledTracks: tracksData.categories?.scheduled || [],
-      tracksData: tracksData.files || {},
-      algorithmicCategories: tracksData.categories?.algorithmic || {}
+      preprocessed: tracksData.preprocessed
     });
 
-    // Initialize junk cycle order
-    initializeJunkCycleOrder();
+    console.log('Data loaded successfully');
+    return true;
 
   } catch (error) {
-    return console.error("Error loading tracks:", error);
+    console.error("Error loading data:", error);
+    return false;
   }
 }
 
 function initializeJunkCycleOrder() {
   const state = getState();
-  const junkTypes = ['ads', 'scripture', 'interludes', 'ads2', 'bumpers'];
-  // Create random order for junk content cycling
-  const shuffled = [...junkTypes].sort(() => Math.random() - 0.5);
+  const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(() => Math.random() - 0.5);
   updateState({
     junkCycleOrder: shuffled,
     junkCycleIndex: 0
@@ -42,20 +49,13 @@ function initializeJunkCycleOrder() {
 }
 
 export function initialize() {
-  const state = getState();
-
   // Initialize scheduled track system
   const playingScheduledTrack = initializeScheduledSystem();
 
+  initializeJunkCycleOrder();
+  setMorningGenre();
+
   if (!playingScheduledTrack) {
-    const timeSlot = getAlgorithmicTimeSlot();
-    updateState({ timeOfDay: timeSlot });
-
-    // Set morning genre if in morning time slot
-    if (timeSlot === "morning") {
-      setMorningGenre();
-    }
-
     // Set up hourly cleanup for algorithmic tracks
     setupHourlyCleanup();
 
@@ -65,7 +65,7 @@ export function initialize() {
 
 export function setMorningGenre() {
   const state = getState();
-  const currentHour = (state.simulatedDate || new Date()).getHours();
+  const currentHour = (state.simulatedDate || getCurrentTime()).getHours();
 
   // Only change genre if we're at a new hour
   if (state.lastGenreChangeHour !== currentHour) {
@@ -110,7 +110,20 @@ export function setupHourlyCleanup() {
 export function startPlayback() {
   console.log("Starting playback");
   reset();
-  initialize();
+
+  // Ensure data is loaded before initializing
+  if (!getState().config || !getState().preprocessed) {
+    console.log("Config not loaded, attempting to load...");
+    load().then(success => {
+      if (success) {
+        initialize();
+      } else {
+        console.error("Failed to load required data. Cannot start playback.");
+      }
+    });
+  } else {
+    initialize();
+  }
 }
 
 export function skipTrack() {
@@ -120,9 +133,6 @@ export function skipTrack() {
   // Fade out current track and play next
   state.theTransmitter.pause();
 
-  const timeSlot = getAlgorithmicTimeSlot();
-  updateState({ timeOfDay: timeSlot });
-
   playAlgorithmicTrack();
 }
 
@@ -131,7 +141,6 @@ export function reset() {
 
   updateState({
     isFirstTrack: true,
-    currentMainTrackIndex: undefined,
     currentScheduledTrack: null,
     isInScheduledMode: false,
     currentMorningGenre: null,

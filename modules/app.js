@@ -2,7 +2,7 @@
 
 import { initialize, load, reset, skipTrack, startPlayback } from './core.js';
 import { forceCleanupAllEventListeners, initializeUIEventListeners } from './events.js';
-import { cleanupExpiredUsage, clearAllScheduledTimeouts, getActiveScheduledTrack, initializeScheduledSystem } from './scheduling.js';
+import { cleanupExpiredUsage, getActiveScheduledTrack, } from './scheduling.js';
 import { getState, initializeDOMElements, updateState } from './state.js';
 import { getLocaleString, setSimulatedTime, startSimulatedTimeProgression, stopSimulatedTimeProgression } from './time.js';
 
@@ -16,11 +16,24 @@ export async function initApp() {
     initializeUIEventListeners();
 
     // Load configuration and track data
-    await load();
+    const loadSuccess = await load();
+
+    if (!loadSuccess) {
+      console.warn('Data loading may have failed - proceeding with limited functionality');
+    }
+
+    // Verify state contains required data
+    const state = getState();
+    if (!state.config || !state.preprocessed) {
+      console.error('Required configuration or track data missing');
+      return false;
+    }
 
     console.log('Churchwave Radio initialized successfully');
+    return true;
   } catch (error) {
     console.error('Failed to initialize Churchwave Radio:', error);
+    return false;
   }
 }
 
@@ -67,32 +80,10 @@ window.clearUsedScheduled = () => {
   console.log('Cleared all used scheduled files');
 };
 
-window.reinitializeScheduled = () => {
-  const state = getState();
-  clearAllScheduledTimeouts();
-  if (state.hourlyScheduleTimeout) {
-    clearTimeout(state.hourlyScheduleTimeout);
-    state.hourlyScheduleTimeout = null;
-  }
-  initializeScheduledSystem();
-  console.log('Reinitialized scheduled system');
-};
-
 window.getScheduledTimeouts = () => {
   const state = getState();
   console.log(`Active scheduled timeouts: ${state.scheduledTimeouts.length}`);
   return state.scheduledTimeouts.length;
-};
-
-window.listScheduledTracks = () => {
-  const state = getState();
-  console.log('All scheduled tracks:');
-  state.scheduledTracks.forEach((track, index) => {
-    const recurrenceType = track.date ? 'DATE' :
-      track.recurrence === 'daily' ? 'DAILY' :
-        track.recurrence ? 'DAY' : 'OTHER';
-    console.log(`${index}: ${track.time} (${track.recurrence || track.date}) [${recurrenceType}] - ${state.tracksData[track.trackKey]?.filename}`);
-  });
 };
 
 window.cleanupUsage = () => {
@@ -121,8 +112,7 @@ window.getCurrentSimulatedTime = () => {
     console.log(`Current simulated time: ${getLocaleString(state.simulatedDate)}`);
     return state.simulatedDate;
   } else {
-    console.log('No simulated time active - using real time');
-    return new Date();
+    console.log('No simulated time active');
   }
 };
 
@@ -169,6 +159,8 @@ window.setPreScheduledWarnings = (junkOnly = false, nonBumperJunkOnly = false) =
   });
   console.log(`Set pre-scheduled warnings: junkOnly=${junkOnly}, nonBumperJunkOnly=${nonBumperJunkOnly}`);
 };
+
+window.appState = getState();
 
 // Public API
 export default {

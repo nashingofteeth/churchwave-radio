@@ -61,33 +61,26 @@ export function playAlgorithmicTrack() {
 
 export function playLateNightLoFi() {
   const state = getState();
-  updateState({ timeOfDay: "lateNightLoFis" });  // Use consistent name with case statement
+  updateState({ timeOfDay: "lateNightLoFis" });
 
-  const lateNightTracks = state.algorithmicCategories.lateNightLoFis || [];
-  let availableTracks = lateNightTracks.filter(
-    (trackKey) => !state.usedAlgorithmicTracks.lateNight[trackKey]
+  const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
+  let availableTracks = tracks.filter(
+    (track) => !state.usedAlgorithmicTracks.lateNight[track.key]
   );
 
   if (availableTracks.length === 0) {
     clearUsedAlgorithmicTracksForCategory('lateNight');
-    availableTracks = lateNightTracks;
+    availableTracks = tracks;
   }
 
   if (availableTracks.length === 0) {
     console.error('No late night tracks available');
-    return playStandardTrack(); // Fallback to standard tracks instead of recursion
+    return playStandardTrack();
   }
 
-  const selectedTrackKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  const trackData = state.tracksData[selectedTrackKey];
-
-  if (!trackData) {
-    console.error('Track data not found for key:', selectedTrackKey);
-    return playStandardTrack(); // Fallback to standard tracks
-  }
-
-  state.usedAlgorithmicTracks.lateNight[selectedTrackKey] = true;
-  playTrack(trackData.path, playAlgorithmicTrack);
+  const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+  state.usedAlgorithmicTracks.lateNight[selectedTrack.key] = true;
+  playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
 export function playMorningTrack() {
@@ -96,46 +89,40 @@ export function playMorningTrack() {
 
   if (!genre) {
     console.error('No morning genre selected');
-    return playStandardTrack(); // Directly call standard track function
+    return playStandardTrack();
   }
 
-  const genreTracks = state.algorithmicCategories.morningMusic?.[genre] || [];
-  let availableTracks = genreTracks.filter(
-    (trackKey) => !state.usedAlgorithmicTracks.morning[trackKey]
+  const tracks = state.preprocessed.timeSlots.morning.genres[genre].tracks;
+  let availableTracks = tracks.filter(
+    (track) => !state.usedAlgorithmicTracks.morning[track.key]
   );
 
   if (availableTracks.length === 0) {
     clearUsedAlgorithmicTracksForCategory('morning');
-    availableTracks = genreTracks;
+    availableTracks = tracks;
   }
 
   if (availableTracks.length === 0) {
     console.error('No morning tracks available for genre:', genre);
-    return playStandardTrack(); // Directly call standard track function
+    return playStandardTrack();
   }
 
-  const selectedTrackKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  const trackData = state.tracksData[selectedTrackKey];
-
-  if (!trackData) {
-    console.error('Track data not found for key:', selectedTrackKey);
-    return;
-  }
-
-  state.usedAlgorithmicTracks.morning[selectedTrackKey] = true;
-  playTrack(trackData.path, playAlgorithmicTrack);
+  const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+  state.usedAlgorithmicTracks.morning[selectedTrack.key] = true;
+  playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
 export function playStandardTrack() {
   const state = getState();
-  const standardTracks = state.algorithmicCategories.standardTracks || [];
-  let availableTracks = standardTracks.filter(
-    (trackKey) => !state.usedAlgorithmicTracks.standard[trackKey]
+
+  const tracks = state.preprocessed.timeSlots.standard.tracks;
+  let availableTracks = tracks.filter(
+    (track) => !state.usedAlgorithmicTracks.standard[track.key]
   );
 
   if (availableTracks.length === 0) {
     clearUsedAlgorithmicTracksForCategory('standard');
-    availableTracks = standardTracks;
+    availableTracks = tracks;
   }
 
   if (availableTracks.length === 0) {
@@ -143,21 +130,14 @@ export function playStandardTrack() {
     return;
   }
 
-  const selectedTrackKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  const trackData = state.tracksData[selectedTrackKey];
-
-  if (!trackData) {
-    console.error('Track data not found for key:', selectedTrackKey);
-    return;
-  }
-
-  state.usedAlgorithmicTracks.standard[selectedTrackKey] = true;
-  playTrack(trackData.path, playAlgorithmicTrack);
+  const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+  state.usedAlgorithmicTracks.standard[selectedTrack.key] = true;
+  playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
 export function playJunkTrack() {
   const state = getState();
-  const junkContent = state.algorithmicCategories.junkContent || {};
+  const junkContent = state.preprocessed.junkContent;
 
   // Get current junk type from cycle
   let currentJunkType = state.junkCycleOrder[state.junkCycleIndex];
@@ -171,32 +151,27 @@ export function playJunkTrack() {
 
     // If we've cycled through all and still hit bumpers, pick a non-bumper type
     if (currentJunkType === 'bumpers') {
-      const nonBumperTypes = ['ads', 'scripture', 'interludes', 'ads2'];
+      const nonBumperTypes = Object.entries(junkContent.types)
+        .filter(([_, typeData]) => typeData.nonBumper)
+        .map(([type, _]) => type);
       currentJunkType = nonBumperTypes[Math.floor(Math.random() * nonBumperTypes.length)];
     }
   }
 
-  const junkTracks = junkContent[currentJunkType] || [];
-
-  if (junkTracks.length === 0) {
+  const junkTypeData = junkContent.types[currentJunkType];
+  if (!junkTypeData || junkTypeData.tracks.length === 0) {
     console.error('No junk tracks available for type:', currentJunkType);
-    return playAlgorithmicTrack();
-  }
-
-  const selectedTrackKey = junkTracks[Math.floor(Math.random() * junkTracks.length)];
-  const trackData = state.tracksData[selectedTrackKey];
-
-  if (!trackData) {
-    console.error('Track data not found for key:', selectedTrackKey);
     return;
   }
+
+  const selectedTrack = junkTypeData.tracks[Math.floor(Math.random() * junkTypeData.tracks.length)];
 
   // Move to next junk type for next time
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
   updateState({ junkCycleIndex: nextIndex });
 
-  console.log(`Playing junk content: ${currentJunkType} - ${trackData.filename}`);
-  playTrack(trackData.path, playAlgorithmicTrack);
+  console.log(`Playing junk content: ${currentJunkType} - ${selectedTrack.filename}`);
+  playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
 export function fadeOut() {
