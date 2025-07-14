@@ -2,7 +2,7 @@
 
 import { addCurrentTrackListener, cleanupCurrentTrackListeners } from './events.js';
 import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
-import { getAlgorithmicTimeSlot, getRandomStartTime } from './time.js';
+import { getRandomStartTime } from './time.js';
 
 export function playTrack(trackUrl, callback, startTime = null) {
   const state = getState();
@@ -32,16 +32,6 @@ export function playTrack(trackUrl, callback, startTime = null) {
 
 export function playAlgorithmicTrack() {
   const state = getState();
-  const timeSlot = getAlgorithmicTimeSlot();
-  updateState({ timeOfDay: timeSlot });
-
-  // Check if we need to change morning genre
-  if (timeSlot === "morning") {
-    // Import setMorningGenre dynamically to avoid circular dependencies
-    import('./core.js').then(({ setMorningGenre }) => {
-      setMorningGenre();
-    });
-  }
 
   // Check pre-scheduled warnings
   if (state.preScheduledJunkOnly) {
@@ -49,7 +39,7 @@ export function playAlgorithmicTrack() {
   }
 
   // Play based on time slot
-  switch (timeSlot) {
+  switch (state.timeOfDay) {
     case "lateNightLoFis":
       return playLateNightLoFi();
     case "morning":
@@ -61,15 +51,14 @@ export function playAlgorithmicTrack() {
 
 export function playLateNightLoFi() {
   const state = getState();
-  updateState({ timeOfDay: "lateNightLoFis" });
 
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
   let availableTracks = tracks.filter(
-    (track) => !state.usedAlgorithmicTracks.lateNight[track.key]
+    (track) => !state.usedAlgorithmicTracks.lateNightLoFis[track.key]
   );
 
   if (availableTracks.length === 0) {
-    clearUsedAlgorithmicTracksForCategory('lateNight');
+    clearUsedAlgorithmicTracksForCategory('lateNightLoFis');
     availableTracks = tracks;
   }
 
@@ -79,16 +68,16 @@ export function playLateNightLoFi() {
   }
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  state.usedAlgorithmicTracks.lateNight[selectedTrack.key] = true;
+  state.usedAlgorithmicTracks.lateNightLoFis[selectedTrack.key] = true;
   playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
 export function playMorningTrack() {
   const state = getState();
-  const genre = state.currentMorningGenre;
+  const genre = state.currentGenre;
 
   if (!genre) {
-    console.error('No morning genre selected');
+    console.error('No genre selected');
     return playStandardTrack();
   }
 

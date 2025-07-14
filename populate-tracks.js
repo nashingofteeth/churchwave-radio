@@ -587,7 +587,7 @@ async function scanDurations(files) {
 // Function to pre-process time slots for algorithmic tracks
 function preprocessTimeSlots(files, categories) {
   // Extract time ranges from config
-  const lateNightConfig = mediaConfig.directories.algorithmic.subdirectories.lateNightLoFis;
+  const lateNightLoFisConfig = mediaConfig.directories.algorithmic.subdirectories.lateNightLoFis;
   const morningConfig = mediaConfig.directories.algorithmic.subdirectories.morning;
   const standardConfig = mediaConfig.directories.algorithmic.subdirectories.standard;
 
@@ -624,13 +624,13 @@ function preprocessTimeSlots(files, categories) {
     return hours;
   };
 
-  const lateNightHours = parseTimeToHours(lateNightConfig.startTime, lateNightConfig.endTime);
+  const lateNightLoFisHours = parseTimeToHours(lateNightLoFisConfig.startTime, lateNightLoFisConfig.endTime);
   const morningHours = parseTimeToHours(morningConfig.startTime, morningConfig.endTime);
   const standardHours = parseTimeToHours(standardConfig.startTime, standardConfig.endTime);
 
   const timeSlots = {
     lateNightLoFis: {
-      timeRange: lateNightHours,
+      timeRange: lateNightLoFisHours,
       tracks: categories.algorithmic.lateNightLoFis.map(key => ({
         key,
         ...files[key],

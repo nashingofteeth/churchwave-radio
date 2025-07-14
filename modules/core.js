@@ -1,9 +1,9 @@
 // Core module for main application functions
 
 import { playAlgorithmicTrack } from './player.js';
-import { clearAllScheduledTimeouts, initializeScheduledSystem } from './scheduling.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
-import { getCurrentTime, stopSimulatedTimeProgression } from './time.js';
+import { clearAllScheduledTimeouts, initializeScheduledSystem, shuffleJunkCycleOrder, setGenre } from './scheduling.js';
+import { getState, updateState } from './state.js';
+import { stopSimulatedTimeProgression } from './time.js';
 
 export async function load() {
 
@@ -43,68 +43,15 @@ export function initialize() {
   // Initialize scheduled track system
   const playingScheduledTrack = initializeScheduledSystem();
 
-  initializeJunkCycleOrder();
-  setMorningGenre();
+  shuffleJunkCycleOrder();
+  setGenre();
 
   if (!playingScheduledTrack) {
-    // Set up hourly cleanup for algorithmic tracks
-    setupHourlyCleanup();
     playAlgorithmicTrack();
   }
 }
 
-function initializeJunkCycleOrder() {
-  const state = getState();
-  const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(() => Math.random() - 0.5);
-  updateState({
-    junkCycleOrder: shuffled,
-    junkCycleIndex: 0
-  });
-}
 
-export function setMorningGenre() {
-  const state = getState();
-  const currentHour = (state.simulatedDate || getCurrentTime()).getHours();
-
-  // Only change genre if we're at a new hour
-  if (state.lastGenreChangeHour !== currentHour) {
-    const genres = ['country', 'rock', 'praise'];
-    const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
-    updateState({
-      currentMorningGenre: selectedGenre,
-      lastGenreChangeHour: currentHour
-    });
-    console.log(`Morning genre set to: ${selectedGenre} for hour ${currentHour}`);
-  }
-}
-
-export function setupHourlyCleanup() {
-  const state = getState();
-
-  // Clear any existing hourly cleanup
-  if (state.hourlyCleanupTimeout) {
-    clearTimeout(state.hourlyCleanupTimeout);
-  }
-
-  const now = getCurrentTime();
-  const nextHour = new Date(now.getTime());
-  nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
-  const timeUntilNextHour = nextHour - now;
-
-  const hourlyCleanupTimeout = setTimeout(() => {
-    // Clear used algorithmic tracks
-    clearUsedAlgorithmicTracksForCategory('lateNight');
-    clearUsedAlgorithmicTracksForCategory('morning');
-    clearUsedAlgorithmicTracksForCategory('standard');
-
-    console.log('Hourly cleanup: cleared used algorithmic tracks');
-
-    // Schedule next cleanup
-    setupHourlyCleanup();
-  }, timeUntilNextHour);
-
-  updateState({ hourlyCleanupTimeout });
-}
 
 export function startPlayback() {
   console.log("Starting playback");
@@ -142,18 +89,11 @@ export function reset() {
     isFirstTrack: true,
     currentScheduledTrack: null,
     isInScheduledMode: false,
-    currentMorningGenre: null,
-    lastGenreChangeHour: null,
+    currentGenre: null,
     junkCycleIndex: 0,
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false
   });
-
-  // Clear hourly cleanup timeout
-  if (state.hourlyCleanupTimeout) {
-    clearTimeout(state.hourlyCleanupTimeout);
-    updateState({ hourlyCleanupTimeout: null });
-  }
 
   state.theTransmitter.pause();
 

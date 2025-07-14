@@ -14,7 +14,7 @@ export const state = {
   // Usage tracking
   usedScheduledFiles: {},
   usedAlgorithmicTracks: {
-    lateNight: {},
+    lateNightLoFis: {},
     morning: {},
     standard: {}
   },
@@ -29,8 +29,7 @@ export const state = {
   fadeOutDuration: 3000, // 3 seconds in milliseconds
 
   // Algorithmic state
-  currentMorningGenre: null,
-  lastGenreChangeHour: null,
+  currentGenre: null,
   junkCycleOrder: [],
   junkCycleIndex: 0,
   preScheduledJunkOnly: false,
@@ -40,9 +39,7 @@ export const state = {
   isInScheduledMode: false,
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
-  hourlyCleanupTimeout: null,
   chainGapThreshold: 10, // seconds - if tracks end within this time, chain them
-  inCleanupProcess: false, // Flag to prevent recursive cleanup operations
 
   // Event listener management
   currentTrackListeners: [],
@@ -68,11 +65,9 @@ export function updateState(updates) {
 }
 
 export function resetUsedAlgorithmicTracks() {
-  state.usedAlgorithmicTracks = {
-    lateNight: {},
-    morning: {},
-    standard: {}
-  };
+  for (const category in state.usedAlgorithmicTracks) {
+    state.usedAlgorithmicTracks[category] = {};
+  }
 }
 
 export function clearUsedAlgorithmicTracksForCategory(category) {

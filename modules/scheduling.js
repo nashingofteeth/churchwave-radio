@@ -2,7 +2,7 @@
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { getState, updateState } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function initializeScheduledSystem() {
@@ -13,7 +13,7 @@ export function initializeScheduledSystem() {
   scheduleHourBlock(currentHour);
 
   // Schedule hourly updates
-  scheduleNextHourUpdate();
+  scheduleHourlyUpdates();
 
   // Check for any currently playing scheduled track
   const activeTrack = getActiveScheduledTrack();
@@ -121,9 +121,9 @@ export function selectTrackByHierarchy(tracks) {
   const timeSlot = getAlgorithmicTimeSlot();
   let filteredTracks = tracks;
 
-  if (timeSlot === 'morning' && state.currentMorningGenre) {
+  if (timeSlot === 'morning' && state.currentGenre) {
     const genreMatchedTracks = tracks.filter(track => {
-      return track.genre === state.currentMorningGenre;
+      return track.genre === state.currentGenre;
     });
 
     if (genreMatchedTracks.length > 0) {
@@ -156,13 +156,6 @@ export function returnToAlgorithmicPlayback() {
 export function scheduleHourBlock(hour) {
   const state = getState();
   const now = getCurrentTime();
-
-  // Clean up expired usage tracking but only if not already in a cleanup process
-  if (!state.inCleanupProcess) {
-    updateState({ inCleanupProcess: true });
-    cleanupExpiredUsage();
-    updateState({ inCleanupProcess: false });
-  }
 
   const hourTracks = state.preprocessed.scheduledTracks.byHour[hour] || [];
   const filteredTracks = hourTracks.filter(track => {
@@ -329,19 +322,80 @@ export function onScheduledTrackTimeout(track, isChained) {
   }
 }
 
-export function scheduleNextHourUpdate() {
+export function scheduleHourlyUpdates() {
+  const state = getState();
   const now = getCurrentTime();
   const nextHour = new Date(now.getTime());
   nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
   const timeUntilNextHour = nextHour - now;
 
+  // Clear any existing hourly timeout
+  if (state.hourlyScheduleTimeout) {
+    clearTimeout(state.hourlyScheduleTimeout);
+  }
+
   const hourlyScheduleTimeout = setTimeout(() => {
-    const currentHour = getCurrentTime().getHours();
-    scheduleHourBlock(currentHour + 1); // Schedule the hour after next
-    scheduleNextHourUpdate(); // Schedule next update
+    performHourlyTasks();
+    scheduleHourlyUpdates(); // Schedule next update
   }, timeUntilNextHour);
 
   updateState({ hourlyScheduleTimeout });
+}
+
+export function performHourlyTasks() {
+  const currentHour = getCurrentTime().getHours();
+
+  console.log(`Performing hourly tasks for hour ${currentHour}`);
+
+  // Clean up expired usage tracking
+  cleanupExpiredUsage();
+
+  // Update time of day
+  const timeSlot = getAlgorithmicTimeSlot();
+  updateState({ timeOfDay: timeSlot });
+
+  // Clear used algorithmic tracks
+  clearUsedAlgorithmicTracksForCategory(timeSlot);
+  console.log('Hourly cleanup: cleared used algorithmic tracks');
+
+  // Shuffle junk cycle order
+  shuffleJunkCycleOrder();
+
+  // Change genre for new hour
+  setGenre();
+
+  // Schedule next hour block of tracks
+  scheduleHourBlock(currentHour + 1);
+}
+
+export function shuffleJunkCycleOrder() {
+  const state = getState();
+  if (!state.preprocessed?.junkContent?.cycleOrder) {
+    console.warn('No junk cycle order found to shuffle');
+    return;
+  }
+
+  const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(() => Math.random() - 0.5);
+  updateState({
+    junkCycleOrder: shuffled,
+    junkCycleIndex: 0
+  });
+
+  console.log('Junk cycle order shuffled and index reset');
+}
+
+export function setGenre() {
+  const currentHour = getCurrentTime().getHours();
+
+  // Update the genre for the current hour
+  const genres = ['country', 'rock', 'praise'];
+  const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
+
+  updateState({
+    currentGenre: selectedGenre,
+  });
+
+  console.log(`Genre changed to ${selectedGenre} for hour ${currentHour}`);
 }
 
 export function clearAllScheduledTimeouts() {
