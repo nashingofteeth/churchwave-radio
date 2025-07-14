@@ -11,7 +11,6 @@ export function initializeScheduledSystem() {
 
   // Schedule current and next hour blocks
   scheduleHourBlock(currentHour);
-  scheduleHourBlock(currentHour + 1);
 
   // Schedule hourly updates
   scheduleNextHourUpdate();
@@ -254,6 +253,8 @@ export function createTrackChain(tracks) {
 
 export function scheduleTrackChain(chain) {
   const state = getState();
+  const newTimeouts = [];
+
   chain.forEach((chainItem) => {
     const { track, startTime, isChained, chainedStartTime } = chainItem;
     const actualStartTime = isChained ? chainedStartTime : startTime;
@@ -266,6 +267,8 @@ export function scheduleTrackChain(chain) {
     const timeUntil15Min = timeUntilStart - (15 * 60 * 1000); // 15 minutes before
     const timeUntil5Min = timeUntilStart - (5 * 60 * 1000); // 5 minutes before
 
+    console.log(`Scheduling ${track.trackData.filename}: startTime=${actualStartTime}, timeUntilStart=${timeUntilStart}ms, timeUntilFade=${timeUntilFade}ms`);
+
     // Schedule 15-minute warning
     if (timeUntil15Min > 0) {
       const warning15Timeout = setTimeout(() => {
@@ -273,7 +276,7 @@ export function scheduleTrackChain(chain) {
         updateState({ preScheduledJunkOnly: true });
       }, timeUntil15Min);
 
-      state.scheduledTimeouts.push(warning15Timeout);
+      newTimeouts.push(warning15Timeout);
     }
 
     // Schedule 5-minute warning
@@ -283,12 +286,13 @@ export function scheduleTrackChain(chain) {
         updateState({ preScheduledNonBumperJunkOnly: true });
       }, timeUntil5Min);
 
-      state.scheduledTimeouts.push(warning5Timeout);
+      newTimeouts.push(warning5Timeout);
     }
 
     // Schedule fade (if not chained)
     if (!isChained && timeUntilFade > 0) {
       const fadeTimeout = setTimeout(() => {
+        console.log('fade');
         if (!state.isInScheduledMode) {
           // Import fadeOut dynamically to avoid circular dependencies
           import('./player.js').then(({ fadeOut }) => {
@@ -297,7 +301,7 @@ export function scheduleTrackChain(chain) {
         }
       }, timeUntilFade);
 
-      state.scheduledTimeouts.push(fadeTimeout);
+      newTimeouts.push(fadeTimeout);
     }
 
     // Schedule track start
@@ -305,7 +309,12 @@ export function scheduleTrackChain(chain) {
       onScheduledTrackTimeout(track, isChained);
     }, timeUntilStart);
 
-    state.scheduledTimeouts.push(startTimeout);
+    newTimeouts.push(startTimeout);
+  });
+
+  // Add all timeouts atomically
+  updateState({
+    scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts]
   });
 }
 
@@ -336,9 +345,10 @@ export function scheduleNextHourUpdate() {
 }
 
 export function clearAllScheduledTimeouts() {
+  console.log('clearing scheduled timeouts');
   const state = getState();
   state.scheduledTimeouts.forEach(timeout => clearTimeout(timeout));
-  state.scheduledTimeouts = [];
+  updateState({ scheduledTimeouts: [] });
 }
 
 export function enterScheduledMode(track) {

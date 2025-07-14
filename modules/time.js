@@ -1,5 +1,6 @@
 // Time management module for time-related operations
 
+import { initialize, reset } from './core.js';
 import { getState } from './state.js';
 
 export function getAlgorithmicTimeSlot() {
@@ -76,6 +77,11 @@ export function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
 export function startSimulatedTimeProgression() {
   const state = getState();
 
+  if (!state.simulatedDate) {
+    console.error('Simulated time not set');
+    return;
+  }
+
   // Clear any existing time progression
   if (state.simulatedTimeInterval) {
     clearInterval(state.simulatedTimeInterval);
@@ -101,3 +107,30 @@ export function stopSimulatedTimeProgression() {
     state.simulatedTimeInterval = null;
   }
 }
+
+// Simulation function that properly handles reset and initialization
+export function simulateTime(hour, minute = 0, second = 0, date = null) {
+  // Reset application to clear existing state
+  reset();
+
+  // Set the simulated date
+  setSimulatedTime(hour, minute, second, date);
+
+  // Start continuous time progression
+  startSimulatedTimeProgression();
+
+  // Reinitialize the application with simulated time
+  initialize();
+}
+
+export function clearSimulatedTime() {
+  const state = getState();
+  stopSimulatedTimeProgression();
+  state.simulatedDate = null;
+  console.log('Cleared simulated time - now using real time');
+
+  // Reset and reinitialize with real time
+  // This ensures a clean transition back to real-time scheduling
+  reset();
+  initialize();
+};

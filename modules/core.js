@@ -39,15 +39,6 @@ export async function load() {
   }
 }
 
-function initializeJunkCycleOrder() {
-  const state = getState();
-  const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(() => Math.random() - 0.5);
-  updateState({
-    junkCycleOrder: shuffled,
-    junkCycleIndex: 0
-  });
-}
-
 export function initialize() {
   // Initialize scheduled track system
   const playingScheduledTrack = initializeScheduledSystem();
@@ -58,9 +49,17 @@ export function initialize() {
   if (!playingScheduledTrack) {
     // Set up hourly cleanup for algorithmic tracks
     setupHourlyCleanup();
-
     playAlgorithmicTrack();
   }
+}
+
+function initializeJunkCycleOrder() {
+  const state = getState();
+  const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(() => Math.random() - 0.5);
+  updateState({
+    junkCycleOrder: shuffled,
+    junkCycleIndex: 0
+  });
 }
 
 export function setMorningGenre() {
