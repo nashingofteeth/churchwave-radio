@@ -61,7 +61,6 @@ export function skipTrack() {
   const state = getState();
   console.log("Skipping track");
 
-  // Fade out current track and play next
   state.theTransmitter.pause();
 
   playAlgorithmicTrack();
@@ -89,13 +88,16 @@ export function reset() {
   // Clear any existing intervals or timeouts
   if (state.fadeOutInterval) {
     clearInterval(state.fadeOutInterval);
-    updateState({ fadeOutInterval: null });
   }
 
   if (state.hourlyScheduleTimeout) {
     clearTimeout(state.hourlyScheduleTimeout);
-    updateState({ hourlyScheduleTimeout: null });
   }
+
+  updateState({
+    fadeOutInterval: null,
+    hourlyScheduleTimeout: null
+  });
 
   clearAllScheduledTimeouts();
 

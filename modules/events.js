@@ -1,6 +1,6 @@
 // Event listeners module for managing audio element event listeners
 
-import { getState } from './state.js';
+import { addToStateArray, clearStateArray, getState, updateState } from './state.js';
 
 export function initializeUIEventListeners() {
   const state = getState();
@@ -43,13 +43,13 @@ export function initializeUIEventListeners() {
 export function addCurrentTrackListener(eventType, handler, options = {}) {
   const state = getState();
   state.theTransmitter.addEventListener(eventType, handler, options);
-  state.currentTrackListeners.push({ eventType, handler, options });
+  addToStateArray('currentTrackListeners', { eventType, handler, options });
 }
 
 export function addScheduledTrackListener(eventType, handler, options = {}) {
   const state = getState();
   state.theTransmitter.addEventListener(eventType, handler, options);
-  state.scheduledTrackListeners.push({ eventType, handler, options });
+  addToStateArray('scheduledTrackListeners', { eventType, handler, options });
 }
 
 export function cleanupCurrentTrackListeners() {
@@ -61,7 +61,7 @@ export function cleanupCurrentTrackListeners() {
       console.warn('Error removing current track listener:', error);
     }
   });
-  state.currentTrackListeners = [];
+  clearStateArray('currentTrackListeners');
 }
 
 export function cleanupScheduledTrackListeners() {
@@ -73,7 +73,7 @@ export function cleanupScheduledTrackListeners() {
       console.warn('Error removing scheduled track listener:', error);
     }
   });
-  state.scheduledTrackListeners = [];
+  clearStateArray('scheduledTrackListeners');
 }
 
 // Private console debugging tool - clears ALL event listeners
@@ -86,8 +86,8 @@ export function forceCleanupAllEventListeners() {
   const newTransmitter = state.theTransmitter.cloneNode(true);
   state.theTransmitter.parentNode.replaceChild(newTransmitter, state.theTransmitter);
 
-  // Update the state reference
-  state.theTransmitter = newTransmitter;
+  // Update the state reference using updateState
+  updateState({ theTransmitter: newTransmitter });
 
   console.log('All event listeners forcibly removed - reinitialization required');
 }

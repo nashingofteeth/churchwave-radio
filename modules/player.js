@@ -1,7 +1,7 @@
 // Player module for audio playback control functions
 
 import { addCurrentTrackListener, cleanupCurrentTrackListeners } from './events.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, updateState, markAlgorithmicTrackUsed } from './state.js';
 import { getRandomStartTime } from './time.js';
 
 export function playTrack(trackUrl, callback, startTime = null) {
@@ -68,7 +68,7 @@ export function playLateNightLoFi() {
   }
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  state.usedAlgorithmicTracks.lateNightLoFis[selectedTrack.key] = true;
+  markAlgorithmicTrackUsed('lateNightLoFis', selectedTrack.key);
   playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
@@ -97,7 +97,7 @@ export function playMorningTrack() {
   }
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  state.usedAlgorithmicTracks.morning[selectedTrack.key] = true;
+  markAlgorithmicTrackUsed('morning', selectedTrack.key);
   playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
@@ -120,7 +120,7 @@ export function playStandardTrack() {
   }
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  state.usedAlgorithmicTracks.standard[selectedTrack.key] = true;
+  markAlgorithmicTrackUsed('standard', selectedTrack.key);
   playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 

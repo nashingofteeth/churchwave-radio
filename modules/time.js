@@ -64,14 +64,13 @@ export function getRandomStartTime(duration) {
 // Simulation function to set date and time to the second
 // Note: This function is wrapped in the app module to avoid circular dependencies
 export function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
-  const state = getState();
-
-  // Set the simulated date
-  state.simulatedDate = date ? new Date(date) : new Date();
-  state.simulatedDate.setHours(hour, minute, second, 0);
-  console.log(`Simulating time: ${getLocaleString(state.simulatedDate)}`);
-
-  return state.simulatedDate;
+  const simulatedDate = date ? new Date(date) : new Date();
+  simulatedDate.setHours(hour, minute, second, 0);
+  
+  updateState({ simulatedDate });
+  
+  console.log(`Simulating time: ${getLocaleString(simulatedDate)}`);
+  return simulatedDate;
 }
 
 export function startSimulatedTimeProgression() {
@@ -87,6 +86,7 @@ export function startSimulatedTimeProgression() {
 
   // Progress time by 1 second every 1000ms (real time)
   const simulatedTimeInterval = setInterval(() => {
+    const state = getState();
     if (state.simulatedDate) {
       state.simulatedDate.setSeconds(state.simulatedDate.getSeconds() + 1);
 
@@ -121,8 +121,8 @@ export function simulateTime(hour, minute = 0, second = 0, date = null) {
 }
 
 export function clearSimulatedTime() {
-  updateState({ simulatedDate: null });
   stopSimulatedTimeProgression();
+  updateState({ simulatedDate: null });
 
   reset();
 

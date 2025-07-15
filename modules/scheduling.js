@@ -2,7 +2,7 @@
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, updateState } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, updateState, markScheduledFileUsed } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function initializeScheduledSystem() {
@@ -65,11 +65,14 @@ export function cleanupExpiredUsage() {
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
 
+  const cleanedUsedScheduledFiles = {};
   Object.keys(state.usedScheduledFiles).forEach(filePath => {
-    if (state.usedScheduledFiles[filePath].getTime() < twentyFourHoursAgo) {
-      delete state.usedScheduledFiles[filePath];
+    if (state.usedScheduledFiles[filePath].getTime() >= twentyFourHoursAgo) {
+      cleanedUsedScheduledFiles[filePath] = state.usedScheduledFiles[filePath];
     }
   });
+
+  updateState({ usedScheduledFiles: cleanedUsedScheduledFiles });
 }
 
 export function getActiveScheduledTrack() {
@@ -371,8 +374,6 @@ export function shuffleJunkCycleOrder() {
     junkCycleOrder: shuffled,
     junkCycleIndex: 0
   });
-
-  console.log('Junk cycle order shuffled and index reset');
 }
 
 export function setGenre() {
@@ -389,9 +390,6 @@ export function setGenre() {
   updateState({
     currentGenre: selectedGenre,
   });
-
-  const currentHour = getCurrentTime().getHours();
-  console.log(`Genre changed to ${selectedGenre} for hour ${currentHour}`);
 }
 
 export function clearAllScheduledTimeouts() {
@@ -419,7 +417,7 @@ export function enterScheduledMode(track) {
   }
 
   console.log(`Entering scheduled mode: ${trackData.filename} (offset: ${offsetSeconds.toFixed(1)}s)`);
-  state.usedScheduledFiles[track.trackKey] = now;
+  markScheduledFileUsed(track.trackKey, now);
 
   // Clean up any existing current track listeners first
   cleanupCurrentTrackListeners();
@@ -450,7 +448,7 @@ export function playScheduledTrackDirect(track) {
   const now = getCurrentTime();
 
   console.log(`Playing chained scheduled track: ${trackData.filename}`);
-  state.usedScheduledFiles[track.trackKey] = now;
+  markScheduledFileUsed(track.trackKey, now);
 
   // Clean up any existing current track listeners first
   cleanupCurrentTrackListeners();

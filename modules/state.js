@@ -59,7 +59,62 @@ export function getState() {
 
 // State setters
 export function updateState(updates) {
+  console.log('State update:', updates);
+
+  // Validate critical updates
+  if (updates.simulatedDate && updates.simulatedDate !== null && !(updates.simulatedDate instanceof Date)) {
+    throw new Error('simulatedDate must be a Date object or null');
+  }
+
   Object.assign(state, updates);
+}
+
+// Helper function for nested object updates
+export function updateNestedState(path, value) {
+  const keys = path.split('.');
+  let current = state;
+
+  // Navigate to the parent of the target property
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (!(keys[i] in current)) {
+      current[keys[i]] = {};
+    }
+    current = current[keys[i]];
+  }
+
+  // Set the final value
+  current[keys[keys.length - 1]] = value;
+}
+
+// Helper function for array operations
+export function addToStateArray(arrayPath, item) {
+  const keys = arrayPath.split('.');
+  let current = state;
+
+  // Navigate to the array
+  for (let i = 0; i < keys.length - 1; i++) {
+    current = current[keys[i]];
+  }
+
+  const arrayName = keys[keys.length - 1];
+  if (!Array.isArray(current[arrayName])) {
+    current[arrayName] = [];
+  }
+
+  current[arrayName].push(item);
+}
+
+export function clearStateArray(arrayPath) {
+  const keys = arrayPath.split('.');
+  let current = state;
+
+  // Navigate to the array
+  for (let i = 0; i < keys.length - 1; i++) {
+    current = current[keys[i]];
+  }
+
+  const arrayName = keys[keys.length - 1];
+  current[arrayName] = [];
 }
 
 export function resetUsedAlgorithmicTracks() {
@@ -73,14 +128,24 @@ export function resetUsedAlgorithmicTracks() {
 
 export function clearUsedAlgorithmicTracksForCategory(category) {
   if (state.usedAlgorithmicTracks[category]) {
-    const updatedUsedAlgorithmicTracks = { ...state.usedAlgorithmicTracks };
-    updatedUsedAlgorithmicTracks[category] = {};
-    updateState({ usedAlgorithmicTracks: updatedUsedAlgorithmicTracks });
+    state.usedAlgorithmicTracks[category] = {};
   }
 }
 
 export function resetUsedScheduledFiles() {
   updateState({ usedScheduledFiles: {} });
+}
+
+// Helper functions for tracking usage
+export function markAlgorithmicTrackUsed(category, trackKey) {
+  if (!state.usedAlgorithmicTracks[category]) {
+    state.usedAlgorithmicTracks[category] = {};
+  }
+  state.usedAlgorithmicTracks[category][trackKey] = true;
+}
+
+export function markScheduledFileUsed(trackKey, timestamp) {
+  state.usedScheduledFiles[trackKey] = timestamp;
 }
 
 // Initialize state from config and reset to defaults
