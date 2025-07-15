@@ -1,3 +1,5 @@
+import { setGenre, shuffleJunkCycleOrder } from './scheduling.js';
+
 // State management module for global application state
 
 export const state = {
@@ -13,11 +15,7 @@ export const state = {
 
   // Usage tracking
   usedScheduledFiles: {},
-  usedAlgorithmicTracks: {
-    lateNightLoFis: {},
-    morning: {},
-    standard: {}
-  },
+  usedAlgorithmicTracks: {},
 
   // Playback state
   isFirstTrack: true,
@@ -26,7 +24,7 @@ export const state = {
   fadeOutInterval: null,
   currentScheduledTrack: null,
   simulatedTimeInterval: null,
-  fadeOutDuration: 3000, // 3 seconds in milliseconds
+  fadeOutDuration: null,
 
   // Algorithmic state
   currentGenre: null,
@@ -39,7 +37,7 @@ export const state = {
   isInScheduledMode: false,
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
-  chainGapThreshold: 10, // seconds - if tracks end within this time, chain them
+  chainGapThreshold: null,
 
   // Event listener management
   currentTrackListeners: [],
@@ -65,17 +63,66 @@ export function updateState(updates) {
 }
 
 export function resetUsedAlgorithmicTracks() {
+  // Reset all existing algorithmic track categories
+  const resetUsedAlgorithmicTracks = {};
   for (const category in state.usedAlgorithmicTracks) {
-    state.usedAlgorithmicTracks[category] = {};
+    resetUsedAlgorithmicTracks[category] = {};
   }
+  updateState({ usedAlgorithmicTracks: resetUsedAlgorithmicTracks });
 }
 
 export function clearUsedAlgorithmicTracksForCategory(category) {
   if (state.usedAlgorithmicTracks[category]) {
-    state.usedAlgorithmicTracks[category] = {};
+    const updatedUsedAlgorithmicTracks = { ...state.usedAlgorithmicTracks };
+    updatedUsedAlgorithmicTracks[category] = {};
+    updateState({ usedAlgorithmicTracks: updatedUsedAlgorithmicTracks });
   }
 }
 
 export function resetUsedScheduledFiles() {
-  state.usedScheduledFiles = {};
+  updateState({ usedScheduledFiles: {} });
+}
+
+// Initialize state from config and reset to defaults
+export function initializeState() {
+  const state = getState();
+
+  // Initialize from config if available
+  const config = state.config;
+  if (config?.playback) {
+    // Set playback configuration values
+    updateState({
+      fadeOutDuration: config.playback.fadeOutDuration,
+      chainGapThreshold: config.playback.chainGapThreshold
+    });
+  } else {
+    console.warn('Playback settings not found');
+  }
+
+  // Initialize usedAlgorithmicTracks structure from config
+  if (config.directories?.algorithmic?.subdirectories) {
+    const usedAlgorithmicTracks = {};
+
+    // Create tracking objects for each algorithmic subdirectory
+    Object.keys(config.directories.algorithmic.subdirectories).forEach(key => {
+      const subdir = config.directories.algorithmic.subdirectories[key];
+      // Skip junk as it's not tracked in usedAlgorithmicTracks
+      if (subdir.category !== 'junkContent') {
+        usedAlgorithmicTracks[key] = {};
+      }
+    });
+
+    updateState({ usedAlgorithmicTracks });
+  }
+  else {
+    console.warn('Algorithmic directories not found');
+  }
+
+  // Initialize junk cycle order if preprocessed data is available
+  shuffleJunkCycleOrder();
+
+  // Initialize genre selection
+  setGenre();
+
+  console.log('State initialized from config');
 }

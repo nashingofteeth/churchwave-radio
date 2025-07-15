@@ -1,7 +1,7 @@
 // Time management module for time-related operations
 
-import { initialize, reset } from './core.js';
-import { getState } from './state.js';
+import { reset } from './core.js';
+import { getState, updateState } from './state.js';
 
 export function getAlgorithmicTimeSlot() {
   const state = getState();
@@ -83,12 +83,10 @@ export function startSimulatedTimeProgression() {
   }
 
   // Clear any existing time progression
-  if (state.simulatedTimeInterval) {
-    clearInterval(state.simulatedTimeInterval);
-  }
+  stopSimulatedTimeProgression();
 
   // Progress time by 1 second every 1000ms (real time)
-  state.simulatedTimeInterval = setInterval(() => {
+  const simulatedTimeInterval = setInterval(() => {
     if (state.simulatedDate) {
       state.simulatedDate.setSeconds(state.simulatedDate.getSeconds() + 1);
 
@@ -98,39 +96,35 @@ export function startSimulatedTimeProgression() {
       }
     }
   }, 1000);
+
+  updateState({ simulatedTimeInterval });
 }
 
 export function stopSimulatedTimeProgression() {
   const state = getState();
   if (state.simulatedTimeInterval) {
     clearInterval(state.simulatedTimeInterval);
-    state.simulatedTimeInterval = null;
+    updateState({ simulatedTimeInterval: null });
   }
 }
 
 // Simulation function that properly handles reset and initialization
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
-  // Reset application to clear existing state
-  reset();
-
   // Set the simulated date
   setSimulatedTime(hour, minute, second, date);
 
+  // Reset the application with simulated time
+  reset()
+
   // Start continuous time progression
   startSimulatedTimeProgression();
-
-  // Reinitialize the application with simulated time
-  initialize();
 }
 
 export function clearSimulatedTime() {
-  const state = getState();
+  updateState({ simulatedDate: null });
   stopSimulatedTimeProgression();
-  state.simulatedDate = null;
-  console.log('Cleared simulated time - now using real time');
 
-  // Reset and reinitialize with real time
-  // This ensures a clean transition back to real-time scheduling
   reset();
-  initialize();
+
+  console.log('Cleared simulated time - now using real time');
 };

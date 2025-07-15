@@ -14,15 +14,6 @@ export function initializeScheduledSystem() {
 
   // Schedule hourly updates
   scheduleHourlyUpdates();
-
-  // Check for any currently playing scheduled track
-  const activeTrack = getActiveScheduledTrack();
-  if (activeTrack) {
-    enterScheduledMode(activeTrack);
-    return true;
-  }
-
-  return false;
 }
 
 export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
@@ -385,21 +376,25 @@ export function shuffleJunkCycleOrder() {
 }
 
 export function setGenre() {
-  const currentHour = getCurrentTime().getHours();
+  const state = getState();
 
-  // Update the genre for the current hour
-  const genres = ['country', 'rock', 'praise'];
+  if (!state.config.genres) {
+    console.warn('No genres configured');
+    return;
+  }
+
+  const genres = Object.keys(state.config.genres);
   const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
 
   updateState({
     currentGenre: selectedGenre,
   });
 
+  const currentHour = getCurrentTime().getHours();
   console.log(`Genre changed to ${selectedGenre} for hour ${currentHour}`);
 }
 
 export function clearAllScheduledTimeouts() {
-  console.log('clearing scheduled timeouts');
   const state = getState();
   state.scheduledTimeouts.forEach(timeout => clearTimeout(timeout));
   updateState({ scheduledTimeouts: [] });

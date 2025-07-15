@@ -9,8 +9,8 @@ export function initializeUIEventListeners() {
     state.loadingIndicator.style.display = "block";
 
     // Import startPlayback dynamically to avoid circular dependencies
-    import('./core.js').then(({ startPlayback }) => {
-      startPlayback();
+    import('./core.js').then(({ initialize }) => {
+      initialize();
     });
 
     state.startButton.style.display = "none";

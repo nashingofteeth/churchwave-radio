@@ -1,9 +1,9 @@
 // Core module for main application functions
 
+import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearAllScheduledTimeouts, initializeScheduledSystem, shuffleJunkCycleOrder, setGenre } from './scheduling.js';
-import { getState, updateState } from './state.js';
-import { stopSimulatedTimeProgression } from './time.js';
+import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, initializeScheduledSystem } from './scheduling.js';
+import { getState, initializeState, resetUsedAlgorithmicTracks, resetUsedScheduledFiles, updateState } from './state.js';
 
 export async function load() {
 
@@ -40,35 +40,20 @@ export async function load() {
 }
 
 export function initialize() {
-  // Initialize scheduled track system
-  const playingScheduledTrack = initializeScheduledSystem();
-
-  shuffleJunkCycleOrder();
-  setGenre();
-
-  if (!playingScheduledTrack) {
-    playAlgorithmicTrack();
-  }
+  initializeState();
+  initializeScheduledSystem();
+  startPlayback();
 }
-
-
 
 export function startPlayback() {
   console.log("Starting playback");
-  reset();
 
-  // Ensure data is loaded before initializing
-  if (!getState().config || !getState().preprocessed) {
-    console.log("Config not loaded, attempting to load...");
-    load().then(success => {
-      if (success) {
-        initialize();
-      } else {
-        console.error("Failed to load required data. Cannot start playback.");
-      }
-    });
+  // Check for any currently playing scheduled track
+  const activeTrack = getActiveScheduledTrack();
+  if (activeTrack) {
+    enterScheduledMode(activeTrack);
   } else {
-    initialize();
+    playAlgorithmicTrack();
   }
 }
 
@@ -84,34 +69,45 @@ export function skipTrack() {
 
 export function reset() {
   const state = getState();
-
-  updateState({
-    isFirstTrack: true,
-    currentScheduledTrack: null,
-    isInScheduledMode: false,
-    currentGenre: null,
-    junkCycleIndex: 0,
-    preScheduledJunkOnly: false,
-    preScheduledNonBumperJunkOnly: false
-  });
-
   state.theTransmitter.pause();
 
-  // Clear intervals and timeouts
+  // Set all default values
+  updateState({
+    // Playback state
+    isFirstTrack: true,
+    timeOfDay: undefined,
+    currentScheduledTrack: null,
+
+    // Algorithmic state
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false,
+
+    // Scheduling state
+    isInScheduledMode: false,
+  });
+
+  // Clear any existing intervals or timeouts
   if (state.fadeOutInterval) {
     clearInterval(state.fadeOutInterval);
     updateState({ fadeOutInterval: null });
   }
 
-  if (state.simulatedTimeInterval) {
-    stopSimulatedTimeProgression();
-  }
-
-  // Clear all scheduled timeouts
-  clearAllScheduledTimeouts();
-
   if (state.hourlyScheduleTimeout) {
     clearTimeout(state.hourlyScheduleTimeout);
     updateState({ hourlyScheduleTimeout: null });
   }
+
+  clearAllScheduledTimeouts();
+
+  // Clean up listeners
+  cleanupCurrentTrackListeners();
+  cleanupScheduledTrackListeners();
+
+  // Reset usage tracking
+  resetUsedAlgorithmicTracks();
+  resetUsedScheduledFiles();
+
+  initializeScheduledSystem();
+
+  startPlayback();
 }

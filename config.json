@@ -104,6 +104,10 @@
     "useCachedDurations": true
   },
   "timezone": "America/New_York",
+  "playback": {
+    "fadeOutDuration": 3000,
+    "chainGapThreshold": 10
+  },
   "metadata": {
     "version": "3.0"
   }
