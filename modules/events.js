@@ -5,15 +5,25 @@ import { addToStateArray, clearStateArray, getState, updateState } from './state
 export function initializeUIEventListeners() {
   const state = getState();
 
-  const startButtonHandler = () => {
+  const startButtonHandler = async () => {
     state.loadingIndicator.style.display = "block";
-
-    // Import startPlayback dynamically to avoid circular dependencies
-    import('./core.js').then(({ initialize }) => {
-      initialize();
-    });
-
     state.startButton.style.display = "none";
+
+    try {
+      // Import dynamically to avoid circular dependencies
+      const { initializePlayback } = await import('./core.js');
+      const success = await initializePlayback();
+
+      if (!success) {
+        throw new Error('Failed to initialize');
+      }
+    } catch (error) {
+      console.error('Error during initialization:', error);
+      state.loadingIndicator.style.display = "none";
+      state.startButton.style.display = "block";
+      return;
+    }
+
 
     const playingHandler = () => {
       state.loadingIndicator.style.display = "none";

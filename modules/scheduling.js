@@ -2,10 +2,10 @@
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, updateState, markScheduledFileUsed } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, markScheduledFileUsed, updateState } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
-export function initializeScheduledSystem() {
+export function startScheduledSystem() {
   const now = getCurrentTime();
   const currentHour = now.getHours();
 

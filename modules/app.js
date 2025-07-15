@@ -1,6 +1,6 @@
 // Main app module that imports and initializes all modules
 
-import { load, skipTrack } from './core.js';
+import { skipTrack } from './core.js';
 import { forceCleanupAllEventListeners, initializeUIEventListeners } from './events.js';
 import { getState, initializeDOMElements, updateState } from './state.js';
 import { clearSimulatedTime, simulateTime, startSimulatedTimeProgression, stopSimulatedTimeProgression } from './time.js';
@@ -13,20 +13,6 @@ export async function initApp() {
 
     // Initialize UI event listeners
     initializeUIEventListeners();
-
-    // Load configuration and track data
-    const loadSuccess = await load();
-
-    if (!loadSuccess) {
-      console.warn('Data loading may have failed - proceeding with limited functionality');
-    }
-
-    // Verify state contains required data
-    const state = getState();
-    if (!state.config || !state.preprocessed) {
-      console.error('Required configuration or track data missing');
-      return false;
-    }
 
     console.log('Churchwave Radio initialized successfully');
     return true;

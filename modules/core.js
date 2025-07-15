@@ -2,7 +2,7 @@
 
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, initializeScheduledSystem } from './scheduling.js';
+import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, startScheduledSystem } from './scheduling.js';
 import { getState, initializeState, resetUsedAlgorithmicTracks, resetUsedScheduledFiles, updateState } from './state.js';
 
 export async function load() {
@@ -39,10 +39,20 @@ export async function load() {
   }
 }
 
-export function initialize() {
+export async function initializePlayback() {
+  // Load configuration and track data
+  const loadSuccess = await load();
+
+  if (!loadSuccess) {
+    console.error('Failed to load configuration and track data');
+    return false;
+  }
+
   initializeState();
-  initializeScheduledSystem();
+  startScheduledSystem();
   startPlayback();
+
+  return true;
 }
 
 export function startPlayback() {
@@ -109,7 +119,7 @@ export function reset() {
   resetUsedAlgorithmicTracks();
   resetUsedScheduledFiles();
 
-  initializeScheduledSystem();
+  startScheduledSystem();
 
   startPlayback();
 }
