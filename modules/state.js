@@ -1,4 +1,5 @@
 import { setGenre, shuffleJunkCycleOrder } from './scheduling.js';
+import { setAlgorithmicTimeSlot } from './time.js';
 
 // State management module for global application state
 
@@ -20,7 +21,7 @@ export const state = {
   // Playback state
   isFirstTrack: true,
   simulatedDate: null, // Initialize with null for using real time by default
-  timeOfDay: undefined,
+  currentTimeSlot: undefined,
   fadeOutInterval: null,
   currentScheduledTrack: null,
   simulatedTimeInterval: null,
@@ -188,6 +189,9 @@ export function initializeState() {
 
   // Initialize genre selection
   setGenre();
+
+  // Set time of time of day
+  setAlgorithmicTimeSlot();
 
   console.log('State initialized from config');
 }

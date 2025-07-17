@@ -3,7 +3,7 @@
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
 import { clearUsedAlgorithmicTracksForCategory, getState, markScheduledFileUsed, updateState } from './state.js';
-import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
+import { setAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function startScheduledSystem() {
   const now = getCurrentTime();
@@ -112,7 +112,7 @@ export function selectTrackByHierarchy(tracks) {
 
   // Filter by genre if we're in morning time slot
   const state = getState();
-  const timeSlot = getAlgorithmicTimeSlot();
+  const timeSlot = state.currentTimeSlot;
   let filteredTracks = tracks;
 
   if (timeSlot === 'morning' && state.currentGenre) {
@@ -141,8 +141,6 @@ export function selectTrackByHierarchy(tracks) {
 
 export function returnToAlgorithmicPlayback() {
   updateState({ isInScheduledMode: false });
-  const timeSlot = getAlgorithmicTimeSlot();
-  updateState({ timeOfDay: timeSlot });
 
   playAlgorithmicTrack();
 }
@@ -345,11 +343,10 @@ export function performHourlyTasks() {
   cleanupExpiredUsage();
 
   // Update time of day
-  const timeSlot = getAlgorithmicTimeSlot();
-  updateState({ timeOfDay: timeSlot });
+  setAlgorithmicTimeSlot();
 
   // Clear used algorithmic tracks
-  clearUsedAlgorithmicTracksForCategory(timeSlot);
+  clearUsedAlgorithmicTracksForCategory(getState().currentTimeSlot);
   console.log('Hourly cleanup: cleared used algorithmic tracks');
 
   // Shuffle junk cycle order

@@ -1,7 +1,7 @@
 // Player module for audio playback control functions
 
 import { addCurrentTrackListener, cleanupCurrentTrackListeners } from './events.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, updateState, markAlgorithmicTrackUsed } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, getState, markAlgorithmicTrackUsed, updateState } from './state.js';
 import { getRandomStartTime } from './time.js';
 
 export function playTrack(trackUrl, callback, startTime = null) {
@@ -39,7 +39,7 @@ export function playAlgorithmicTrack() {
   }
 
   // Play based on time slot
-  switch (state.timeOfDay) {
+  switch (state.currentTimeSlot) {
     case "lateNightLoFis":
       return playLateNightLoFi();
     case "morning":

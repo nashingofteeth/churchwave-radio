@@ -84,7 +84,7 @@ export function reset() {
   updateState({
     // Playback state
     isFirstTrack: true,
-    timeOfDay: undefined,
+    currentTimeSlot: undefined,
     currentScheduledTrack: null,
 
     // Algorithmic state

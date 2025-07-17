@@ -3,13 +3,15 @@
 import { reset } from './core.js';
 import { getState, updateState } from './state.js';
 
-export function getAlgorithmicTimeSlot() {
+export function setAlgorithmicTimeSlot() {
   const state = getState();
   const currentTime = getCurrentTime();
   const currentHour = currentTime.getHours();
 
   // Get time slots from config
   const algorithmicTimeSlots = state.config.directories.algorithmic.subdirectories;
+
+  let timeSlot = "standard"; // Default fallback
 
   // Check each time slot to find which one the current time falls into
   for (const [slotName, slotConfig] of Object.entries(algorithmicTimeSlots)) {
@@ -21,17 +23,19 @@ export function getAlgorithmicTimeSlot() {
     // Handle time slots that cross midnight
     if (startTime.hours > endTime.hours) {
       if (currentHour >= startTime.hours || currentHour < endTime.hours) {
-        return slotName;
+        timeSlot = slotName;
+        break;
       }
     } else {
       if (currentHour >= startTime.hours && currentHour < endTime.hours) {
-        return slotName;
+        timeSlot = slotName;
+        break;
       }
     }
   }
 
-  // Default fallback
-  return "standard";
+  // Set currentTimeSlot in state
+  updateState({ currentTimeSlot: timeSlot });
 }
 
 export function getCurrentTime() {
@@ -66,9 +70,9 @@ export function getRandomStartTime(duration) {
 export function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
   const simulatedDate = date ? new Date(date) : new Date();
   simulatedDate.setHours(hour, minute, second, 0);
-  
+
   updateState({ simulatedDate });
-  
+
   console.log(`Simulating time: ${getLocaleString(simulatedDate)}`);
   return simulatedDate;
 }
