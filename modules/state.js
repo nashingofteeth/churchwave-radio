@@ -166,8 +166,6 @@ export function initializeState() {
   }
 
   // Initialize usedAlgorithmicTracks structure from config
-  console.log('used AlgorithmicTracks length:', state.usedAlgorithmicTracks);
-
   if (config.directories?.algorithmic?.subdirectories && Object.keys(state.usedAlgorithmicTracks).length === 0) {
     const usedAlgorithmicTracks = {};
 
