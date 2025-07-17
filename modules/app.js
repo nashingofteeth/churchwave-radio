@@ -1,7 +1,7 @@
 // Main app module that imports and initializes all modules
 
-import { skipTrack } from './core.js';
-import { forceCleanupAllEventListeners, initializeUIEventListeners } from './events.js';
+import { skipTrack, reset } from './core.js';
+import { initializeUIEventListeners } from './events.js';
 import { getState, initializeDOMElements, updateState } from './state.js';
 import { clearSimulatedTime, simulateTime, startSimulatedTimeProgression, stopSimulatedTimeProgression } from './time.js';
 
@@ -24,7 +24,7 @@ export async function initApp() {
 
 // Export functions for global access (for debugging and console use)
 window.skipTrack = skipTrack;
-window.forceCleanupAllEventListeners = forceCleanupAllEventListeners;
+window.resetApp = reset;
 window.simulateTime = simulateTime;
 window.startSimulatedTimeProgression = startSimulatedTimeProgression;
 window.stopSimulatedTimeProgression = stopSimulatedTimeProgression;
