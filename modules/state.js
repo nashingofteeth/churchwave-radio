@@ -155,7 +155,7 @@ export function initializeState() {
 
   // Initialize from config if available
   const config = state.config;
-  if (config?.playback) {
+  if (config?.playback && (!state.fadeOutDuration || !state.chainGapThreshold)) {
     // Set playback configuration values
     updateState({
       fadeOutDuration: config.playback.fadeOutDuration,
@@ -166,7 +166,9 @@ export function initializeState() {
   }
 
   // Initialize usedAlgorithmicTracks structure from config
-  if (config.directories?.algorithmic?.subdirectories) {
+  console.log('used AlgorithmicTracks length:', state.usedAlgorithmicTracks);
+
+  if (config.directories?.algorithmic?.subdirectories && Object.keys(state.usedAlgorithmicTracks).length === 0) {
     const usedAlgorithmicTracks = {};
 
     // Create tracking objects for each algorithmic subdirectory

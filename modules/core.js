@@ -119,7 +119,7 @@ export function reset() {
   resetUsedAlgorithmicTracks();
   resetUsedScheduledFiles();
 
+  initializeState();
   startScheduledSystem();
-
   startPlayback();
 }
