@@ -2,8 +2,9 @@
 
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, startScheduledSystem } from './scheduling.js';
+import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, startScheduledSystem, shuffleJunkCycleOrder, setGenre } from './scheduling.js';
 import { getState, initializeState, resetUsedAlgorithmicTracks, resetUsedScheduledFiles, updateState } from './state.js';
+import { setAlgorithmicTimeSlot } from './time.js';
 
 export async function load() {
 
@@ -80,6 +81,17 @@ export function reset() {
   const state = getState();
   state.theTransmitter.pause();
 
+  // Clear any existing intervals or timeouts
+  if (state.fadeOutInterval) {
+    clearInterval(state.fadeOutInterval);
+  }
+
+  if (state.hourlyScheduleTimeout) {
+    clearTimeout(state.hourlyScheduleTimeout);
+  }
+
+  clearAllScheduledTimeouts();
+
   // Set all default values
   updateState({
     // Playback state
@@ -93,23 +105,11 @@ export function reset() {
 
     // Scheduling state
     isInScheduledMode: false,
-  });
 
-  // Clear any existing intervals or timeouts
-  if (state.fadeOutInterval) {
-    clearInterval(state.fadeOutInterval);
-  }
-
-  if (state.hourlyScheduleTimeout) {
-    clearTimeout(state.hourlyScheduleTimeout);
-  }
-
-  updateState({
+    // Timing events state
     fadeOutInterval: null,
     hourlyScheduleTimeout: null
   });
-
-  clearAllScheduledTimeouts();
 
   // Clean up listeners
   cleanupCurrentTrackListeners();
@@ -119,7 +119,18 @@ export function reset() {
   resetUsedAlgorithmicTracks();
   resetUsedScheduledFiles();
 
-  initializeState();
+  // Initialize junk cycle order
+  shuffleJunkCycleOrder();
+
+  // Set time of time of day
+  setAlgorithmicTimeSlot();
+
+  // Initialize genre selection
+  setGenre();
+
+  // Start scheduling
   startScheduledSystem();
+
+  // Pick something to play now
   startPlayback();
 }
