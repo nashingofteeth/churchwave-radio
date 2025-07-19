@@ -3,6 +3,7 @@
 import { getState, updateState } from './state.js';
 import { startScheduledSystem, clearAllScheduledTimeouts, shuffleJunkCycleOrder } from './scheduling.js';
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
+import { startPlayback } from './core.js';
 
 export function getAlgorithmicTimeSlot(currentHour) {
   const state = getState();
@@ -164,6 +165,9 @@ function resetForTimeSimulation() {
 
   // Restart scheduling system
   startScheduledSystem();
+
+  // Pick something to play
+  startPlayback();
 }
 
 // Simulation function that properly handles reset and initialization
