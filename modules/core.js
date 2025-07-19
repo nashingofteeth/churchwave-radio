@@ -1,10 +1,8 @@
 // Core module for main application functions
 
-import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearAllScheduledTimeouts, enterScheduledMode, getActiveScheduledTrack, startScheduledSystem, shuffleJunkCycleOrder } from './scheduling.js';
-import { getState, initializeState, resetUsedAlgorithmicTracks, resetUsedScheduledFiles, updateState } from './state.js';
-import { stopClock, startRealTimeClock } from './time.js';
+import { enterScheduledMode, getActiveScheduledTrack, startScheduledSystem } from './scheduling.js';
+import { getState, initializeState, updateState } from './state.js';
 
 export async function load() {
 
@@ -77,71 +75,3 @@ export function skipTrack() {
   playAlgorithmicTrack();
 }
 
-export function reset() {
-  const state = getState();
-  state.theTransmitter.pause();
-
-  // Clear any existing intervals or timeouts
-  if (state.fadeOutInterval) {
-    clearInterval(state.fadeOutInterval);
-  }
-
-  if (state.hourlyScheduleTimeout) {
-    clearTimeout(state.hourlyScheduleTimeout);
-  }
-
-  // Stop the current clock and restart it (preserves current time but clears intervals)
-  const wasSimulated = state.isSimulatedTime;
-  const currentSpeed = state.simulatedSpeed;
-  stopClock();
-
-  clearAllScheduledTimeouts();
-
-  // Set all default values
-  updateState({
-    // Playback state
-    isFirstTrack: true,
-    currentScheduledTrack: null,
-
-    // Algorithmic state
-    preScheduledJunkOnly: false,
-    preScheduledNonBumperJunkOnly: false,
-
-    // Scheduling state
-    isInScheduledMode: false,
-
-    // Timing events state
-    fadeOutInterval: null,
-    hourlyScheduleTimeout: null,
-
-    // Clock state (don't reset currentTime, just intervals)
-    clockInterval: null
-  });
-
-  // Clean up listeners
-  cleanupCurrentTrackListeners();
-  cleanupScheduledTrackListeners();
-
-  // Reset usage tracking
-  resetUsedAlgorithmicTracks();
-  resetUsedScheduledFiles();
-
-  // Initialize junk cycle order
-  shuffleJunkCycleOrder();
-
-
-  // Start scheduling
-  startScheduledSystem();
-
-  // Restart the clock with the same mode it was in
-  if (wasSimulated) {
-    import('./time.js').then(({ startSimulatedClock }) => {
-      startSimulatedClock(currentSpeed);
-    });
-  } else {
-    startRealTimeClock();
-  }
-
-  // Pick something to play now
-  startPlayback();
-}

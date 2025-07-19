@@ -1,7 +1,8 @@
 // Time management module for time-related operations
 
-import { reset } from './core.js';
 import { getState, updateState } from './state.js';
+import { startScheduledSystem, clearAllScheduledTimeouts, shuffleJunkCycleOrder } from './scheduling.js';
+import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 
 export function getAlgorithmicTimeSlot(currentHour) {
   const state = getState();
@@ -134,13 +135,44 @@ export function getRandomStartTime(duration) {
   return Math.floor(Math.random() * (duration * 0.9));
 }
 
+// Minimal reset function for time simulation only
+function resetForTimeSimulation() {
+  const state = getState();
+
+  // Clear timeouts and intervals
+  if (state.hourlyScheduleTimeout) {
+    clearTimeout(state.hourlyScheduleTimeout);
+  }
+  if (state.dailyMorningGenreTimeout) {
+    clearTimeout(state.dailyMorningGenreTimeout);
+  }
+
+  clearAllScheduledTimeouts();
+
+  // Reset scheduling state
+  updateState({
+    isInScheduledMode: false,
+    currentScheduledTrack: null,
+    hourlyScheduleTimeout: null,
+    dailyMorningGenreTimeout: null,
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false,
+  });
+
+  cleanupCurrentTrackListeners();
+  cleanupScheduledTrackListeners();
+
+  // Restart scheduling system
+  startScheduledSystem();
+}
+
 // Simulation function that properly handles reset and initialization
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
   // Set the clock time
   setClockTime(hour, minute, second, date);
 
-  // Reset the application with simulated time
-  reset();
+  // Reset what's needed for time simulation
+  resetForTimeSimulation();
 
   // Start simulated time progression
   startSimulatedClock(1);
@@ -155,8 +187,8 @@ export function clearSimulatedTime() {
   // Switch back to real time clock
   startRealTimeClock();
 
-  // Reset the application
-  reset();
+  // Reset what's needed for time simulation
+  resetForTimeSimulation();
 
   console.log('Cleared simulated time - now using real time');
 }
