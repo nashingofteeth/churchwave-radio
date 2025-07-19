@@ -2,18 +2,25 @@
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, markScheduledFileUsed, updateState } from './state.js';
-import { setAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
+import { getState, markScheduledFileUsed, resetUsedAlgorithmicTracks, updateState } from './state.js';
+import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function startScheduledSystem() {
   const now = getCurrentTime();
   const currentHour = now.getHours();
 
+  // Set initial morning genres
+  setMorningGenres();
+
   // Schedule current and next hour blocks
   scheduleHourBlock(currentHour);
+  scheduleHourBlock(currentHour + 1);
 
   // Schedule hourly updates
   scheduleHourlyUpdates();
+
+  // Schedule daily morning genre updates
+  scheduleDailyMorningGenreUpdate();
 }
 
 export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
@@ -106,22 +113,27 @@ export function getActiveScheduledTrack() {
   return selectTrackByHierarchy(activeTracks);
 }
 
-export function selectTrackByHierarchy(tracks) {
+export function selectTrackByHierarchy(tracks, scheduledHour = null) {
   if (tracks.length === 0) return null;
   if (tracks.length === 1) return tracks[0];
 
   // Filter by genre if we're in morning time slot
   const state = getState();
-  const timeSlot = state.currentTimeSlot;
+  const hourToCheck = scheduledHour !== null ? scheduledHour : getCurrentTime().getHours();
+  const timeSlot = getAlgorithmicTimeSlot(hourToCheck);
   let filteredTracks = tracks;
 
-  if (timeSlot === 'morning' && state.currentGenre) {
-    const genreMatchedTracks = tracks.filter(track => {
-      return track.genre === state.currentGenre;
-    });
+  if (timeSlot === 'morning' && state.morningGenres) {
+    const morningGenre = state.morningGenres[hourToCheck];
 
-    if (genreMatchedTracks.length > 0) {
-      filteredTracks = genreMatchedTracks;
+    if (morningGenre) {
+      const genreMatchedTracks = tracks.filter(track => {
+        return track.genre === morningGenre;
+      });
+
+      if (genreMatchedTracks.length > 0) {
+        filteredTracks = genreMatchedTracks;
+      }
     }
   }
 
@@ -161,6 +173,16 @@ export function scheduleHourBlock(hour) {
         return false;
       }
 
+      // Check if scheduled time has passed for today
+      const { hours, minutes, seconds } = parseTimeString(track.time);
+      const todayScheduledTime = new Date(now.getTime());
+      todayScheduledTime.setHours(hours, minutes, seconds, 0);
+      
+      // Skip if the scheduled time has already passed today
+      if (todayScheduledTime < now) {
+        return false;
+      }
+
       return true;
     } catch (error) {
       console.error('Error checking track for hour block:', track, error);
@@ -195,7 +217,11 @@ export function selectTracksWithHierarchy(tracks) {
   });
 
   // Select one track per time slot using hierarchy
-  return Object.values(timeGroups).map(group => selectTrackByHierarchy(group)).filter(Boolean);
+  return Object.values(timeGroups).map(group => {
+    const scheduledTime = getScheduledTrackTime(group[0]);
+    const scheduledHour = scheduledTime.getHours();
+    return selectTrackByHierarchy(group, scheduledHour);
+  }).filter(Boolean);
 }
 
 export function createTrackChain(tracks) {
@@ -277,7 +303,6 @@ export function scheduleTrackChain(chain) {
     // Schedule fade (if not chained)
     if (!isChained && timeUntilFade > 0) {
       const fadeTimeout = setTimeout(() => {
-        console.log('fade');
         if (!state.isInScheduledMode) {
           // Import fadeOut dynamically to avoid circular dependencies
           import('./player.js').then(({ fadeOut }) => {
@@ -318,7 +343,7 @@ export function scheduleHourlyUpdates() {
   const state = getState();
   const now = getCurrentTime();
   const nextHour = new Date(now.getTime());
-  nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+  nextHour.setHours(nextHour.getHours() + 1, 0, 5, 0); // Add 5 second buffer
   const timeUntilNextHour = nextHour - now;
 
   // Clear any existing hourly timeout
@@ -327,33 +352,44 @@ export function scheduleHourlyUpdates() {
   }
 
   const hourlyScheduleTimeout = setTimeout(() => {
-    performHourlyTasks();
+    performHourlyTasks(nextHour.getHours());
     scheduleHourlyUpdates(); // Schedule next update
   }, timeUntilNextHour);
 
   updateState({ hourlyScheduleTimeout });
 }
 
-export function performHourlyTasks() {
-  const currentHour = getCurrentTime().getHours();
+export function scheduleDailyMorningGenreUpdate() {
+  const state = getState();
+  const now = getCurrentTime();
+  const nextMidnight = new Date(now.getTime());
+  nextMidnight.setHours(24, 0, 0, 0); // Next midnight
+  const timeUntilMidnight = nextMidnight - now;
 
+  // Clear any existing daily timeout
+  if (state.dailyMorningGenreTimeout) {
+    clearTimeout(state.dailyMorningGenreTimeout);
+  }
+
+  const dailyMorningGenreTimeout = setTimeout(() => {
+    console.log('Daily morning genre update at midnight');
+    setMorningGenres();
+    scheduleDailyMorningGenreUpdate(); // Schedule next update
+  }, timeUntilMidnight);
+
+  updateState({ dailyMorningGenreTimeout });
+  console.log(`Scheduled next morning genre update in ${timeUntilMidnight / 1000 / 60 / 60} hours`);
+}
+
+export function performHourlyTasks(currentHour) {
   console.log(`Performing hourly tasks for hour ${currentHour}`);
+  console.log(getCurrentTime());
 
   // Clean up expired usage tracking
   cleanupExpiredUsage();
 
-  // Update time of day
-  setAlgorithmicTimeSlot();
-
   // Clear used algorithmic tracks
-  clearUsedAlgorithmicTracksForCategory(getState().currentTimeSlot);
-  console.log('Hourly cleanup: cleared used algorithmic tracks');
-
-  // Shuffle junk cycle order
-  shuffleJunkCycleOrder();
-
-  // Change genre for new hour
-  setGenre();
+  resetUsedAlgorithmicTracks();
 
   // Schedule next hour block of tracks
   scheduleHourBlock(currentHour + 1);
@@ -373,7 +409,7 @@ export function shuffleJunkCycleOrder() {
   });
 }
 
-export function setGenre() {
+export function setMorningGenres() {
   const state = getState();
 
   if (!state.config.genres) {
@@ -381,18 +417,78 @@ export function setGenre() {
     return;
   }
 
+  // Get morning time slot configuration
+  const algorithmicTimeSlots = state.config.directories.algorithmic.subdirectories;
+  const morningSlot = algorithmicTimeSlots.morning;
+
+  if (!morningSlot || !morningSlot.startTime || !morningSlot.endTime) {
+    console.warn('Morning time slot not properly configured');
+    return;
+  }
+
+  const startTime = parseTimeString(morningSlot.startTime);
+  const endTime = parseTimeString(morningSlot.endTime);
+
+  // Calculate morning hours
+  const morningHours = [];
+  let currentHour = startTime.hours;
+
+  // Handle time slots that cross midnight
+  if (startTime.hours > endTime.hours) {
+    // From start hour to 23
+    while (currentHour <= 23) {
+      morningHours.push(currentHour);
+      currentHour++;
+    }
+    // From 0 to end hour
+    currentHour = 0;
+    while (currentHour < endTime.hours) {
+      morningHours.push(currentHour);
+      currentHour++;
+    }
+  } else {
+    // Normal time slot within same day
+    while (currentHour < endTime.hours) {
+      morningHours.push(currentHour);
+      currentHour++;
+    }
+  }
+
+  // Set genres for each morning hour
   const genres = Object.keys(state.config.genres);
-  const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
+  const morningGenres = {};
+
+  morningHours.forEach(hour => {
+    const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
+    morningGenres[hour] = selectedGenre;
+  });
 
   updateState({
-    currentGenre: selectedGenre,
+    morningGenres,
+    lastMorningGenreUpdate: getCurrentTime().toDateString()
   });
+
+  console.log('Set morning genres for hours:', morningGenres);
 }
+
 
 export function clearAllScheduledTimeouts() {
   const state = getState();
   state.scheduledTimeouts.forEach(timeout => clearTimeout(timeout));
-  updateState({ scheduledTimeouts: [] });
+
+  if (state.hourlyScheduleTimeout) {
+    clearTimeout(state.hourlyScheduleTimeout);
+  }
+
+  if (state.dailyMorningGenreTimeout) {
+    clearTimeout(state.dailyMorningGenreTimeout);
+  }
+
+  updateState({
+    scheduledTimeouts: [],
+    hourlyScheduleTimeout: null,
+    dailyMorningGenreTimeout: null
+  });
 }
 
 export function enterScheduledMode(track) {
@@ -473,6 +569,7 @@ export function onScheduledTrackEnd() {
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false
   });
+  shuffleJunkCycleOrder();
   cleanupScheduledTrackListeners();
   returnToAlgorithmicPlayback();
 }

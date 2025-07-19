@@ -2,7 +2,7 @@
 
 import { addCurrentTrackListener, cleanupCurrentTrackListeners } from './events.js';
 import { clearUsedAlgorithmicTracksForCategory, getState, markAlgorithmicTrackUsed, updateState } from './state.js';
-import { getRandomStartTime } from './time.js';
+import { getRandomStartTime, getAlgorithmicTimeSlot } from './time.js';
 
 export function playTrack(trackUrl, callback, startTime = null) {
   const state = getState();
@@ -39,7 +39,7 @@ export function playAlgorithmicTrack() {
   }
 
   // Play based on time slot
-  switch (state.currentTimeSlot) {
+  switch (getAlgorithmicTimeSlot()) {
     case "lateNightLoFis":
       return playLateNightLoFi();
     case "morning":
@@ -74,10 +74,11 @@ export function playLateNightLoFi() {
 
 export function playMorningTrack() {
   const state = getState();
-  const genre = state.currentGenre;
+  const currentHour = state.currentTime.getHours();
+  const genre = state.morningGenres?.[currentHour];
 
   if (!genre) {
-    console.error('No genre selected');
+    console.error('No genre selected for morning hour', currentHour);
     return playStandardTrack();
   }
 
@@ -183,7 +184,6 @@ export function fadeOut() {
       clearInterval(fadeOutInterval);
       updateState({ fadeOutInterval: null });
       state.theTransmitter.volume = originalVolume; // Reset volume for next track
-      state.theTransmitter.pause();
     }
   }, state.fadeOutDuration / steps);
 

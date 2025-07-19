@@ -3,7 +3,7 @@
 import { skipTrack, reset } from './core.js';
 import { initializeUIEventListeners } from './events.js';
 import { getState, initializeDOMElements, updateState } from './state.js';
-import { clearSimulatedTime, simulateTime, startSimulatedTimeProgression, stopSimulatedTimeProgression } from './time.js';
+import { clearSimulatedTime, simulateTime, getCurrentTime } from './time.js';
 
 // Initialize the application
 export async function initApp() {
@@ -26,9 +26,8 @@ export async function initApp() {
 window.skipTrack = skipTrack;
 window.resetApp = reset;
 window.simulateTime = simulateTime;
-window.startSimulatedTimeProgression = startSimulatedTimeProgression;
-window.stopSimulatedTimeProgression = stopSimulatedTimeProgression;
 window.clearSimulatedTime = clearSimulatedTime;
+window.getCurrentTime = getCurrentTime;
 
 window.setPreScheduledWarnings = (junkOnly = false, nonBumperJunkOnly = false) => {
   updateState({
@@ -39,6 +38,3 @@ window.setPreScheduledWarnings = (junkOnly = false, nonBumperJunkOnly = false) =
 };
 
 window.appState = getState();
-
-// Public API
-export default { initApp };

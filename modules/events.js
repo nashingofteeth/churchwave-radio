@@ -1,6 +1,6 @@
 // Event listeners module for managing audio element event listeners
 
-import { addToStateArray, clearStateArray, getState, updateState } from './state.js';
+import { addToStateArray, clearStateArray, getState } from './state.js';
 
 export function initializeUIEventListeners() {
   const state = getState();
@@ -86,18 +86,3 @@ export function cleanupScheduledTrackListeners() {
   clearStateArray('scheduledTrackListeners');
 }
 
-// Private console debugging tool - clears ALL event listeners
-export function forceCleanupAllEventListeners() {
-  const state = getState();
-  cleanupCurrentTrackListeners();
-  cleanupScheduledTrackListeners();
-
-  // Nuclear option - remove all event listeners from theTransmitter
-  const newTransmitter = state.theTransmitter.cloneNode(true);
-  state.theTransmitter.parentNode.replaceChild(newTransmitter, state.theTransmitter);
-
-  // Update the state reference using updateState
-  updateState({ theTransmitter: newTransmitter });
-
-  console.log('All event listeners forcibly removed - reinitialization required');
-}

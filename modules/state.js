@@ -1,5 +1,5 @@
-import { setGenre, shuffleJunkCycleOrder } from './scheduling.js';
-import { setAlgorithmicTimeSlot } from './time.js';
+import { shuffleJunkCycleOrder } from './scheduling.js';
+import { initializeClock } from './time.js';
 
 // State management module for global application state
 
@@ -20,15 +20,19 @@ export const state = {
 
   // Playback state
   isFirstTrack: true,
-  simulatedDate: null, // Initialize with null for using real time by default
-  currentTimeSlot: undefined,
   fadeOutInterval: null,
   currentScheduledTrack: null,
-  simulatedTimeInterval: null,
   fadeOutDuration: null,
 
+  // Centralized clock system
+  currentTime: null,        // The authoritative time (Date object)
+  clockInterval: null,      // Interval that updates the clock
+  isSimulatedTime: false,   // Whether we're in simulated mode
+  simulatedSpeed: 1,        // How fast simulated time progresses (1 = real time)
+
   // Algorithmic state
-  currentGenre: null,
+  morningGenres: {},
+  lastMorningGenreUpdate: null,
   junkCycleOrder: [],
   junkCycleIndex: 0,
   preScheduledJunkOnly: false,
@@ -38,6 +42,7 @@ export const state = {
   isInScheduledMode: false,
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
+  dailyMorningGenreTimeout: null,
   chainGapThreshold: null,
 
   // Event listener management
@@ -60,32 +65,15 @@ export function getState() {
 
 // State setters
 export function updateState(updates) {
-  console.log('State update:', updates);
 
   // Validate critical updates
-  if (updates.simulatedDate && updates.simulatedDate !== null && !(updates.simulatedDate instanceof Date)) {
-    throw new Error('simulatedDate must be a Date object or null');
+  if (updates.currentTime && !(updates.currentTime instanceof Date)) {
+    throw new Error('currentTime must be a Date object');
   }
 
   Object.assign(state, updates);
 }
 
-// Helper function for nested object updates
-export function updateNestedState(path, value) {
-  const keys = path.split('.');
-  let current = state;
-
-  // Navigate to the parent of the target property
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (!(keys[i] in current)) {
-      current[keys[i]] = {};
-    }
-    current = current[keys[i]];
-  }
-
-  // Set the final value
-  current[keys[keys.length - 1]] = value;
-}
 
 // Helper function for array operations
 export function addToStateArray(arrayPath, item) {
@@ -165,6 +153,9 @@ export function initializeState() {
     console.warn('Playback settings not found');
   }
 
+  // Initialize centralized clock
+  initializeClock();
+
   // Initialize usedAlgorithmicTracks structure from config
   if (config.directories?.algorithmic?.subdirectories && Object.keys(state.usedAlgorithmicTracks).length === 0) {
     const usedAlgorithmicTracks = {};
@@ -187,11 +178,6 @@ export function initializeState() {
   // Initialize junk cycle order if preprocessed data is available
   shuffleJunkCycleOrder();
 
-  // Initialize genre selection
-  setGenre();
-
-  // Set time of time of day
-  setAlgorithmicTimeSlot();
 
   console.log('State initialized from config');
 }
