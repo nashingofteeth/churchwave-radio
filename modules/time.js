@@ -138,24 +138,12 @@ export function getRandomStartTime(duration) {
 
 // Minimal reset function for time simulation only
 function resetForTimeSimulation() {
-  const state = getState();
-
-  // Clear timeouts and intervals
-  if (state.hourlyScheduleTimeout) {
-    clearTimeout(state.hourlyScheduleTimeout);
-  }
-  if (state.dailyMorningGenreTimeout) {
-    clearTimeout(state.dailyMorningGenreTimeout);
-  }
-
   clearAllScheduledTimeouts();
 
   // Reset scheduling state
   updateState({
     isInScheduledMode: false,
     currentScheduledTrack: null,
-    hourlyScheduleTimeout: null,
-    dailyMorningGenreTimeout: null,
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });

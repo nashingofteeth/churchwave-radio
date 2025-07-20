@@ -106,23 +106,19 @@ export function clearStateArray(arrayPath) {
   current[arrayName] = [];
 }
 
-export function resetUsedAlgorithmicTracks() {
+export function clearUsedAlgorithmicTracks() {
   // Reset all existing algorithmic track categories
-  const resetUsedAlgorithmicTracks = {};
+  const clearUsedAlgorithmicTracks = {};
   for (const category in state.usedAlgorithmicTracks) {
-    resetUsedAlgorithmicTracks[category] = {};
+    clearUsedAlgorithmicTracks[category] = {};
   }
-  updateState({ usedAlgorithmicTracks: resetUsedAlgorithmicTracks });
+  updateState({ usedAlgorithmicTracks: clearUsedAlgorithmicTracks });
 }
 
 export function clearUsedAlgorithmicTracksForCategory(category) {
   if (state.usedAlgorithmicTracks[category]) {
     state.usedAlgorithmicTracks[category] = {};
   }
-}
-
-export function resetUsedScheduledFiles() {
-  updateState({ usedScheduledFiles: {} });
 }
 
 // Helper functions for tracking usage

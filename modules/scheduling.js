@@ -2,7 +2,7 @@
 
 import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack } from './player.js';
-import { getState, markScheduledFileUsed, resetUsedAlgorithmicTracks, updateState } from './state.js';
+import { getState, markScheduledFileUsed, clearUsedAlgorithmicTracks, updateState } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function startScheduledSystem() {
@@ -70,7 +70,7 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
   return scheduledDate;
 }
 
-export function resetUsedScheduledTracks() {
+export function clearUsedScheduledTracks() {
   const state = getState();
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
@@ -410,9 +410,17 @@ export function scheduleHourlyUpdates() {
 export function scheduleDailyMorningGenreUpdate() {
   const state = getState();
   const now = getCurrentTime();
-  const nextMidnight = new Date(now.getTime());
-  nextMidnight.setHours(24, 0, 5, 0); // Next midnight. Add 5 second buffer
-  const timeUntilMidnight = nextMidnight - now;
+  const nextFourAm = new Date(now.getTime());
+
+  // Set to next 4am 
+  nextFourAm.setHours(4, 0, 5, 0); // 4am. Add 5 second buffer
+
+  // If it's already 4am or later today, schedule for tomorrow
+  if (now.getHours() >= 4 || nextFourAm <= now) {
+    nextFourAm.setDate(nextFourAm.getDate() + 1);
+  }
+
+  const timeUntilFourAm = nextFourAm - now;
 
   // Clear any existing daily timeout
   if (state.dailyMorningGenreTimeout) {
@@ -420,22 +428,22 @@ export function scheduleDailyMorningGenreUpdate() {
   }
 
   const dailyMorningGenreTimeout = setTimeout(() => {
-    console.log('Daily morning genre update at midnight');
+    console.log('Daily morning genre update');
     setMorningGenres();
     scheduleDailyMorningGenreUpdate(); // Schedule next update
-  }, timeUntilMidnight);
+  }, timeUntilFourAm);
 
   updateState({ dailyMorningGenreTimeout });
 }
 
 export function performHourlyTasks(currentHour) {
-  console.log(`Performing hourly tasks for hour ${currentHour}`);
+  console.log('Performing hourly tasks');
 
   // Clean up expired usage tracking
-  resetUsedScheduledTracks();
+  clearUsedScheduledTracks();
 
   // Clear used algorithmic tracks
-  resetUsedAlgorithmicTracks();
+  clearUsedAlgorithmicTracks();
 
   // Schedule next hour block of tracks
   scheduleHourBlock((currentHour + 1) % 24);
