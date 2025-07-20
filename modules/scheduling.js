@@ -17,7 +17,7 @@ export function startScheduledSystem() {
 
   // Schedule current and next hour blocks
   scheduleHourBlock(currentHour);
-  scheduleHourBlock(currentHour + 1);
+  scheduleHourBlock((currentHour + 1) % 24);
 
   // Schedule hourly updates
   scheduleHourlyUpdates();
@@ -70,7 +70,7 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
   return scheduledDate;
 }
 
-export function cleanupExpiredUsage() {
+export function resetUsedScheduledTracks() {
   const state = getState();
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
@@ -164,7 +164,6 @@ export function scheduleHourBlock(hour) {
   const state = getState();
   const now = getCurrentTime();
 
-  console.log(hour);
   const hourTracks = state.preprocessed.scheduledTracks.byHour[hour] || [];
   const filteredTracks = hourTracks.filter(track => {
     try {
@@ -181,6 +180,11 @@ export function scheduleHourBlock(hour) {
       const { hours, minutes, seconds } = parseTimeString(track.time);
       const todayScheduledTime = new Date(now.getTime());
       todayScheduledTime.setHours(hours, minutes, seconds, 0);
+
+      // If we're scheduling hour 0 and it's not midnight, we need to check tomorrow's date
+      if (hour === 0 && now.getHours() !== 0) {
+        todayScheduledTime.setDate(todayScheduledTime.getDate() + 1);
+      }
 
       // Skip if the scheduled time has already passed today
       if (todayScheduledTime < now) {
@@ -428,13 +432,13 @@ export function performHourlyTasks(currentHour) {
   console.log(`Performing hourly tasks for hour ${currentHour}`);
 
   // Clean up expired usage tracking
-  cleanupExpiredUsage();
+  resetUsedScheduledTracks();
 
   // Clear used algorithmic tracks
   resetUsedAlgorithmicTracks();
 
   // Schedule next hour block of tracks
-  scheduleHourBlock(currentHour + 1);
+  scheduleHourBlock((currentHour + 1) % 24);
 }
 
 export function shuffleJunkCycleOrder() {
