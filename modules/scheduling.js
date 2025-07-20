@@ -12,6 +12,9 @@ export function startScheduledSystem() {
   // Set initial morning genres
   setMorningGenres();
 
+  // Check if we're currently in a preschedule range
+  checkAndSetPrescheduleJunkState();
+
   // Schedule current and next hour blocks
   scheduleHourBlock(currentHour);
   scheduleHourBlock(currentHour + 1);
@@ -177,7 +180,7 @@ export function scheduleHourBlock(hour) {
       const { hours, minutes, seconds } = parseTimeString(track.time);
       const todayScheduledTime = new Date(now.getTime());
       todayScheduledTime.setHours(hours, minutes, seconds, 0);
-      
+
       // Skip if the scheduled time has already passed today
       if (todayScheduledTime < now) {
         return false;
@@ -260,6 +263,46 @@ export function createTrackChain(tracks) {
   }
 
   return chain;
+}
+
+export function checkAndSetPrescheduleJunkState() {
+  const state = getState();
+  const now = getCurrentTime();
+  const currentHour = now.getHours();
+  const nextHour = (currentHour + 1) % 24;
+
+  // Collect tracks from current and next hour
+  const currentHourTracks = state.preprocessed.scheduledTracks.byHour[currentHour] || [];
+  const nextHourTracks = state.preprocessed.scheduledTracks.byHour[nextHour] || [];
+  const allTracks = [...currentHourTracks, ...nextHourTracks];
+
+  // Find next scheduled track across both hours
+  const upcomingTracks = allTracks.filter(track => {
+    const scheduledTime = getScheduledTrackTime(track);
+    return scheduledTime > now;
+  }).sort((a, b) => {
+    const timeA = getScheduledTrackTime(a);
+    const timeB = getScheduledTrackTime(b);
+    return timeA - timeB;
+  });
+
+  if (upcomingTracks.length === 0) return;
+
+  const nextTrack = upcomingTracks[0];
+  const nextTrackTime = getScheduledTrackTime(nextTrack);
+  const timeUntilTrack = nextTrackTime - now;
+  const minutesUntilTrack = timeUntilTrack / (60 * 1000);
+
+  if (minutesUntilTrack <= 15 && minutesUntilTrack > 5) {
+    console.log(`Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until track)`);
+    updateState({ preScheduledJunkOnly: true });
+  } else if (minutesUntilTrack <= 5 && minutesUntilTrack > 0) {
+    console.log(`Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until track)`);
+    updateState({
+      preScheduledJunkOnly: true,
+      preScheduledNonBumperJunkOnly: true
+    });
+  }
 }
 
 export function scheduleTrackChain(chain) {
@@ -363,7 +406,7 @@ export function scheduleDailyMorningGenreUpdate() {
   const state = getState();
   const now = getCurrentTime();
   const nextMidnight = new Date(now.getTime());
-  nextMidnight.setHours(24, 0, 0, 0); // Next midnight
+  nextMidnight.setHours(24, 0, 5, 0); // Next midnight. Add 5 second buffer
   const timeUntilMidnight = nextMidnight - now;
 
   // Clear any existing daily timeout
@@ -378,12 +421,10 @@ export function scheduleDailyMorningGenreUpdate() {
   }, timeUntilMidnight);
 
   updateState({ dailyMorningGenreTimeout });
-  console.log(`Scheduled next morning genre update in ${timeUntilMidnight / 1000 / 60 / 60} hours`);
 }
 
 export function performHourlyTasks(currentHour) {
   console.log(`Performing hourly tasks for hour ${currentHour}`);
-  console.log(getCurrentTime());
 
   // Clean up expired usage tracking
   cleanupExpiredUsage();
