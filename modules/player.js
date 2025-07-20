@@ -160,7 +160,6 @@ export function playJunkTrack() {
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
   updateState({ junkCycleIndex: nextIndex });
 
-  console.log(`Playing junk content: ${currentJunkType} - ${selectedTrack.filename}`);
   playTrack(selectedTrack.path, playAlgorithmicTrack);
 }
 
@@ -174,7 +173,7 @@ export function fadeOut() {
   const volumeStep = originalVolume / steps;
   let currentStep = 0;
 
-  console.log('Starting fade');
+  console.log('Fading out');
 
   const fadeOutInterval = setInterval(() => {
     currentStep++;

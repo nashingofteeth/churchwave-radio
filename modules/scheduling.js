@@ -164,6 +164,7 @@ export function scheduleHourBlock(hour) {
   const state = getState();
   const now = getCurrentTime();
 
+  console.log(hour);
   const hourTracks = state.preprocessed.scheduledTracks.byHour[hour] || [];
   const filteredTracks = hourTracks.filter(track => {
     try {
