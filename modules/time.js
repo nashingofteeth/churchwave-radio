@@ -172,6 +172,11 @@ function resetForTimeSimulation() {
 
 // Simulation function that properly handles reset and initialization
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
+  const state = getState();
+  if (Object.keys(state.config).length === 0) {
+    console.error('Not playback not initialized.');
+    return;
+  }
   // Set the clock time
   setClockTime(hour, minute, second, date);
 
