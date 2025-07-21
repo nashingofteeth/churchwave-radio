@@ -29,7 +29,7 @@ export async function load() {
       preprocessed: tracksData.preprocessed
     });
 
-    console.log('Data loaded successfully');
+    console.log('Data loaded');
     return true;
 
   } catch (error) {

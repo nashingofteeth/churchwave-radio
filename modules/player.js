@@ -1,17 +1,22 @@
 // Player module for audio playback control functions
 
-import { addCurrentTrackListener, cleanupCurrentTrackListeners } from './events.js';
+import { addCurrentTrackListener, addScheduledTrackListener, cleanupCurrentTrackListeners } from './events.js';
 import { clearUsedAlgorithmicTracksForCategory, getState, markAlgorithmicTrackUsed, updateState } from './state.js';
 import { getRandomStartTime, getAlgorithmicTimeSlot } from './time.js';
 
-export function playTrack(trackUrl, callback, startTime = null) {
+export function playTrack({ 
+  trackPath, 
+  callback, 
+  startTime = null, 
+  isScheduled = false
+}) {
   const state = getState();
 
   // Clean up any existing current track listeners first
   cleanupCurrentTrackListeners();
 
-  state.theTransmitter.src = trackUrl;
-  console.log(`Playing track: ${trackUrl}`);
+  state.theTransmitter.src = trackPath;
+  console.log(`Playing track: ${trackPath}`);
   state.theTransmitter.currentTime = 0;
 
   const loadedMetadataHandler = () => {
@@ -24,10 +29,18 @@ export function playTrack(trackUrl, callback, startTime = null) {
     state.theTransmitter.play();
   };
 
-  const endedHandler = callback;
+  // Set up appropriate listeners based on track type
+  if (isScheduled) {
+    // Import scheduling functions dynamically to avoid circular dependencies
+    import('./scheduling.js').then(({ onScheduledTrackEnd }) => {
+      addScheduledTrackListener("ended", onScheduledTrackEnd, { once: true });
+    });
+  } else {
+    // Regular algorithmic track
+    addCurrentTrackListener("ended", callback, { once: true });
+  }
 
   addCurrentTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
-  addCurrentTrackListener("ended", endedHandler, { once: true });
 }
 
 export function playAlgorithmicTrack() {
@@ -69,7 +82,7 @@ export function playLateNightLoFi() {
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
   markAlgorithmicTrackUsed('lateNightLoFis', selectedTrack.key);
-  playTrack(selectedTrack.path, playAlgorithmicTrack);
+  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playMorningTrack() {
@@ -99,7 +112,7 @@ export function playMorningTrack() {
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
   markAlgorithmicTrackUsed('morning', selectedTrack.key);
-  playTrack(selectedTrack.path, playAlgorithmicTrack);
+  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playStandardTrack() {
@@ -122,7 +135,7 @@ export function playStandardTrack() {
 
   const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
   markAlgorithmicTrackUsed('standard', selectedTrack.key);
-  playTrack(selectedTrack.path, playAlgorithmicTrack);
+  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playJunkTrack() {
@@ -160,7 +173,7 @@ export function playJunkTrack() {
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
   updateState({ junkCycleIndex: nextIndex });
 
-  playTrack(selectedTrack.path, playAlgorithmicTrack);
+  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function fadeOut() {

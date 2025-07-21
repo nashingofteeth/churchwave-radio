@@ -6,7 +6,7 @@ import { getState, initializeDOMElements, updateState } from './state.js';
 import { clearSimulatedTime, simulateTime, getCurrentTime } from './time.js';
 
 // Initialize the application
-export async function initApp() {
+export async function initDOM() {
   try {
     // Initialize DOM elements
     initializeDOMElements();
@@ -14,10 +14,10 @@ export async function initApp() {
     // Initialize UI event listeners
     initializeUIEventListeners();
 
-    console.log('Churchwave Radio initialized successfully');
+    console.log('DOM listeners initialized');
     return true;
   } catch (error) {
-    console.error('Failed to initialize Churchwave Radio:', error);
+    console.error('Failed to initialize DOM:', error);
     return false;
   }
 }

@@ -1,7 +1,7 @@
 // Scheduling module for managing scheduled tracks
 
-import { addScheduledTrackListener, cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
-import { playAlgorithmicTrack } from './player.js';
+import { cleanupScheduledTrackListeners } from './events.js';
+import { playAlgorithmicTrack, playTrack } from './player.js';
 import { getState, markScheduledFileUsed, clearUsedAlgorithmicTracks, updateState } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
@@ -155,8 +155,8 @@ export function selectTrackByHierarchy(tracks, scheduledHour = null) {
 }
 
 export function returnToAlgorithmicPlayback() {
+  console.log('Leaving scheduled mode');
   updateState({ isInScheduledMode: false });
-
   playAlgorithmicTrack();
 }
 
@@ -212,7 +212,7 @@ export function scheduleHourBlock(hour) {
   // Schedule timeouts for the chain
   scheduleTrackChain(trackChain);
 
-  console.log(`Scheduled ${trackChain.length} tracks for hour ${hour}:00`);
+  console.log(`Scheduled ${trackChain.length} tracks for hour ${hour}`);
 }
 
 export function selectTracksWithHierarchy(tracks) {
@@ -325,8 +325,6 @@ export function scheduleTrackChain(chain) {
     const timeUntilFade = timeUntilStart - state.fadeOutDuration;
     const timeUntil15Min = timeUntilStart - (15 * 60 * 1000); // 15 minutes before
     const timeUntil5Min = timeUntilStart - (5 * 60 * 1000); // 5 minutes before
-
-    console.log(`Scheduling ${track.trackData.filename}: startTime=${actualStartTime}, timeUntilStart=${timeUntilStart}ms, timeUntilFade=${timeUntilFade}ms`);
 
     // Schedule 15-minute warning
     if (timeUntil15Min > 0) {
@@ -521,8 +519,6 @@ export function setMorningGenres() {
     morningGenres,
     lastMorningGenreUpdate: getCurrentTime().toDateString()
   });
-
-  console.log('Set morning genres for hours:', morningGenres);
 }
 
 
@@ -546,7 +542,6 @@ export function clearAllScheduledTimeouts() {
 }
 
 export function enterScheduledMode(track) {
-  const state = getState();
   updateState({
     isInScheduledMode: true,
     currentScheduledTrack: track
@@ -563,32 +558,17 @@ export function enterScheduledMode(track) {
     return;
   }
 
-  console.log(`Entering scheduled mode: ${trackData.filename} (offset: ${offsetSeconds.toFixed(1)}s)`);
+  console.log('Entering scheduled mode');
   markScheduledFileUsed(track.trackKey, now);
 
-  // Clean up any existing current track listeners first
-  cleanupCurrentTrackListeners();
-
-  state.theTransmitter.src = trackData.path;
-  state.theTransmitter.currentTime = 0;
-
-  const loadedMetadataHandler = () => {
-    state.theTransmitter.currentTime = Math.min(offsetSeconds, state.theTransmitter.duration - 1);
-    state.theTransmitter.play();
-  };
-
-  const errorHandler = () => {
-    console.error('Error playing scheduled track:', trackData.filename);
-    returnToAlgorithmicPlayback();
-  };
-
-  addScheduledTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
-  addScheduledTrackListener("ended", onScheduledTrackEnd, { once: true });
-  addScheduledTrackListener("error", errorHandler, { once: true });
+  playTrack({
+    trackPath: trackData.path,
+    startTime: offsetSeconds,
+    isScheduled: true
+  });
 }
 
 export function playScheduledTrackDirect(track) {
-  const state = getState();
   updateState({ currentScheduledTrack: track });
 
   const trackData = track.trackData;
@@ -597,24 +577,10 @@ export function playScheduledTrackDirect(track) {
   console.log(`Playing chained scheduled track: ${trackData.filename}`);
   markScheduledFileUsed(track.trackKey, now);
 
-  // Clean up any existing current track listeners first
-  cleanupCurrentTrackListeners();
-
-  state.theTransmitter.src = trackData.path;
-  state.theTransmitter.currentTime = 0;
-
-  const loadedMetadataHandler = () => {
-    state.theTransmitter.play();
-  };
-
-  const errorHandler = () => {
-    console.error('Error playing scheduled track:', trackData.filename);
-    returnToAlgorithmicPlayback();
-  };
-
-  addScheduledTrackListener("loadedmetadata", loadedMetadataHandler, { once: true });
-  addScheduledTrackListener("ended", onScheduledTrackEnd, { once: true });
-  addScheduledTrackListener("error", errorHandler, { once: true });
+  playTrack({
+    trackPath: trackData.path,
+    isScheduled: true
+  });
 }
 
 export function onScheduledTrackEnd() {

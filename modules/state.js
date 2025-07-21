@@ -175,5 +175,5 @@ export function initializeState() {
   shuffleJunkCycleOrder();
 
 
-  console.log('State initialized from config');
+  console.log('State initialized');
 }

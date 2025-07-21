@@ -58,7 +58,7 @@ export function initializeClock() {
   });
 
   startRealTimeClock();
-  console.log(`Clock initialized: ${initialTime.toLocaleTimeString()}`);
+  console.log(`Clock initialized and started: ${initialTime.toLocaleTimeString()}`);
 }
 
 export function startRealTimeClock() {
