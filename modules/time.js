@@ -83,9 +83,9 @@ export function startSimulatedClock(speed = 1) {
     const state = getState();
     state.currentTime.setSeconds(state.currentTime.getSeconds() + speed);
 
-    // Optional: Log time every minute for debugging
+    // Log time every minute for debugging
     if (state.currentTime.getSeconds() === 0) {
-      console.log(`Clock time: ${state.currentTime.toLocaleTimeString()}`);
+      console.log(`Simulated time: ${state.currentTime.toLocaleTimeString()}`);
     }
   }, 1000);
 
