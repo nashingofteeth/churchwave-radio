@@ -299,10 +299,10 @@ export function checkAndSetPrescheduleJunkState() {
   const minutesUntilTrack = timeUntilTrack / (60 * 1000);
 
   if (minutesUntilTrack <= 15 && minutesUntilTrack > 5) {
-    console.log(`Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until track)`);
+    console.log(`Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`);
     updateState({ preScheduledJunkOnly: true });
   } else if (minutesUntilTrack <= 5 && minutesUntilTrack > 0) {
-    console.log(`Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until track)`);
+    console.log(`Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`);
     updateState({
       preScheduledJunkOnly: true,
       preScheduledNonBumperJunkOnly: true

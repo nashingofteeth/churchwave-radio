@@ -2,7 +2,7 @@
 
 import { addCurrentTrackListener, addScheduledTrackListener, cleanupCurrentTrackListeners } from './events.js';
 import { clearUsedAlgorithmicTracksForCategory, getState, markAlgorithmicTrackUsed, updateState } from './state.js';
-import { getRandomStartTime, getAlgorithmicTimeSlot } from './time.js';
+import { getRandomStartTime, getAlgorithmicTimeSlot, getCurrentTime } from './time.js';
 
 export function playTrack({ 
   trackPath, 
@@ -87,7 +87,8 @@ export function playLateNightLoFi() {
 
 export function playMorningTrack() {
   const state = getState();
-  const currentHour = state.currentTime.getHours();
+  const now = getCurrentTime();
+  const currentHour = now.getHours();
   const genre = state.morningGenres?.[currentHour];
 
   if (!genre) {

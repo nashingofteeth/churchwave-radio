@@ -1,5 +1,4 @@
-import { shuffleJunkCycleOrder } from './scheduling.js';
-import { initializeClock } from './time.js';
+import { shuffleJunkCycleOrder } from "./scheduling.js";
 
 // State management module for global application state
 
@@ -24,11 +23,11 @@ export const state = {
   currentScheduledTrack: null,
   fadeOutDuration: null,
 
-  // Centralized clock system
-  currentTime: null,        // The authoritative time (Date object)
-  clockInterval: null,      // Interval that updates the clock
-  isSimulatedTime: false,   // Whether we're in simulated mode
-  simulatedSpeed: 1,        // How fast simulated time progresses (1 = real time)
+  // Time simulation system
+  simulatedTime: null,
+  simulationInterval: null,
+  isTimeSimulated: false,
+  simulationSpeed: 1,
 
   // Algorithmic state
   morningGenres: {},
@@ -47,7 +46,7 @@ export const state = {
 
   // Event listener management
   currentTrackListeners: [],
-  scheduledTrackListeners: []
+  scheduledTrackListeners: [],
 };
 
 // Initialize DOM elements
@@ -65,19 +64,17 @@ export function getState() {
 
 // State setters
 export function updateState(updates) {
-
   // Validate critical updates
-  if (updates.currentTime && !(updates.currentTime instanceof Date)) {
-    throw new Error('currentTime must be a Date object');
+  if (updates.simulatedTime && !(updates.simulatedTime instanceof Date)) {
+    throw new Error("simulatedTime must be a Date object");
   }
 
   Object.assign(state, updates);
 }
 
-
 // Helper function for array operations
 export function addToStateArray(arrayPath, item) {
-  const keys = arrayPath.split('.');
+  const keys = arrayPath.split(".");
   let current = state;
 
   // Navigate to the array
@@ -94,7 +91,7 @@ export function addToStateArray(arrayPath, item) {
 }
 
 export function clearStateArray(arrayPath) {
-  const keys = arrayPath.split('.');
+  const keys = arrayPath.split(".");
   let current = state;
 
   // Navigate to the array
@@ -139,41 +136,44 @@ export function initializeState() {
 
   // Initialize from config if available
   const config = state.config;
-  if (config?.playback && (!state.fadeOutDuration || !state.chainGapThreshold)) {
+  if (
+    config?.playback &&
+    (!state.fadeOutDuration || !state.chainGapThreshold)
+  ) {
     // Set playback configuration values
     updateState({
       fadeOutDuration: config.playback.fadeOutDuration,
-      chainGapThreshold: config.playback.chainGapThreshold
+      chainGapThreshold: config.playback.chainGapThreshold,
     });
   } else {
-    console.warn('Playback settings not found');
+    console.warn("Playback settings not found");
   }
 
-  // Initialize centralized clock
-  initializeClock();
-
   // Initialize usedAlgorithmicTracks structure from config
-  if (config.directories?.algorithmic?.subdirectories && Object.keys(state.usedAlgorithmicTracks).length === 0) {
+  if (
+    config.directories?.algorithmic?.subdirectories &&
+    Object.keys(state.usedAlgorithmicTracks).length === 0
+  ) {
     const usedAlgorithmicTracks = {};
 
     // Create tracking objects for each algorithmic subdirectory
-    Object.keys(config.directories.algorithmic.subdirectories).forEach(key => {
-      const subdir = config.directories.algorithmic.subdirectories[key];
-      // Skip junk as it's not tracked in usedAlgorithmicTracks
-      if (subdir.category !== 'junkContent') {
-        usedAlgorithmicTracks[key] = {};
-      }
-    });
+    Object.keys(config.directories.algorithmic.subdirectories).forEach(
+      (key) => {
+        const subdir = config.directories.algorithmic.subdirectories[key];
+        // Skip junk as it's not tracked in usedAlgorithmicTracks
+        if (subdir.category !== "junkContent") {
+          usedAlgorithmicTracks[key] = {};
+        }
+      },
+    );
 
     updateState({ usedAlgorithmicTracks });
-  }
-  else {
-    console.warn('Algorithmic directories not found');
+  } else {
+    console.warn("Algorithmic directories not found");
   }
 
   // Initialize junk cycle order if preprocessed data is available
   shuffleJunkCycleOrder();
 
-
-  console.log('State initialized');
+  console.log("State initialized");
 }

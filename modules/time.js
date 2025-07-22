@@ -1,7 +1,7 @@
 // Time management module for time-related operations
 
 import { getState, updateState } from './state.js';
-import { startScheduledSystem, clearAllScheduledTimeouts, shuffleJunkCycleOrder } from './scheduling.js';
+import { startScheduledSystem, clearAllScheduledTimeouts } from './scheduling.js';
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { startPlayback } from './core.js';
 
@@ -44,74 +44,62 @@ export function getAlgorithmicTimeSlot(currentHour) {
 
 export function getCurrentTime() {
   const state = getState();
-  // Return a copy to prevent mutation
-  return new Date(state.currentTime);
+  
+  // If we're not simulating time, return the actual current time
+  if (!state.isTimeSimulated) {
+    return getConfiguredTime();
+  }
+  
+  // Return simulated time (copy to prevent mutation)
+  return new Date(state.simulatedTime);
 }
 
-export function initializeClock() {
-  const initialTime = getConfiguredTime();
+export function stopTimeSimulation() {
+  stopSimulationClock(); // Clear any existing simulation clock
 
+  // No interval needed for real time - getCurrentTime() will fetch real time
   updateState({
-    currentTime: initialTime,
-    isSimulatedTime: false,
-    simulatedSpeed: 1
-  });
-
-  startRealTimeClock();
-  console.log(`Clock initialized and started: ${initialTime.toLocaleTimeString()}`);
-}
-
-export function startRealTimeClock() {
-  stopClock(); // Clear any existing clock
-
-  const clockInterval = setInterval(() => {
-    const state = getState();
-    state.currentTime.setSeconds(state.currentTime.getSeconds() + 1);
-  }, 1000);
-
-  updateState({
-    clockInterval,
-    isSimulatedTime: false,
-    simulatedSpeed: 1
+    isTimeSimulated: false,
+    simulationSpeed: 1
   });
 }
 
-export function startSimulatedClock(speed = 1) {
-  stopClock(); // Clear any existing clock
+export function startTimeSimulation(speed = 1) {
+  stopSimulationClock(); // Clear any existing simulation clock
 
-  const clockInterval = setInterval(() => {
+  const simulationInterval = setInterval(() => {
     const state = getState();
-    state.currentTime.setSeconds(state.currentTime.getSeconds() + speed);
+    state.simulatedTime.setSeconds(state.simulatedTime.getSeconds() + speed);
 
     // Log time every minute for debugging
-    if (state.currentTime.getSeconds() === 0) {
-      console.log(`Simulated time: ${state.currentTime.toLocaleTimeString()}`);
+    if (state.simulatedTime.getSeconds() === 0) {
+      console.log(`Simulated time: ${state.simulatedTime.toLocaleTimeString()}`);
     }
   }, 1000);
 
   updateState({
-    clockInterval,
-    isSimulatedTime: true,
-    simulatedSpeed: speed
+    simulationInterval,
+    isTimeSimulated: true,
+    simulationSpeed: speed
   });
 }
 
-export function setClockTime(hour, minute = 0, second = 0, date = null) {
+function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
   const state = getState();
-  const newTime = date ? new Date(date) : new Date(state.currentTime);
+  const newTime = date ? new Date(date) : new Date();
   newTime.setHours(hour, minute, second, 0);
 
-  updateState({ currentTime: newTime });
+  updateState({ simulatedTime: newTime });
 
-  console.log(`Clock set to: ${newTime.toLocaleTimeString()}`);
+  console.log(`Simulated time set to: ${newTime.toLocaleTimeString()}`);
   return newTime;
 }
 
-export function stopClock() {
+function stopSimulationClock() {
   const state = getState();
-  if (state.clockInterval) {
-    clearInterval(state.clockInterval);
-    updateState({ clockInterval: null });
+  if (state.simulationInterval) {
+    clearInterval(state.simulationInterval);
+    updateState({ simulationInterval: null });
   }
 }
 
@@ -165,24 +153,20 @@ export function simulateTime(hour, minute = 0, second = 0, date = null) {
     console.error('Not playback not initialized.');
     return;
   }
-  // Set the clock time
-  setClockTime(hour, minute, second, date);
+  // Set the simulated time
+  setSimulatedTime(hour, minute, second, date);
+
+  // Start simulated time progression
+  startTimeSimulation(1);
 
   // Reset what's needed for time simulation
   resetForTimeSimulation();
 
-  // Start simulated time progression
-  startSimulatedClock(1);
 }
 
 export function clearSimulatedTime() {
-  const realTime = getConfiguredTime();
-
-  // Update clock to real time
-  updateState({ currentTime: realTime });
-
-  // Switch back to real time clock
-  startRealTimeClock();
+  // Switch back to real time (no simulatedTime needed since getCurrentTime() fetches real time)
+  stopTimeSimulation();
 
   // Reset what's needed for time simulation
   resetForTimeSimulation();
