@@ -57,7 +57,7 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
     const currentDay = startDate.getDay();
 
     let daysUntilTarget = targetDay - currentDay;
-    if (daysUntilTarget < 0 || (daysUntilTarget === 0 && startDate < baseDate)) {
+    if (daysUntilTarget < 0 || (daysUntilTarget === 0 && endDate < baseDate)) {
       daysUntilTarget += 7;
     }
 
