@@ -1,7 +1,7 @@
 // Time management module for time-related operations
 
-import { getState, updateState } from './state.js';
-import { startScheduledSystem, clearAllScheduledTimeouts } from './scheduling.js';
+import { getState, updateState, clearUsedAlgorithmicTracks } from './state.js';
+import { startScheduledSystem, clearAllScheduledTimeouts, clearUsedScheduledTracks } from './scheduling.js';
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { startPlayback } from './core.js';
 
@@ -85,7 +85,6 @@ export function startTimeSimulation(speed = 1) {
 }
 
 function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
-  const state = getState();
   const newTime = date ? new Date(date) : new Date();
   newTime.setHours(hour, minute, second, 0);
 
@@ -136,8 +135,13 @@ function resetForTimeSimulation() {
     preScheduledNonBumperJunkOnly: false,
   });
 
+  // Clear player listeners
   cleanupCurrentTrackListeners();
   cleanupScheduledTrackListeners();
+
+  // Clear track usage
+  clearUsedAlgorithmicTracks();
+  clearUsedScheduledTracks();
 
   // Restart scheduling system
   startScheduledSystem();

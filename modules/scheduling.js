@@ -36,15 +36,16 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
   const baseDate = referenceDate || getCurrentTime();
   const { hours, minutes, seconds } = parseTimeString(scheduledTrack.time);
 
-  let scheduledDate = new Date(baseDate.getTime());
-  scheduledDate.setHours(hours, minutes, seconds, 0);
+  let startDate = new Date(baseDate.getTime());
+  startDate.setHours(hours, minutes, seconds, 0);
+  const endDate = new Date(startDate.getTime() + scheduledTrack.trackData.duration * 1000);
 
   // Handle different recurrence types
   if (scheduledTrack.recurrence === 'daily') {
     // Daily tracks can play today or tomorrow
     const now = getCurrentTime();
-    if (scheduledDate < now) {
-      scheduledDate.setDate(scheduledDate.getDate() + 1);
+    if (endDate < now) {
+      startDate.setDate(startDate.getDate() + 1);
     }
   } else if (scheduledTrack.recurrence && scheduledTrack.recurrence !== 'daily') {
     // Day of week scheduling
@@ -53,24 +54,24 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
       'thursday': 4, 'friday': 5, 'saturday': 6
     };
     const targetDay = dayMap[scheduledTrack.recurrence.toLowerCase()];
-    const currentDay = scheduledDate.getDay();
+    const currentDay = startDate.getDay();
 
     let daysUntilTarget = targetDay - currentDay;
-    if (daysUntilTarget < 0 || (daysUntilTarget === 0 && scheduledDate < baseDate)) {
+    if (daysUntilTarget < 0 || (daysUntilTarget === 0 && startDate < baseDate)) {
       daysUntilTarget += 7;
     }
 
-    scheduledDate.setDate(scheduledDate.getDate() + daysUntilTarget);
+    startDate.setDate(startDate.getDate() + daysUntilTarget);
   } else if (scheduledTrack.date) {
     // Handle date field
     const [year, month, day] = scheduledTrack.date.split('-').map(Number);
-    scheduledDate = new Date(year, month - 1, day, hours, minutes, seconds);
+    startDate = new Date(year, month - 1, day, hours, minutes, seconds);
   }
 
-  return scheduledDate;
+  return startDate;
 }
 
-export function clearUsedScheduledTracks() {
+export function clearOldUsedScheduledTracks() {
   const state = getState();
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
@@ -83,6 +84,10 @@ export function clearUsedScheduledTracks() {
   });
 
   updateState({ usedScheduledFiles: cleanedUsedScheduledFiles });
+}
+
+export function clearUsedScheduledTracks() {
+  updateState({ usedScheduledFiles: {} });
 }
 
 export function getActiveScheduledTrack() {
@@ -438,7 +443,7 @@ export function performHourlyTasks(currentHour) {
   console.log('Performing hourly tasks');
 
   // Clean up expired usage tracking
-  clearUsedScheduledTracks();
+  clearOldUsedScheduledTracks();
 
   // Clear used algorithmic tracks
   clearUsedAlgorithmicTracks();
