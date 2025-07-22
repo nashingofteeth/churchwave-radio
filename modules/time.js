@@ -91,7 +91,7 @@ function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
 
   updateState({ simulatedTime: newTime });
 
-  console.log(`Simulated time set to: ${newTime.toLocaleTimeString()}`);
+  console.log(`Simulated time set to: ${newTime.toLocaleString()}`);
   return newTime;
 }
 
