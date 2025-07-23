@@ -1,280 +1,219 @@
-# Churchwave Radio Configuration Guide
+# ChurchWave Radio - User Manual
 
-This project is a comprehensive media processing system for radio station management. It scans your media directory structure and generates a `tracks.json` file that organizes content for both algorithmic selection and scheduled playback.
+A JavaScript-based radio station automation system for church/Christian radio broadcasting with algorithmic playback and scheduled programming.
 
 ## Overview
 
-The configuration system allows you to customize:
-- Media directory structure and paths
-- Audio file types to process (currently MP3 only)
-- Scheduled content options
-- Processing behavior
-- Output settings
+ChurchWave Radio is a web-based radio automation system that combines:
+- **Algorithmic content selection** based on time of day
+- **Scheduled programming** at specific times, dates, or days
+- **Intelligent track management** to avoid repeats and ensure smooth transitions
+- **Time simulation tools** for testing different broadcast scenarios
 
 ## Quick Start
 
-1. **Install Node.js** (see Installation section below)
-2. **Set up your media directory** according to the structure below
-3. **Configure settings** in `config.json`
-4. **Validate configuration**: `node validate-config.js`
-5. **Generate tracks file**: `node populate-tracks.js`
-
-## Installation
-
-### Installing Node.js on Windows
-
-1. **Download Node.js**:
-   - Go to https://nodejs.org/
-   - Download the Windows Installer (LTS version recommended)
-   - Choose the 64-bit version for most modern Windows systems
-
-2. **Run the Installer**:
-   - Double-click the downloaded `.msi` file
-   - Follow the installation wizard
-   - Accept the license agreement
-   - Choose installation location (default is recommended)
-   - Make sure "Add to PATH" is checked
-
-3. **Verify Installation**:
-   - Open Command Prompt or PowerShell
-   - Type `node --version` and press Enter
-   - Type `npm --version` and press Enter
-   - Both should display version numbers
-
-4. **Install FFmpeg** (required for audio duration scanning):
-   - Download FFmpeg from https://ffmpeg.org/download.html#build-windows
-   - Extract the files to a folder (e.g., `C:\ffmpeg`)
-   - Add the `bin` folder to your system PATH environment variable
-   - Restart Command Prompt and verify with `ffmpeg -version`
+1. **Set up your media directory** according to the structure below
+2. **Configure settings** in `config.json`
+3. **Validate configuration**: `node validate-config.js`
+4. **Generate tracks database**: `node populate-tracks.js`
+5. **Open `index.html`** in your web browser to start broadcasting
 
 ## Media Directory Structure
 
 Your media should be organized into two main categories:
 
-### Algorithmic Content (`algorithmic/`)
-Content that will be selected algorithmically by your radio system:
+### Algorithmic Content (`media/algorithmic/`)
+
+Content selected automatically based on time of day:
 
 ```
-media/
-└── algorithmic/
-    ├── late-nite-lo-fis/        # Late night ambient tracks
-    │   ├── track1.mp3
-    │   └── track2.mp3
-    ├── morning/                 # Morning music by genre
-    │   ├── genre-country/       # Country music (genre prefix required)
-    │   │   ├── song1.mp3
-    │   │   └── song2.mp3
-    │   ├── genre-rock/          # Rock music
-    │   │   └── song3.mp3
-    │   ├── genre-praise/        # Praise music
-    │   │   └── song4.mp3
-    │   └── genre-worship/       # Worship music (any genre can be added)
-    │       └── song5.mp3
-    ├── standard/                # General music library
-    │   ├── regular1.mp3
-    │   └── regular2.mp3
-    └── junk/                    # Station elements
-        ├── ads/
-        │   └── ad1.mp3
-        ├── scripture/
-        │   └── verse1.mp3
-        ├── interludes/
-        │   └── interlude1.mp3
-        ├── bumpers/
-        │   └── bumper1.mp3
-        └── ads-2/
-            └── ad2.mp3
+media/algorithmic/
+├── late-nite-lo-fis/        # Midnight to 5:00 AM
+│   ├── ambient1.mp3
+│   └── ambient2.mp3
+├── morning/                 # 5:00 AM to 8:00 AM (genre-based)
+│   ├── genre-country/
+│   │   ├── country1.mp3
+│   │   └── country2.mp3
+│   ├── genre-rock/
+│   │   └── rock1.mp3
+│   └── genre-praise/
+│       └── praise1.mp3
+├── standard/                # 8:00 AM to midnight (general rotation)
+│   ├── song1.mp3
+│   └── song2.mp3
+└── junk/                    # Station elements (mixed throughout)
+    ├── ads/
+    │   └── commercial1.mp3
+    ├── scripture/
+    │   └── verse1.mp3
+    ├── interludes/
+    │   └── interlude1.mp3
+    ├── bumpers/
+    │   └── id1.mp3
+    └── ads-2/
+        └── commercial2.mp3
 ```
 
-### Scheduled Content (`scheduled/`)
-Content that plays at specific times:
+### Scheduled Content (`media/scheduled/`)
+
+Content that plays at exact times:
 
 ```
-media/
-└── scheduled/
-    ├── daily/                   # Every day at specific times
-    │   ├── 06-00-00/           # 6:00:00 AM daily
-    │   │   ├── genre-country/  # Genre-specific (daily only, with prefix)
-    │   │   │   └── morning-country.mp3
-    │   │   ├── genre-rock/
-    │   │   │   └── morning-rock.mp3
-    │   │   ├── genre-praise/
-    │   │   │   └── morning-praise.mp3
-    │   │   └── genre-worship/  # Any configured genre can be used
-    │   │       └── morning-worship.mp3
-    │   └── 18-00-00/           # 6:00:00 PM daily
-    │       └── evening-show.mp3
-    ├── dates/                   # Specific calendar dates
-    │   └── 2024-12-25/         # Christmas Day
-    │       └── 09-00-00/       # 9:00:00 AM
-    │           └── christmas-special.mp3
-    └── days/                    # Specific days of the week
-        └── sunday/
-            └── 10-00-00/       # Sunday 10:00:00 AM
-                └── sunday-service.mp3
+media/scheduled/
+├── daily/                   # Every day at specific times
+│   ├── 06-00-00/           # 6:00:00 AM daily
+│   │   ├── genre-country/  # Genre-specific content
+│   │   └── genre-rock/
+│   └── 18-00-00/           # 6:00:00 PM daily
+│       └── evening-show.mp3
+├── dates/                   # Specific calendar dates
+│   └── 2024-12-25/         # Christmas Day
+│       └── 09-00-00/       # 9:00:00 AM
+│           └── christmas-special.mp3
+└── days/                    # Specific days of the week
+    └── sunday/
+        └── 10-00-00/       # Sunday 10:00:00 AM
+            └── sunday-service.mp3
 ```
 
-## Configuration File Structure
+## How the Player Logic Works
 
-The `config.json` file controls all system behavior:
+### Algorithmic Playback System
 
-### Basic Settings
+The radio operates in **algorithmic mode** by default, selecting content based on the current time:
+
+#### Time-Based Content Selection
+- **Late Night (00:00-05:00)**: Ambient/lo-fi tracks from `late-nite-lo-fis/`
+- **Morning (05:00-08:00)**: Genre-specific music from `morning/genre-*/` folders
+- **Standard (08:00-23:59)**: General rotation from `standard/` folder
+- **Junk Content**: Station elements mixed throughout all time periods
+
+#### Morning Genre Selection
+Each morning (4:00 AM), the system randomly assigns genres to morning hours:
+- Hour 5: might get "country"
+- Hour 6: might get "rock"  
+- Hour 7: might get "praise"
+
+This ensures variety while maintaining consistent genre blocks.
+
+#### Intelligent Track Management
+- **No immediate repeats**: Tracks are marked as "used" until the category pool is exhausted
+- **Automatic pool refresh**: When all tracks in a category are used, the pool resets
+- **Junk cycling**: Station elements follow a shuffled rotation to ensure variety
+
+### Scheduled Content System
+
+#### Pre-Schedule Behavior
+Before scheduled content plays, the system switches to "junk-only" mode:
+- **15 minutes before**: Only junk content (ads, scripture, bumpers, interludes)
+- **5 minutes before**: Only non-bumper junk (no station IDs that might conflict)
+- **At scheduled time**: Fades current track and plays scheduled content
+
+#### Schedule Priority Hierarchy
+When multiple items are scheduled for the same time:
+1. **Dates** (specific calendar dates) - highest priority
+2. **Days** (weekdays) - medium priority
+3. **Daily** (every day) - lowest priority
+
+#### Genre Matching for Scheduled Content
+During morning hours, scheduled content tries to match the current algorithmic genre:
+- If current hour is assigned "country" genre, scheduled content looks for `genre-country/` subfolder
+- Falls back to non-genre content if no match found
+
+### Pre-Schedule Duration Checking
+
+The system prevents long tracks from interfering with scheduled content:
+- Before playing any algorithmic track, checks if it will finish before the next scheduled item
+- If track would run past scheduled time, plays junk content instead
+- Ensures scheduled content always starts on time
+
+## Front-End Interface
+
+### Main Controls
+- **TUNE IN TO THE TRUTH** button: Starts the radio system
+- **Loading indicator**: Shows while system initializes
+- **Playing indicator**: Animated satellite with music notes when broadcasting
+- **Audio element**: HTML5 audio player (hidden, controlled by system)
+
+### Visual Feedback
+- **Marquee text**: Scrolling text at top and bottom of page
+- **Pulsing satellite**: Indicates active broadcast
+- **Animated music notes**: Visual representation of audio playback
+- **Prayer text**: Protective blessing for the stream
+
+## Testing Tools (Console Commands)
+
+The application exposes several debugging functions accessible via browser console:
+
+### Time Simulation
+```javascript
+// Jump to a specific time and simulate progression
+simulateTime(14, 30, 0);  // 2:30 PM
+simulateTime(5, 0, 0);    // 5:00 AM (morning genre time)
+simulateTime(1, 0, 0);    // 1:00 AM (late night time)
+
+// Return to real time
+clearSimulatedTime();
+
+// Check current time (real or simulated)
+getCurrentTime();
+```
+
+### Track Management
+```javascript
+// Skip to next track immediately
+skipTrack();
+
+// View current application state
+appState;
+```
+
+### Schedule Testing
+```javascript
+// Configure pre-scheduled content warnings
+setPreScheduledWarnings(true, false);     // Junk only
+setPreScheduledWarnings(true, true);      // Non-bumper junk only  
+setPreScheduledWarnings(false, false);    // Normal operation
+```
+
+### Testing Workflows
+
+#### Test Morning Genre Selection
+1. `simulateTime(4, 59, 50)` - Just before 5 AM
+2. Wait for automatic genre assignment at 5:00 AM
+3. `simulateTime(5, 0, 30)` - Check which genre was selected
+4. `simulateTime(6, 0, 0)` - See if different genre for next hour
+
+#### Test Scheduled Content
+1. Add content to `media/scheduled/daily/HH-MM-SS/`
+2. `simulateTime(HH, MM-16, 0)` - 16 minutes before
+3. Watch system switch to junk-only mode at 15-minute mark
+4. Watch fade and scheduled content start at exact time
+
+#### Test Pre-Schedule Duration Logic
+1. `simulateTime(17, 58, 0)` - 2 minutes before 6 PM scheduled content
+2. Observe system playing only short junk tracks
+3. Watch scheduled content start precisely at 6 PM
+
+## Configuration Management
+
+### Basic Setup (`config.json`)
 ```json
 {
   "mediaDirectory": "./media",
   "outputFile": "tracks.json",
+  "timezone": "America/New_York",
   "fileExtensions": {
     "audio": [".mp3"]
+  },
+  "playback": {
+    "fadeOutDuration": 3000
   }
 }
 ```
 
-### Algorithmic Content Configuration
-```json
-"algorithmic": {
-  "path": "algorithmic",
-  "category": "algorithmic",
-  "subdirectories": {
-    "lateNightLoFis": {
-      "path": "late-nite-lo-fis",
-      "category": "lateNightLoFis",
-      "startTime": "00:00:00",
-      "endTime": "05:00:00",
-      "description": "Late night ambient tracks"
-    },
-    "morning": {
-      "path": "morning",
-      "category": "morningMusic",
-      "startTime": "05:00:00",
-      "endTime": "08:00:00",
-      "description": "Morning praise music"
-    },
-    "standard": {
-      "path": "standard",
-      "category": "standardTracks",
-      "startTime": "08:00:00",
-      "endTime": "23:59:59",
-      "description": "Standard daytime programming"
-    },
-    "junk": {
-      "path": "junk",
-      "category": "junkContent",
-      "description": "Mixed throughout the day, not time-specific",
-      "subdirectories": {
-        "ads": {
-          "path": "ads",
-          "type": "ads"
-        },
-        "scripture": {
-          "path": "scripture",
-          "type": "scripture"
-        },
-        "interludes": {
-          "path": "interludes",
-          "type": "interludes"
-        },
-        "bumpers": {
-          "path": "bumpers",
-          "type": "bumpers"
-        },
-        "ads2": {
-          "path": "ads-2",
-          "type": "ads2"
-        }
-      }
-    }
-  }
-}
-```
-
-### Scheduled Content Configuration
-```json
-"scheduled": {
-  "path": "scheduled",
-  "category": "scheduled",
-  "recurrenceTypes": {
-    "dates": {
-      "name": "dates",
-      "description": "Specific dates (YYYY-MM-DD folders)",
-      "supportsGenres": false,
-      "structure": "dates/YYYY-MM-DD/HH-MM-SS"
-    },
-    "days": {
-      "name": "days",
-      "description": "Days of the week",
-      "supportsGenres": false,
-      "structure": "days/dayname/HH-MM-SS"
-    },
-    "daily": {
-      "name": "daily",
-      "description": "Daily recurring schedule",
-      "supportsGenres": true,
-      "structure": "daily/HH-MM-SS[/genre]"
-    }
-  }
-}
-```
-
-## Time Slot Configuration
-
-The algorithmic content is associated with specific time slots that define when each category should be played. Time slot information is included in each subdirectory configuration:
-
-### Time Slots
-- **Late Night Lo-Fis** (00:00:00 - 05:00:00): Ambient tracks for overnight hours
-- **Morning Music** (05:00:00 - 08:00:00): Morning praise music
-- **Standard Tracks** (08:00:00 - 23:59:59): General daytime programming
-- **Junk Content**: Mixed throughout the day, not time-specific
-
-### Time Slot Configuration Format
-Each time-sensitive subdirectory includes timing information:
-```json
-"subdirectories": {
-  "categoryName": {
-    "path": "folder-name",
-    "category": "categoryName",
-    "startTime": "HH:MM:SS",
-    "endTime": "HH:MM:SS", 
-    "description": "Description of when this plays"
-  }
-}
-```
-
-**Note**: This time slot information is separate from the folder structure and tracks.json output. It will be used by the player application to determine which algorithmic content to play at different times of day.
-
-## Scheduled Content Types
-
-### Daily (`daily/`)
-Content that plays every day at specific times.
-- **Folder format**: `HH-MM-SS` (24-hour format)
-- **Genre support**: Yes (any configured genre with `genre-` prefix)
-- **Examples**:
-  - `daily/17-00-00/` = 5:00:00 PM daily
-  - `daily/06-30-15/genre-country/` = 6:30:15 AM daily, country music
-  - `daily/20-00-00/genre-worship/` = 8:00:00 PM daily, worship music
-  - `daily/12-00-00/` = 12:00:00 PM daily (no genre)
-
-### Days (`days/`)
-Content that plays on specific days of the week.
-- **Day folders**: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`
-- **Time folders**: `HH-MM-SS` format inside each day
-- **Genre support**: No
-- **Examples**:
-  - `days/friday/21-00-00/` = Friday 9:00:00 PM
-  - `days/sunday/10-00-00/` = Sunday 10:00:00 AM
-
-### Dates (`dates/`)
-Content that plays on specific calendar dates.
-- **Date folders**: `YYYY-MM-DD` format
-- **Time folders**: `HH-MM-SS` format inside each date
-- **Genre support**: No
-- **Examples**:
-  - `dates/2024-12-25/12-00-00/` = Christmas Day 12:00:00 PM
-  - `dates/2024-01-01/00-00-00/` = New Year midnight
-
-## Genre Configuration
-
-Define the music genres available in your system. **All genre directories must be prefixed with `genre-`**:
-
+### Genre Configuration
 ```json
 "genres": {
   "country": {
@@ -288,137 +227,99 @@ Define the music genres available in your system. **All genre directories must b
   "praise": {
     "path": "genre-praise",
     "displayName": "Praise & Worship"
-  },
-  "worship": {
-    "path": "genre-worship",
-    "displayName": "Worship"
-  },
-  "contemporary": {
-    "path": "genre-contemporary",
-    "displayName": "Contemporary Christian"
   }
 }
 ```
 
-### Genre System Features:
-- **Flexible**: Add any genre with any name
-- **Prefix required**: All genre directories must start with `genre-`
-- **Auto-discovery**: Genres found in directories but not configured will be ignored with warnings
-- **Display names**: Each genre can have a user-friendly display name
-- **Key matching**: The genre key should match the folder name after `genre-` prefix
-- **Genre-only**: Morning music only accepts `genre-*` directories, non-genre directories are ignored
-
-## Processing Configuration
-
-Control how the system processes your media:
-
+### Time Slot Configuration
 ```json
-"processing": {
-  "progressReportInterval": 50,
-  "concurrentDurationScans": 10,
-  "useCachedDurations": true
+"algorithmic": {
+  "subdirectories": {
+    "lateNightLoFis": {
+      "startTime": "00:00:00",
+      "endTime": "05:00:00"
+    },
+    "morning": {
+      "startTime": "05:00:00", 
+      "endTime": "08:00:00"
+    },
+    "standard": {
+      "startTime": "08:00:00",
+      "endTime": "23:59:59"
+    }
+  }
 }
 ```
 
-- **progressReportInterval**: Show progress every N files during duration scanning
-- **concurrentDurationScans**: Maximum number of files to scan simultaneously (future use)
-- **useCachedDurations**: Whether to use cached duration information from previous runs
+## Build Commands
 
-## File Processing
-
-- **Only MP3 files are supported** - other formats will be ignored
-- The system recursively scans all subdirectories within configured paths
-- Duration information is automatically extracted using FFmpeg
-- File paths in the output automatically use the `mediaDirectory` setting
-
-## Usage
-
-### Validate Configuration
 ```bash
+# Validate configuration file structure
 node validate-config.js
-```
 
-This will verify:
-- Configuration file syntax
-- Required properties are present
-- Directory paths exist
-- Genre configurations are complete
-- Scheduled recurrence types are valid
-- Date and time folder formats are correct
-- Only MP3 files are configured
-- Algorithmic time slots are properly configured
-
-### Generate Tracks File
-```bash
+# Generate track database from media files
 node populate-tracks.js
 ```
 
-This will:
-- Scan your media directory structure
-- Extract duration information from MP3 files
-- Generate `tracks.json` with organized content categories
-- Cache duration information for faster subsequent runs
+### What `populate-tracks.js` Does
+1. Scans media directory structure according to `config.json`
+2. Extracts audio duration using FFmpeg
+3. Organizes tracks by category (algorithmic vs scheduled)
+4. Creates genre mappings for morning content
+5. Generates `tracks.json` with preprocessed data structure
+6. Caches duration information for faster subsequent runs
 
-### Example Output Statistics
-```
-📊 File statistics:
-   Late Night Lo-Fis: 45 tracks
-   Morning Music:
-     Country: 120 tracks
-     Rock: 89 tracks
-     Praise & Worship: 67 tracks
-     Worship: 45 tracks
-     Contemporary Christian: 23 tracks
-   Standard Tracks: 1,234 tracks
-   Junk - Ads: 25 tracks
-   Junk - Scripture: 15 tracks
-   Junk - Interludes: 30 tracks
-   Junk - Bumpers: 20 tracks
-   Junk - Ads 2: 18 tracks
-   Scheduled Entries: 156 scheduled items
-```
-
-## Important Notes
-
-- **Genre directories must use `genre-` prefix** (e.g., `genre-country`, `genre-rock`)
-- **Genre subdirectories are only supported in the `daily` scheduled recurrence type**
-- **Unknown recurrence types will be ignored** (not processed)
-- **Unknown genres will be ignored** (directories found but not configured)
-- Time directories use 24-hour format with hyphens (e.g., `09-30-00` for 9:30:00 AM)
-- Date directories use YYYY-MM-DD format (e.g., `2024-12-25`)
-- Day directories must use full day names in lowercase (e.g., `monday`)
-- Invalid date/time formats will generate warnings and be skipped
-- Duration information can be cached to speed up subsequent runs
-- Multiple files in the same time folder will be handled according to your radio system logic
+### What `validate-config.js` Does
+1. Checks JSON syntax and structure
+2. Validates required configuration properties
+3. Verifies directory paths exist
+4. Confirms genre configurations are complete
+5. Validates time slot configurations
+6. Checks scheduled content recurrence types
 
 ## Troubleshooting
 
-### FFmpeg Not Found
-If you get an FFmpeg error, make sure FFmpeg is properly installed and added to your PATH environment variable (see Installation section above).
+### FFmpeg Issues
+- **Error**: "FFmpeg not found"
+- **Solution**: Install FFmpeg and add to system PATH
+- **Windows**: Download from https://ffmpeg.org, extract, add bin folder to PATH
 
-### Invalid Time Formats
-Make sure all time directories use `HH-MM-SS` format:
-- ✅ `09-30-00` (9:30:00 AM)
-- ❌ `09-30` (missing seconds)
-- ❌ `9-30-00` (missing leading zero)
+### Time Format Issues
+- **Correct**: `09-30-00` (9:30:00 AM)
+- **Wrong**: `09-30` (missing seconds), `9-30-00` (missing leading zero)
 
-### Invalid Genre Formats
-Make sure all genre directories use the `genre-` prefix:
-- ✅ `genre-country` (correct prefix)
-- ✅ `genre-contemporary` (any name after prefix)
-- ❌ `country` (missing prefix)
-- ❌ `genre_country` (underscore instead of hyphen)
+### Genre Directory Issues
+- **Correct**: `genre-country`, `genre-rock`, `genre-praise`
+- **Wrong**: `country` (missing prefix), `genre_country` (underscore instead of hyphen)
 
-### Missing Directories
-The validation script will warn about missing directories. Create them as needed or update your configuration to match your actual structure.
+### Scheduling Not Working
+1. Check that scheduled files exist in correct directory structure
+2. Verify time format is `HH-MM-SS` with leading zeros
+3. Confirm `tracks.json` was regenerated after adding scheduled content
+4. Use time simulation to test: `simulateTime(HH, MM-1, 0)` to test 1 minute before
 
-## Customization
+### Console Error: "Playback not initialized"
+- Run `node populate-tracks.js` to generate tracks database
+- Refresh browser page
+- Ensure `tracks.json` exists and contains valid data
 
-To customize the system for your needs:
+## Technical Architecture
 
-1. **Change directory names**: Update the `path` properties in the configuration
-2. **Add new genres**: Add entries to the `genres` section with `genre-` prefix in path
-4. **Add scheduled recurrence types**: Add new entries to `scheduled.recurrenceTypes`
-5. **Modify processing behavior**: Adjust values in the `processing` section
-6. **Genre flexibility**: Create any `genre-*` directories and configure them in the config file
-7. **Adjust time slots**: Modify `timeSlots` to change when algorithmic content plays
+### Modules Overview
+- **`app.js`**: Main initialization and console function exports
+- **`core.js`**: Data loading and playback initialization  
+- **`player.js`**: Audio playback logic and track selection algorithms
+- **`scheduling.js`**: Scheduled content management and timing
+- **`state.js`**: Global application state management
+- **`events.js`**: Event listener management for audio element
+- **`time.js`**: Time utilities and simulation system
+
+### Key Files
+- **`index.html`**: Main web interface
+- **`config.json`**: System configuration
+- **`tracks.json`**: Generated track database (created by `populate-tracks.js`)
+- **`style.css`**: Interface styling
+- **`populate-tracks.js`**: Media scanning and database generation
+- **`validate-config.js`**: Configuration validation utility
+
+This system provides a robust foundation for automated Christian radio broadcasting with both scheduled programming and intelligent algorithmic content selection.
