@@ -149,9 +149,13 @@ The application exposes several debugging functions accessible via browser conso
 ### Time Simulation
 ```javascript
 // Jump to a specific time and simulate progression
-simulateTime(14, 30, 0);  // 2:30 PM
-simulateTime(5, 0, 0);    // 5:00 AM (morning genre time)
-simulateTime(1, 0, 0);    // 1:00 AM (late night time)
+simulateTime(14, 30, 0);  // 2:30 PM today
+simulateTime(5, 0, 0);    // 5:00 AM today (morning genre time)
+simulateTime(1, 0, 0);    // 1:00 AM today (late night time)
+
+// Jump to a specific date and time
+simulateTime(10, 0, 0, "12-25-2024");  // Christmas Day 10:00 AM
+simulateTime(9, 30, 0, "07-04-2024");  // July 4th 9:30 AM
 
 // Return to real time
 clearSimulatedTime();
