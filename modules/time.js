@@ -1,9 +1,21 @@
 // Time management module for time-related operations
 
-import { getState, updateState, clearUsedAlgorithmicTracks, clearUsedJunkTracks } from './state.js';
-import { startScheduledSystem, clearAllScheduledTimeouts, clearUsedScheduledTracks } from './scheduling.js';
-import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
-import { startPlayback } from './core.js';
+import {
+  getState,
+  updateState,
+  clearUsedAlgorithmicTracks,
+  clearUsedJunkTracks,
+} from "./state.js";
+import {
+  startScheduledSystem,
+  clearAllScheduledTimeouts,
+  clearUsedScheduledTracks,
+} from "./scheduling.js";
+import {
+  cleanupCurrentTrackListeners,
+  cleanupScheduledTrackListeners,
+} from "./events.js";
+import { startPlayback } from "./core.js";
 
 export function getAlgorithmicTimeSlot(currentHour) {
   const state = getState();
@@ -14,7 +26,8 @@ export function getAlgorithmicTimeSlot(currentHour) {
   }
 
   // Get time slots from config
-  const algorithmicTimeSlots = state.config.directories.algorithmic.subdirectories;
+  const algorithmicTimeSlots =
+    state.config.directories.algorithmic.subdirectories;
 
   let timeSlot = "standard"; // Default fallback
 
@@ -44,12 +57,12 @@ export function getAlgorithmicTimeSlot(currentHour) {
 
 export function getCurrentTime() {
   const state = getState();
-  
+
   // If we're not simulating time, return the actual current time
   if (!state.isTimeSimulated) {
     return getConfiguredTime();
   }
-  
+
   // Return simulated time (copy to prevent mutation)
   return new Date(state.simulatedTime);
 }
@@ -60,7 +73,7 @@ export function stopTimeSimulation() {
   // No interval needed for real time - getCurrentTime() will fetch real time
   updateState({
     isTimeSimulated: false,
-    simulationSpeed: 1
+    simulationSpeed: 1,
   });
 }
 
@@ -73,14 +86,16 @@ export function startTimeSimulation(speed = 1) {
 
     // Log time every minute for debugging
     if (state.simulatedTime.getSeconds() === 0) {
-      console.log(`Simulated time: ${state.simulatedTime.toLocaleTimeString()}`);
+      console.log(
+        `Simulated time: ${state.simulatedTime.toLocaleTimeString()}`,
+      );
     }
   }, 1000);
 
   updateState({
     simulationInterval,
     isTimeSimulated: true,
-    simulationSpeed: speed
+    simulationSpeed: speed,
   });
 }
 
@@ -107,7 +122,9 @@ export function getConfiguredTime(date = null) {
   const sourceTime = date || new Date();
 
   if (state.config.timezone) {
-    const localTime = sourceTime.toLocaleString("en-US", { timeZone: state.config.timezone });
+    const localTime = sourceTime.toLocaleString("en-US", {
+      timeZone: state.config.timezone,
+    });
     return new Date(localTime);
   } else {
     return new Date(sourceTime);
@@ -115,7 +132,7 @@ export function getConfiguredTime(date = null) {
 }
 
 export function parseTimeString(timeStr) {
-  const [hours, minutes, seconds = 0] = timeStr.split(':').map(Number);
+  const [hours, minutes, seconds = 0] = timeStr.split(":").map(Number);
   return { hours, minutes, seconds };
 }
 
@@ -155,7 +172,7 @@ function resetForTimeSimulation() {
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
   const state = getState();
   if (Object.keys(state.config).length === 0) {
-    console.error('Not playback not initialized.');
+    console.error("Not playback not initialized.");
     return;
   }
   // Set the simulated time
@@ -166,7 +183,6 @@ export function simulateTime(hour, minute = 0, second = 0, date = null) {
 
   // Reset what's needed for time simulation
   resetForTimeSimulation();
-
 }
 
 export function clearSimulatedTime() {
@@ -176,5 +192,5 @@ export function clearSimulatedTime() {
   // Reset what's needed for time simulation
   resetForTimeSimulation();
 
-  console.log('Cleared simulated time - now using real time');
+  console.log("Cleared simulated time - now using real time");
 }

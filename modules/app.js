@@ -1,9 +1,9 @@
 // Main app module that imports and initializes all modules
 
-import { skipTrack } from './core.js';
-import { initializeUIEventListeners } from './events.js';
-import { getState, initializeDOMElements, updateState } from './state.js';
-import { clearSimulatedTime, simulateTime, getCurrentTime } from './time.js';
+import { skipTrack } from "./core.js";
+import { initializeUIEventListeners } from "./events.js";
+import { getState, initializeDOMElements, updateState } from "./state.js";
+import { clearSimulatedTime, simulateTime, getCurrentTime } from "./time.js";
 
 // Initialize the application
 export async function initDOM() {
@@ -14,10 +14,10 @@ export async function initDOM() {
     // Initialize UI event listeners
     initializeUIEventListeners();
 
-    console.log('DOM listeners initialized');
+    console.log("DOM listeners initialized");
     return true;
   } catch (error) {
-    console.error('Failed to initialize DOM:', error);
+    console.error("Failed to initialize DOM:", error);
     return false;
   }
 }
@@ -28,12 +28,17 @@ window.simulateTime = simulateTime;
 window.clearSimulatedTime = clearSimulatedTime;
 window.getCurrentTime = getCurrentTime;
 
-window.setPreScheduledWarnings = (junkOnly = false, nonBumperJunkOnly = false) => {
+window.setPreScheduledWarnings = (
+  junkOnly = false,
+  nonBumperJunkOnly = false,
+) => {
   updateState({
     preScheduledJunkOnly: junkOnly,
-    preScheduledNonBumperJunkOnly: nonBumperJunkOnly
+    preScheduledNonBumperJunkOnly: nonBumperJunkOnly,
   });
-  console.log(`Set pre-scheduled warnings: junkOnly=${junkOnly}, nonBumperJunkOnly=${nonBumperJunkOnly}`);
+  console.log(
+    `Set pre-scheduled warnings: junkOnly=${junkOnly}, nonBumperJunkOnly=${nonBumperJunkOnly}`,
+  );
 };
 
 window.appState = getState();

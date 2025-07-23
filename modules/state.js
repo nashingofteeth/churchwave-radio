@@ -155,10 +155,7 @@ export function initializeState() {
 
   // Initialize from config if available
   const config = state.config;
-  if (
-    config?.playback &&
-    (!state.fadeOutDuration)
-  ) {
+  if (config?.playback && !state.fadeOutDuration) {
     // Set playback configuration values
     updateState({
       fadeOutDuration: config.playback.fadeOutDuration,

@@ -1,6 +1,6 @@
 // Event listeners module for managing audio element event listeners
 
-import { addToStateArray, clearStateArray, getState } from './state.js';
+import { addToStateArray, clearStateArray, getState } from "./state.js";
 
 export function initializeUIEventListeners() {
   const state = getState();
@@ -11,26 +11,27 @@ export function initializeUIEventListeners() {
 
     try {
       // Import dynamically to avoid circular dependencies
-      const { initializePlayback } = await import('./core.js');
+      const { initializePlayback } = await import("./core.js");
       const success = await initializePlayback();
 
       if (!success) {
-        throw new Error('Failed to initialize');
+        throw new Error("Failed to initialize");
       }
     } catch (error) {
-      console.error('Error during initialization:', error);
+      console.error("Error during initialization:", error);
       state.loadingIndicator.style.display = "none";
       state.startButton.style.display = "block";
       return;
     }
-
 
     const playingHandler = () => {
       state.loadingIndicator.style.display = "none";
       document.getElementById("revealed").style.display = "block";
     };
 
-    state.theTransmitter.addEventListener("playing", playingHandler, { once: true });
+    state.theTransmitter.addEventListener("playing", playingHandler, {
+      once: true,
+    });
   };
 
   state.startButton.addEventListener("click", startButtonHandler);
@@ -53,13 +54,13 @@ export function initializeUIEventListeners() {
 export function addCurrentTrackListener(eventType, handler, options = {}) {
   const state = getState();
   state.theTransmitter.addEventListener(eventType, handler, options);
-  addToStateArray('currentTrackListeners', { eventType, handler, options });
+  addToStateArray("currentTrackListeners", { eventType, handler, options });
 }
 
 export function addScheduledTrackListener(eventType, handler, options = {}) {
   const state = getState();
   state.theTransmitter.addEventListener(eventType, handler, options);
-  addToStateArray('scheduledTrackListeners', { eventType, handler, options });
+  addToStateArray("scheduledTrackListeners", { eventType, handler, options });
 }
 
 export function cleanupCurrentTrackListeners() {
@@ -68,10 +69,10 @@ export function cleanupCurrentTrackListeners() {
     try {
       state.theTransmitter.removeEventListener(eventType, handler);
     } catch (error) {
-      console.warn('Error removing current track listener:', error);
+      console.warn("Error removing current track listener:", error);
     }
   });
-  clearStateArray('currentTrackListeners');
+  clearStateArray("currentTrackListeners");
 }
 
 export function cleanupScheduledTrackListeners() {
@@ -80,9 +81,8 @@ export function cleanupScheduledTrackListeners() {
     try {
       state.theTransmitter.removeEventListener(eventType, handler);
     } catch (error) {
-      console.warn('Error removing scheduled track listener:', error);
+      console.warn("Error removing scheduled track listener:", error);
     }
   });
-  clearStateArray('scheduledTrackListeners');
+  clearStateArray("scheduledTrackListeners");
 }
-
