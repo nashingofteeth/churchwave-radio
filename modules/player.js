@@ -78,6 +78,57 @@ function trackWillFinishBeforeScheduled(trackDuration) {
   return trackEndTime <= nextScheduledTime;
 }
 
+function getAvailableAlgorithmicTracks(tracks, category, trackKey) {
+  const state = getState();
+  let availableTracks = tracks.filter(
+    (track) => !state.usedAlgorithmicTracks[category][track.key || trackKey?.(track)]
+  );
+
+  if (availableTracks.length === 0) {
+    clearUsedAlgorithmicTracksForCategory(category);
+    availableTracks = tracks;
+  }
+
+  return availableTracks;
+}
+
+function filterTracksByDuration(tracks, fallbackAction) {
+  const state = getState();
+  
+  if (state.preScheduledJunkOnly) {
+    return tracks;
+  }
+
+  const durationsCheckedTracks = tracks.filter((track) => 
+    trackWillFinishBeforeScheduled(track.duration)
+  );
+  
+  if (durationsCheckedTracks.length > 0) {
+    return durationsCheckedTracks;
+  } else {
+    console.log("No tracks will finish before scheduled content, playing junk");
+    fallbackAction();
+    return [];
+  }
+}
+
+function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackTrackFunction) {
+  if (tracks.length === 0) {
+    console.error(errorMessage);
+    if (fallbackTrackFunction) {
+      return fallbackTrackFunction();
+    }
+    return;
+  }
+
+  const filteredTracks = filterTracksByDuration(tracks, playJunkTrack);
+  if (filteredTracks.length === 0) return;
+
+  const selectedTrack = filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
+  markAlgorithmicTrackUsed(category, selectedTrack.key);
+  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
+}
+
 export function playAlgorithmicTrack() {
   const state = getState();
 
@@ -99,41 +150,15 @@ export function playAlgorithmicTrack() {
 
 export function playLateNightLoFi() {
   const state = getState();
-
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
-  let availableTracks = tracks.filter(
-    (track) => !state.usedAlgorithmicTracks.lateNightLoFis[track.key],
+  const availableTracks = getAvailableAlgorithmicTracks(tracks, "lateNightLoFis");
+  
+  selectAndPlayAlgorithmicTrack(
+    availableTracks, 
+    "lateNightLoFis", 
+    "No late night tracks available", 
+    playStandardTrack
   );
-
-  if (availableTracks.length === 0) {
-    clearUsedAlgorithmicTracksForCategory("lateNightLoFis");
-    availableTracks = tracks;
-  }
-
-  if (availableTracks.length === 0) {
-    console.error("No late night tracks available");
-    return playStandardTrack();
-  }
-
-  // Filter tracks by duration to ensure they finish before next scheduled track
-  if (!state.preScheduledJunkOnly) {
-    const durationsCheckedTracks = availableTracks.filter((track) => 
-      trackWillFinishBeforeScheduled(track.duration)
-    );
-    
-    if (durationsCheckedTracks.length > 0) {
-      availableTracks = durationsCheckedTracks;
-    } else {
-      // If no tracks will finish in time, play junk instead
-      console.log("No late night tracks will finish before scheduled content, playing junk");
-      return playJunkTrack();
-    }
-  }
-
-  const selectedTrack =
-    availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  markAlgorithmicTrackUsed("lateNightLoFis", selectedTrack.key);
-  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playMorningTrack() {
@@ -148,78 +173,26 @@ export function playMorningTrack() {
   }
 
   const tracks = state.preprocessed.timeSlots.morning.genres[genre].tracks;
-  let availableTracks = tracks.filter(
-    (track) => !state.usedAlgorithmicTracks.morning[track.key],
+  const availableTracks = getAvailableAlgorithmicTracks(tracks, "morning");
+  
+  selectAndPlayAlgorithmicTrack(
+    availableTracks, 
+    "morning", 
+    `No morning tracks available for genre: ${genre}`, 
+    playStandardTrack
   );
-
-  if (availableTracks.length === 0) {
-    clearUsedAlgorithmicTracksForCategory("morning");
-    availableTracks = tracks;
-  }
-
-  if (availableTracks.length === 0) {
-    console.error("No morning tracks available for genre:", genre);
-    return playStandardTrack();
-  }
-
-  // Filter tracks by duration to ensure they finish before next scheduled track
-  if (!state.preScheduledJunkOnly) {
-    const durationsCheckedTracks = availableTracks.filter((track) => 
-      trackWillFinishBeforeScheduled(track.duration)
-    );
-    
-    if (durationsCheckedTracks.length > 0) {
-      availableTracks = durationsCheckedTracks;
-    } else {
-      // If no tracks will finish in time, play junk instead
-      console.log("No morning tracks will finish before scheduled content, playing junk");
-      return playJunkTrack();
-    }
-  }
-
-  const selectedTrack =
-    availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  markAlgorithmicTrackUsed("morning", selectedTrack.key);
-  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playStandardTrack() {
   const state = getState();
-
   const tracks = state.preprocessed.timeSlots.standard.tracks;
-  let availableTracks = tracks.filter(
-    (track) => !state.usedAlgorithmicTracks.standard[track.key],
+  const availableTracks = getAvailableAlgorithmicTracks(tracks, "standard");
+  
+  selectAndPlayAlgorithmicTrack(
+    availableTracks, 
+    "standard", 
+    "No standard tracks available"
   );
-
-  if (availableTracks.length === 0) {
-    clearUsedAlgorithmicTracksForCategory("standard");
-    availableTracks = tracks;
-  }
-
-  if (availableTracks.length === 0) {
-    console.error("No standard tracks available");
-    return;
-  }
-
-  // Filter tracks by duration to ensure they finish before next scheduled track
-  if (!state.preScheduledJunkOnly) {
-    const durationsCheckedTracks = availableTracks.filter((track) => 
-      trackWillFinishBeforeScheduled(track.duration)
-    );
-    
-    if (durationsCheckedTracks.length > 0) {
-      availableTracks = durationsCheckedTracks;
-    } else {
-      // If no tracks will finish in time, play junk instead
-      console.log("No standard tracks will finish before scheduled content, playing junk");
-      return playJunkTrack();
-    }
-  }
-
-  const selectedTrack =
-    availableTracks[Math.floor(Math.random() * availableTracks.length)];
-  markAlgorithmicTrackUsed("standard", selectedTrack.key);
-  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
 export function playJunkTrack() {
