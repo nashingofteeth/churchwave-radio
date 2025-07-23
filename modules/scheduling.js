@@ -539,6 +539,14 @@ export function clearAllScheduledTimeouts() {
 }
 
 export function enterScheduledMode(track) {
+  const state = getState();
+  
+  // Don't start a new scheduled track if we're already playing one
+  if (state.isInScheduledMode) {
+    console.log("Already in scheduled mode, skipping scheduled track");
+    return;
+  }
+
   updateState({
     isInScheduledMode: true,
     currentScheduledTrack: track,
@@ -573,7 +581,9 @@ export function onScheduledTrackEnd() {
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });
+
   shuffleJunkCycleOrder();
+
   cleanupScheduledTrackListeners();
 
   // Check if we need to enter pre-scheduled junk range immediately
