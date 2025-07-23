@@ -65,6 +65,19 @@ export function playTrack({
   });
 }
 
+function trackWillFinishBeforeScheduled(trackDuration) {
+  const state = getState();
+  const now = getCurrentTime();
+  
+  // Use the first entry in upcomingScheduled ledger (already sorted by time)
+  if (state.upcomingScheduled.length === 0) return true; // No scheduled tracks, safe to play
+  
+  const nextScheduledTime = state.upcomingScheduled[0].scheduledTime;
+  const trackEndTime = new Date(now.getTime() + trackDuration * 1000);
+  
+  return trackEndTime <= nextScheduledTime;
+}
+
 export function playAlgorithmicTrack() {
   const state = getState();
 
@@ -102,6 +115,21 @@ export function playLateNightLoFi() {
     return playStandardTrack();
   }
 
+  // Filter tracks by duration to ensure they finish before next scheduled track
+  if (!state.preScheduledJunkOnly) {
+    const durationsCheckedTracks = availableTracks.filter((track) => 
+      trackWillFinishBeforeScheduled(track.duration)
+    );
+    
+    if (durationsCheckedTracks.length > 0) {
+      availableTracks = durationsCheckedTracks;
+    } else {
+      // If no tracks will finish in time, play junk instead
+      console.log("No late night tracks will finish before scheduled content, playing junk");
+      return playJunkTrack();
+    }
+  }
+
   const selectedTrack =
     availableTracks[Math.floor(Math.random() * availableTracks.length)];
   markAlgorithmicTrackUsed("lateNightLoFis", selectedTrack.key);
@@ -134,6 +162,21 @@ export function playMorningTrack() {
     return playStandardTrack();
   }
 
+  // Filter tracks by duration to ensure they finish before next scheduled track
+  if (!state.preScheduledJunkOnly) {
+    const durationsCheckedTracks = availableTracks.filter((track) => 
+      trackWillFinishBeforeScheduled(track.duration)
+    );
+    
+    if (durationsCheckedTracks.length > 0) {
+      availableTracks = durationsCheckedTracks;
+    } else {
+      // If no tracks will finish in time, play junk instead
+      console.log("No morning tracks will finish before scheduled content, playing junk");
+      return playJunkTrack();
+    }
+  }
+
   const selectedTrack =
     availableTracks[Math.floor(Math.random() * availableTracks.length)];
   markAlgorithmicTrackUsed("morning", selectedTrack.key);
@@ -156,6 +199,21 @@ export function playStandardTrack() {
   if (availableTracks.length === 0) {
     console.error("No standard tracks available");
     return;
+  }
+
+  // Filter tracks by duration to ensure they finish before next scheduled track
+  if (!state.preScheduledJunkOnly) {
+    const durationsCheckedTracks = availableTracks.filter((track) => 
+      trackWillFinishBeforeScheduled(track.duration)
+    );
+    
+    if (durationsCheckedTracks.length > 0) {
+      availableTracks = durationsCheckedTracks;
+    } else {
+      // If no tracks will finish in time, play junk instead
+      console.log("No standard tracks will finish before scheduled content, playing junk");
+      return playJunkTrack();
+    }
   }
 
   const selectedTrack =

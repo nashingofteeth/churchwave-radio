@@ -8,6 +8,7 @@ import {
   clearUsedAlgorithmicTracks,
   clearUsedJunkTracks,
   updateState,
+  removeFromUpcomingScheduled,
 } from "./state.js";
 import {
   getAlgorithmicTimeSlot,
@@ -22,9 +23,6 @@ export function startScheduledSystem() {
   // Set initial morning genres
   setMorningGenres();
 
-  // Check if we're currently in a preschedule range
-  checkAndSetPrescheduleJunkState();
-
   // Schedule current and next hour blocks
   scheduleHourBlock(currentHour);
   scheduleHourBlock((currentHour + 1) % 24);
@@ -34,6 +32,9 @@ export function startScheduledSystem() {
 
   // Schedule daily morning genre updates
   scheduleDailyMorningGenreUpdate();
+
+  // Check if we're currently in a preschedule range
+  checkAndSetPrescheduleJunkState();
 }
 
 export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
@@ -269,12 +270,16 @@ export function selectTracksWithHierarchy(tracks) {
 export function scheduleTracks(tracks) {
   const state = getState();
   const newTimeouts = [];
+  const newUpcomingScheduled = [];
 
   tracks.forEach((track) => {
     const startTime = getScheduledTrackTime(track);
     const now = getCurrentTime();
 
     if (startTime <= now) return; // Skip past times
+
+    // Add to upcoming scheduled ledger
+    newUpcomingScheduled.push({ track, scheduledTime: startTime });
 
     const timeUntilStart = startTime - now;
     const timeUntilFade = timeUntilStart - state.fadeOutDuration;
@@ -323,41 +328,25 @@ export function scheduleTracks(tracks) {
     newTimeouts.push(startTimeout);
   });
 
-  // Add all timeouts atomically
+  // Sort upcoming scheduled tracks by time and add to existing ledger
+  const combinedUpcoming = [...state.upcomingScheduled, ...newUpcomingScheduled]
+    .sort((a, b) => a.scheduledTime - b.scheduledTime);
+
+  // Add all timeouts and update ledger atomically
   updateState({
     scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts],
+    upcomingScheduled: combinedUpcoming,
   });
 }
 
 export function checkAndSetPrescheduleJunkState() {
   const state = getState();
   const now = getCurrentTime();
-  const currentHour = now.getHours();
-  const nextHour = (currentHour + 1) % 24;
 
-  // Collect tracks from current and next hour
-  const currentHourTracks =
-    state.preprocessed.scheduledTracks.byHour[currentHour] || [];
-  const nextHourTracks =
-    state.preprocessed.scheduledTracks.byHour[nextHour] || [];
-  const allTracks = [...currentHourTracks, ...nextHourTracks];
+  // Use the first entry in upcomingScheduled ledger (already sorted by time)
+  if (state.upcomingScheduled.length === 0) return;
 
-  // Find next scheduled track across both hours
-  const upcomingTracks = allTracks
-    .filter((track) => {
-      const scheduledTime = getScheduledTrackTime(track);
-      return scheduledTime > now;
-    })
-    .sort((a, b) => {
-      const timeA = getScheduledTrackTime(a);
-      const timeB = getScheduledTrackTime(b);
-      return timeA - timeB;
-    });
-
-  if (upcomingTracks.length === 0) return;
-
-  const nextTrack = upcomingTracks[0];
-  const nextTrackTime = getScheduledTrackTime(nextTrack);
+  const nextTrackTime = state.upcomingScheduled[0].scheduledTime;
   const timeUntilTrack = nextTrackTime - now;
   const minutesUntilTrack = timeUntilTrack / (60 * 1000);
 
@@ -534,6 +523,7 @@ export function clearAllScheduledTimeouts() {
     scheduledTimeouts: [],
     hourlyScheduleTimeout: null,
     dailyMorningGenreTimeout: null,
+    upcomingScheduled: [],
   });
 }
 
@@ -549,6 +539,8 @@ export function enterScheduledMode(track) {
 
   if (state.theTransmitter.paused) {
     console.log("Player paused, skipping scheduled track");
+
+    removeFromUpcomingScheduled(track.trackKey);
 
     updateState({
       preScheduledJunkOnly: false,
@@ -571,6 +563,8 @@ export function enterScheduledMode(track) {
     console.log(
       "Scheduled track would be finished, returning to algorithmic playback",
     );
+    
+    removeFromUpcomingScheduled(track.trackKey);
     returnToAlgorithmicPlayback();
     return;
   }

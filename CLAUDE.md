@@ -37,7 +37,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 
 ### Processing Scripts
 - `populate-tracks.js` - Scans media directory and generates tracks database
-- `validate-config.js` - Validates configuration structure and paths
+- `validate-config.js` - Validates configuration file formatting and structure (NOT for testing code changes)
 
 ## Key Features
 - **Algorithmic Playback**: Time-based automatic music selection
@@ -60,9 +60,10 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - Recent commits focus on time simulation and pre-scheduled track handling
 
 ## Build/Test Commands
-- Configuration validation: `node validate-config.js`
+- Configuration file validation: `node validate-config.js` (checks config.json formatting only)
 - Track database generation: `node populate-tracks.js`
 - No specific linting or testing framework detected
+- Testing requires opening `index.html` in browser and using time simulation features
 
 ## Technologies
 - Vanilla JavaScript (ES6 modules)

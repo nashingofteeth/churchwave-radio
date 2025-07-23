@@ -41,6 +41,7 @@ export const state = {
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
   dailyMorningGenreTimeout: null,
+  upcomingScheduled: [], // Array of {track, scheduledTime} sorted by scheduledTime
 
   // Event listener management
   currentTrackListeners: [],
@@ -143,8 +144,15 @@ export function markJunkTrackUsed(junkType, trackKey) {
   state.usedJunkTracksByType[junkType][trackKey] = true;
 }
 
+export function removeFromUpcomingScheduled(trackKey) {
+  state.upcomingScheduled = state.upcomingScheduled.filter(
+    (entry) => entry.track.trackKey !== trackKey
+  );
+}
+
 export function markScheduledFileUsed(trackKey, timestamp) {
   state.usedScheduledFiles[trackKey] = timestamp;
+  removeFromUpcomingScheduled(trackKey);
 }
 
 // Initialize state from config and reset to defaults
