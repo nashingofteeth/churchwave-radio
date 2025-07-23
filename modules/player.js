@@ -221,7 +221,7 @@ export function playJunkTrack() {
 export function fadeOut() {
   const state = getState();
 
-  if (state.fadeOutInterval || state.currentScheduledTrack) return; // Prevent multiple fades or if already scheduled
+  if (state.fadeOutInterval) return; // Prevent multiple fades
 
   const steps = 30;
   const originalVolume = state.theTransmitter.volume;

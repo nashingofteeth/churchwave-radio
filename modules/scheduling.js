@@ -560,7 +560,6 @@ export function enterScheduledMode(track) {
 
   updateState({
     isInScheduledMode: true,
-    currentScheduledTrack: track,
   });
 
   const trackData = track.trackData;
@@ -588,7 +587,6 @@ export function enterScheduledMode(track) {
 
 export function onScheduledTrackEnd() {
   updateState({
-    currentScheduledTrack: null,
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });

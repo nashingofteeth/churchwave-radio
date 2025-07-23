@@ -147,7 +147,6 @@ function resetForTimeSimulation() {
   // Reset scheduling state
   updateState({
     isInScheduledMode: false,
-    currentScheduledTrack: null,
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });

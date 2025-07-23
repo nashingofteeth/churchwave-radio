@@ -21,7 +21,6 @@ export const state = {
   // Playback state
   isFirstTrack: true,
   fadeOutInterval: null,
-  currentScheduledTrack: null,
   fadeOutDuration: null,
 
   // Time simulation system
@@ -32,7 +31,6 @@ export const state = {
 
   // Algorithmic state
   morningGenres: {},
-  lastMorningGenreUpdate: null,
   junkCycleOrder: [],
   junkCycleIndex: 0,
   preScheduledJunkOnly: false,
