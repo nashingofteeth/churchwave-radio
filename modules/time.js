@@ -1,6 +1,6 @@
 // Time management module for time-related operations
 
-import { getState, updateState, clearUsedAlgorithmicTracks } from './state.js';
+import { getState, updateState, clearUsedAlgorithmicTracks, clearUsedJunkTracks } from './state.js';
 import { startScheduledSystem, clearAllScheduledTimeouts, clearUsedScheduledTracks } from './scheduling.js';
 import { cleanupCurrentTrackListeners, cleanupScheduledTrackListeners } from './events.js';
 import { startPlayback } from './core.js';
@@ -141,6 +141,7 @@ function resetForTimeSimulation() {
 
   // Clear track usage
   clearUsedAlgorithmicTracks();
+  clearUsedJunkTracks();
   clearUsedScheduledTracks();
 
   // Restart scheduling system

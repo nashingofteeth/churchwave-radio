@@ -16,6 +16,7 @@ export const state = {
   // Usage tracking
   usedScheduledFiles: {},
   usedAlgorithmicTracks: {},
+  usedJunkTracksByType: {},
 
   // Playback state
   isFirstTrack: true,
@@ -118,12 +119,31 @@ export function clearUsedAlgorithmicTracksForCategory(category) {
   }
 }
 
+export function clearUsedJunkTracksForType(junkType) {
+  if (state.usedJunkTracksByType[junkType]) {
+    state.usedJunkTracksByType[junkType] = {};
+  }
+}
+
+export function clearUsedJunkTracks() {
+  for (const junkType in state.usedJunkTracksByType) {
+    state.usedJunkTracksByType[junkType] = {};
+  }
+}
+
 // Helper functions for tracking usage
 export function markAlgorithmicTrackUsed(category, trackKey) {
   if (!state.usedAlgorithmicTracks[category]) {
     state.usedAlgorithmicTracks[category] = {};
   }
   state.usedAlgorithmicTracks[category][trackKey] = true;
+}
+
+export function markJunkTrackUsed(junkType, trackKey) {
+  if (!state.usedJunkTracksByType[junkType]) {
+    state.usedJunkTracksByType[junkType] = {};
+  }
+  state.usedJunkTracksByType[junkType][trackKey] = true;
 }
 
 export function markScheduledFileUsed(trackKey, timestamp) {
@@ -160,7 +180,7 @@ export function initializeState() {
     Object.keys(config.directories.algorithmic.subdirectories).forEach(
       (key) => {
         const subdir = config.directories.algorithmic.subdirectories[key];
-        // Skip junk as it's not tracked in usedAlgorithmicTracks
+        // Skip junk as it has its own tracking system
         if (subdir.category !== "junkContent") {
           usedAlgorithmicTracks[key] = {};
         }
@@ -170,6 +190,21 @@ export function initializeState() {
     updateState({ usedAlgorithmicTracks });
   } else {
     console.warn("Algorithmic directories not found");
+  }
+
+  // Initialize usedJunkTracksByType structure from preprocessed data
+  if (
+    state.preprocessed?.junkContent?.types &&
+    Object.keys(state.usedJunkTracksByType).length === 0
+  ) {
+    const usedJunkTracksByType = {};
+
+    // Create tracking objects for each junk type
+    Object.keys(state.preprocessed.junkContent.types).forEach((junkType) => {
+      usedJunkTracksByType[junkType] = {};
+    });
+
+    updateState({ usedJunkTracksByType });
   }
 
   // Initialize junk cycle order if preprocessed data is available

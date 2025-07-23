@@ -1,7 +1,7 @@
 // Player module for audio playback control functions
 
 import { addCurrentTrackListener, addScheduledTrackListener, cleanupCurrentTrackListeners } from './events.js';
-import { clearUsedAlgorithmicTracksForCategory, getState, markAlgorithmicTrackUsed, updateState } from './state.js';
+import { clearUsedAlgorithmicTracksForCategory, clearUsedJunkTracksForType, getState, markAlgorithmicTrackUsed, markJunkTrackUsed, updateState } from './state.js';
 import { getRandomStartTime, getAlgorithmicTimeSlot, getCurrentTime } from './time.js';
 
 export function playTrack({ 
@@ -168,7 +168,21 @@ export function playJunkTrack() {
     return;
   }
 
-  const selectedTrack = junkTypeData.tracks[Math.floor(Math.random() * junkTypeData.tracks.length)];
+  // Filter out already used tracks for this specific junk type
+  let availableTracks = junkTypeData.tracks.filter(
+    (track) => !state.usedJunkTracksByType[currentJunkType]?.[track.key]
+  );
+
+  // If all tracks of this type have been used, reset usage for just this type
+  if (availableTracks.length === 0) {
+    clearUsedJunkTracksForType(currentJunkType);
+    availableTracks = junkTypeData.tracks;
+  }
+
+  const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+
+  // Mark track as used for this specific junk type
+  markJunkTrackUsed(currentJunkType, selectedTrack.key);
 
   // Move to next junk type for next time
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;

@@ -2,7 +2,7 @@
 
 import { cleanupScheduledTrackListeners } from './events.js';
 import { playAlgorithmicTrack, playTrack } from './player.js';
-import { getState, markScheduledFileUsed, clearUsedAlgorithmicTracks, updateState } from './state.js';
+import { getState, markScheduledFileUsed, clearUsedAlgorithmicTracks, clearUsedJunkTracks, updateState } from './state.js';
 import { getAlgorithmicTimeSlot, getCurrentTime, parseTimeString } from './time.js';
 
 export function startScheduledSystem() {
@@ -447,6 +447,9 @@ export function performHourlyTasks(currentHour) {
 
   // Clear used algorithmic tracks
   clearUsedAlgorithmicTracks();
+
+  // Clear used junk tracks
+  clearUsedJunkTracks();
 
   // Schedule next hour block of tracks
   scheduleHourBlock((currentHour + 1) % 24);
