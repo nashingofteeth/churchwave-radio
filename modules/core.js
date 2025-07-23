@@ -73,10 +73,7 @@ export function startPlayback() {
 }
 
 export function skipTrack() {
-  const state = getState();
   console.log("Skipping track");
-
-  state.theTransmitter.pause();
 
   playAlgorithmicTrack();
 }
