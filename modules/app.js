@@ -28,17 +28,5 @@ window.simulateTime = simulateTime;
 window.clearSimulatedTime = clearSimulatedTime;
 window.getCurrentTime = getCurrentTime;
 
-window.setPreScheduledWarnings = (
-  junkOnly = false,
-  nonBumperJunkOnly = false,
-) => {
-  updateState({
-    preScheduledJunkOnly: junkOnly,
-    preScheduledNonBumperJunkOnly: nonBumperJunkOnly,
-  });
-  console.log(
-    `Set pre-scheduled warnings: junkOnly=${junkOnly}, nonBumperJunkOnly=${nonBumperJunkOnly}`,
-  );
-};
-
+// Export full app state
 window.appState = getState();

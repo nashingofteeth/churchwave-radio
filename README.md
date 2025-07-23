@@ -173,13 +173,6 @@ skipTrack();
 appState;
 ```
 
-### Schedule Testing
-```javascript
-// Configure pre-scheduled content warnings
-setPreScheduledWarnings(true, false);     // Junk only
-setPreScheduledWarnings(true, true);      // Non-bumper junk only  
-setPreScheduledWarnings(false, false);    // Normal operation
-```
 
 ### Testing Workflows
 
