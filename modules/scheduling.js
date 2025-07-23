@@ -211,13 +211,10 @@ export function scheduleHourBlock(hour) {
     return timeA - timeB;
   });
 
-  // Create track chain with gap detection
-  const trackChain = createTrackChain(prioritizedTracks);
+  // Schedule individual tracks
+  scheduleTracks(prioritizedTracks);
 
-  // Schedule timeouts for the chain
-  scheduleTrackChain(trackChain);
-
-  console.log(`Scheduled ${trackChain.length} tracks for hour ${hour}`);
+  console.log(`Scheduled ${prioritizedTracks.length} tracks for hour ${hour}`);
 }
 
 export function selectTracksWithHierarchy(tracks) {
@@ -237,42 +234,67 @@ export function selectTracksWithHierarchy(tracks) {
   }).filter(Boolean);
 }
 
-export function createTrackChain(tracks) {
+export function scheduleTracks(tracks) {
   const state = getState();
-  if (tracks.length === 0) return [];
+  const newTimeouts = [];
 
-  const chain = [];
-  for (let i = 0; i < tracks.length; i++) {
-    const track = tracks[i];
-    const trackData = track.trackData;
-    const filename = trackData.filename;
-
+  tracks.forEach((track) => {
     const startTime = getScheduledTrackTime(track);
-    const endTime = new Date(startTime.getTime() + trackData.duration * 1000);
+    const now = getCurrentTime();
 
-    const chainItem = {
-      track,
-      startTime,
-      endTime,
-      isChained: false
-    };
+    if (startTime <= now) return; // Skip past times
 
-    // Check if this track should be chained to the previous one
-    if (i > 0) {
-      const prevItem = chain[chain.length - 1];
-      const gap = (startTime - prevItem.endTime) / 1000; // gap in seconds
+    const timeUntilStart = startTime - now;
+    const timeUntilFade = timeUntilStart - state.fadeOutDuration;
+    const timeUntil15Min = timeUntilStart - (15 * 60 * 1000); // 15 minutes before
+    const timeUntil5Min = timeUntilStart - (5 * 60 * 1000); // 5 minutes before
 
-      if (gap <= state.chainGapThreshold && gap >= 0) {
-        chainItem.isChained = true;
-        chainItem.chainedStartTime = prevItem.endTime;
-        console.log(`Chaining ${filename} (${gap}s gap)`);
-      }
+    // Schedule 15-minute warning
+    if (timeUntil15Min > 0) {
+      const warning15Timeout = setTimeout(() => {
+        console.log('15-minute warning: switching to junk-only mode');
+        updateState({ preScheduledJunkOnly: true });
+      }, timeUntil15Min);
+
+      newTimeouts.push(warning15Timeout);
     }
 
-    chain.push(chainItem);
-  }
+    // Schedule 5-minute warning
+    if (timeUntil5Min > 0) {
+      const warning5Timeout = setTimeout(() => {
+        console.log('5-minute warning: switching to non-bumper junk-only mode');
+        updateState({ preScheduledNonBumperJunkOnly: true });
+      }, timeUntil5Min);
 
-  return chain;
+      newTimeouts.push(warning5Timeout);
+    }
+
+    // Schedule fade
+    if (timeUntilFade > 0) {
+      const fadeTimeout = setTimeout(() => {
+        if (!state.isInScheduledMode) {
+          // Import fadeOut dynamically to avoid circular dependencies
+          import('./player.js').then(({ fadeOut }) => {
+            fadeOut();
+          });
+        }
+      }, timeUntilFade);
+
+      newTimeouts.push(fadeTimeout);
+    }
+
+    // Schedule track start
+    const startTimeout = setTimeout(() => {
+      enterScheduledMode(track);
+    }, timeUntilStart);
+
+    newTimeouts.push(startTimeout);
+  });
+
+  // Add all timeouts atomically
+  updateState({
+    scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts]
+  });
 }
 
 export function checkAndSetPrescheduleJunkState() {
@@ -315,80 +337,7 @@ export function checkAndSetPrescheduleJunkState() {
   }
 }
 
-export function scheduleTrackChain(chain) {
-  const state = getState();
-  const newTimeouts = [];
 
-  chain.forEach((chainItem) => {
-    const { track, startTime, isChained, chainedStartTime } = chainItem;
-    const actualStartTime = isChained ? chainedStartTime : startTime;
-    const now = getCurrentTime();
-
-    if (actualStartTime <= now) return; // Skip past times
-
-    const timeUntilStart = actualStartTime - now;
-    const timeUntilFade = timeUntilStart - state.fadeOutDuration;
-    const timeUntil15Min = timeUntilStart - (15 * 60 * 1000); // 15 minutes before
-    const timeUntil5Min = timeUntilStart - (5 * 60 * 1000); // 5 minutes before
-
-    // Schedule 15-minute warning
-    if (timeUntil15Min > 0) {
-      const warning15Timeout = setTimeout(() => {
-        console.log('15-minute warning: switching to junk-only mode');
-        updateState({ preScheduledJunkOnly: true });
-      }, timeUntil15Min);
-
-      newTimeouts.push(warning15Timeout);
-    }
-
-    // Schedule 5-minute warning
-    if (timeUntil5Min > 0) {
-      const warning5Timeout = setTimeout(() => {
-        console.log('5-minute warning: switching to non-bumper junk-only mode');
-        updateState({ preScheduledNonBumperJunkOnly: true });
-      }, timeUntil5Min);
-
-      newTimeouts.push(warning5Timeout);
-    }
-
-    // Schedule fade (if not chained)
-    if (!isChained && timeUntilFade > 0) {
-      const fadeTimeout = setTimeout(() => {
-        if (!state.isInScheduledMode) {
-          // Import fadeOut dynamically to avoid circular dependencies
-          import('./player.js').then(({ fadeOut }) => {
-            fadeOut();
-          });
-        }
-      }, timeUntilFade);
-
-      newTimeouts.push(fadeTimeout);
-    }
-
-    // Schedule track start
-    const startTimeout = setTimeout(() => {
-      onScheduledTrackTimeout(track, isChained);
-    }, timeUntilStart);
-
-    newTimeouts.push(startTimeout);
-  });
-
-  // Add all timeouts atomically
-  updateState({
-    scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts]
-  });
-}
-
-export function onScheduledTrackTimeout(track, isChained) {
-  const state = getState();
-  if (isChained || state.isInScheduledMode) {
-    // Direct play for chained tracks or when already in scheduled mode
-    playScheduledTrackDirect(track);
-  } else {
-    // Should have been faded already, but play directly if not
-    enterScheduledMode(track);
-  }
-}
 
 export function scheduleHourlyUpdates() {
   const state = getState();
@@ -576,20 +525,6 @@ export function enterScheduledMode(track) {
   });
 }
 
-export function playScheduledTrackDirect(track) {
-  updateState({ currentScheduledTrack: track });
-
-  const trackData = track.trackData;
-  const now = getCurrentTime();
-
-  console.log(`Playing chained scheduled track: ${trackData.filename}`);
-  markScheduledFileUsed(track.trackKey, now);
-
-  playTrack({
-    trackPath: trackData.path,
-    isScheduled: true
-  });
-}
 
 export function onScheduledTrackEnd() {
   updateState({
@@ -599,5 +534,9 @@ export function onScheduledTrackEnd() {
   });
   shuffleJunkCycleOrder();
   cleanupScheduledTrackListeners();
+  
+  // Check if we need to enter pre-scheduled junk range immediately
+  checkAndSetPrescheduleJunkState();
+  
   returnToAlgorithmicPlayback();
 }

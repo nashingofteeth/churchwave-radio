@@ -43,7 +43,6 @@ export const state = {
   scheduledTimeouts: [],
   hourlyScheduleTimeout: null,
   dailyMorningGenreTimeout: null,
-  chainGapThreshold: null,
 
   // Event listener management
   currentTrackListeners: [],
@@ -158,12 +157,11 @@ export function initializeState() {
   const config = state.config;
   if (
     config?.playback &&
-    (!state.fadeOutDuration || !state.chainGapThreshold)
+    (!state.fadeOutDuration)
   ) {
     // Set playback configuration values
     updateState({
       fadeOutDuration: config.playback.fadeOutDuration,
-      chainGapThreshold: config.playback.chainGapThreshold,
     });
   } else {
     console.warn("Playback settings not found");
