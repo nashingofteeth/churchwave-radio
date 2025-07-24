@@ -1,7 +1,7 @@
 {
   "basePaths": {
     "local": "./media",
-    "remote": "/media"
+    "remote": "https://filedn.com/lWzBGPuLx4KHtOlIhjgApvh/churchwave-radio"
   },
   "outputFile": "tracks.json",
   "tracks": {

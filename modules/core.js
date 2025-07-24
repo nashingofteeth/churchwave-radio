@@ -27,6 +27,12 @@ export async function loadApplicationData() {
     const configurationData = await configResponse.json();
     updateApplicationState({ config: configurationData });
 
+    // Set satellite image source using remote base path
+    const satelliteImage = document.getElementById('satelliteImage');
+    if (satelliteImage) {
+      satelliteImage.src = `${configurationData.basePaths.remote}/satellite.gif`;
+    }
+
     // Load preprocessed track database using remote base path
     const tracksPath = `${configurationData.basePaths.remote}/${configurationData.outputFile}`;
     const tracksResponse = await fetch(tracksPath);
@@ -46,6 +52,12 @@ export async function loadApplicationData() {
     });
 
     console.log("Application data loaded successfully");
+
+    if (trackData.metadata?.lastUpdated) {
+      const lastUpdated = new Date(trackData.metadata.lastUpdated);
+      console.log(`Tracks database last updated: ${lastUpdated.toLocaleString()}`);
+    }
+    
     return true;
   } catch (error) {
     console.error("Application data loading failed:", error);
