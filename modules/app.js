@@ -23,7 +23,7 @@ export async function loadConfiguration() {
     const configurationData = await configResponse.json();
     updateApplicationState({ config: configurationData });
     
-    console.log("Configuration loaded");
+    console.log("Configuration loaded successfully");
     return configurationData;
   } catch (error) {
     console.error("Configuration loading failed:", error);
