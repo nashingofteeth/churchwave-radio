@@ -609,13 +609,15 @@ function preprocessTimeSlots(files, categories) {
       }
       // Add hours from midnight to end hour
       currentHour = 0;
-      while (currentHour <= endHour) {
+      while (currentHour < endHour || (endHour === 0 && currentHour === 0)) {
         hours.push(currentHour);
         currentHour++;
       }
     } else {
       // Simple case: start hour to end hour
-      while (currentHour <= endHour) {
+      // Special case: if endTime is 23:59:59, include hour 23
+      const includeEndHour = endTime.endsWith('23:59:59');
+      while (currentHour < endHour || (includeEndHour && currentHour === endHour)) {
         hours.push(currentHour);
         currentHour++;
       }
@@ -661,6 +663,21 @@ function preprocessTimeSlots(files, categories) {
     timeSlots.morning.tracks.push(...timeSlots.morning.genres[genreKey].tracks);
   }
 
+  // Pre-compute hour-to-timeslot mapping for frontend performance
+  const hourToTimeSlot = {};
+  for (let hour = 0; hour < 24; hour++) {
+    if (lateNightLoFisHours.includes(hour)) {
+      hourToTimeSlot[hour] = 'lateNightLoFis';
+    } else if (morningHours.includes(hour)) {
+      hourToTimeSlot[hour] = 'morning';
+    } else if (standardHours.includes(hour)) {
+      hourToTimeSlot[hour] = 'standard';
+    }
+  }
+
+  timeSlots.hourToTimeSlot = hourToTimeSlot;
+  timeSlots.morningHours = morningHours;
+
   return timeSlots;
 }
 
@@ -672,11 +689,14 @@ function preprocessJunkContent(files, categories) {
   };
 
   for (const [junkType, trackKeys] of Object.entries(categories.algorithmic.junkContent)) {
+    const tracks = trackKeys.map(key => ({
+      key,
+      ...files[key]
+    }));
+
     junkContent.types[junkType] = {
-      tracks: trackKeys.map(key => ({
-        key,
-        ...files[key]
-      }))
+      tracks,
+      nonBumper: junkType !== 'bumpers'
     };
   }
 
@@ -726,6 +746,21 @@ function preprocessScheduledTracks(files, categories) {
   };
 }
 
+// Function to create performance optimizations for frontend
+function preprocessPerformanceOptimizations(timeSlots, junkContent, scheduledTracks) {
+  const optimizations = {
+    // Pre-compute available genres from config
+    availableGenres: Object.keys(mediaConfig.genres),
+    
+    // Pre-compute non-bumper junk types for pre-schedule filtering
+    nonBumperJunkTypes: Object.entries(junkContent.types)
+      .filter(([_, typeData]) => typeData.nonBumper)
+      .map(([type, _]) => type)
+  };
+
+  return optimizations;
+}
+
 
 // Generate the complete tracks.json
 async function generateTracksJson() {
@@ -741,12 +776,14 @@ async function generateTracksJson() {
   const timeSlots = preprocessTimeSlots(files, categories);
   const junkContent = preprocessJunkContent(files, categories);
   const scheduledTracks = preprocessScheduledTracks(files, categories);
+  const optimizations = preprocessPerformanceOptimizations(timeSlots, junkContent, scheduledTracks);
 
   const tracksJson = {
     preprocessed: {
       timeSlots,
-      junkContent,
-      scheduledTracks
+      junkContent, 
+      scheduledTracks,
+      optimizations
     },
 
     metadata: {

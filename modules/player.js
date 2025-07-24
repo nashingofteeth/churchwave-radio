@@ -211,9 +211,7 @@ export function playJunkTrack() {
 
     // If we've cycled through all and still hit bumpers, pick a non-bumper type
     if (currentJunkType === "bumpers") {
-      const nonBumperTypes = Object.entries(junkContent.types)
-        .filter(([_, typeData]) => typeData.nonBumper)
-        .map(([type, _]) => type);
+      const nonBumperTypes = state.preprocessed.optimizations.nonBumperJunkTypes;
       currentJunkType =
         nonBumperTypes[Math.floor(Math.random() * nonBumperTypes.length)];
     }

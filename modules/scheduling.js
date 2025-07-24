@@ -455,49 +455,12 @@ export function setMorningGenres() {
     return;
   }
 
-  // Get morning time slot configuration
-  const algorithmicTimeSlots =
-    state.config.directories.algorithmic.subdirectories;
-  const morningSlot = algorithmicTimeSlots.morning;
-
-  if (!morningSlot || !morningSlot.startTime || !morningSlot.endTime) {
-    console.warn("Morning time slot not properly configured");
-    return;
-  }
-
-  const startTime = parseTimeString(morningSlot.startTime);
-  const endTime = parseTimeString(morningSlot.endTime);
-
-  // Calculate morning hours
-  const morningHours = [];
-  let currentHour = startTime.hours;
-
-  // Handle time slots that cross midnight
-  if (startTime.hours > endTime.hours) {
-    // From start hour to 23
-    while (currentHour <= 23) {
-      morningHours.push(currentHour);
-      currentHour++;
-    }
-    // From 0 to end hour
-    currentHour = 0;
-    while (currentHour < endTime.hours) {
-      morningHours.push(currentHour);
-      currentHour++;
-    }
-  } else {
-    // Normal time slot within same day
-    while (currentHour < endTime.hours) {
-      morningHours.push(currentHour);
-      currentHour++;
-    }
-  }
-
-  // Set genres for each morning hour
-  const genres = Object.keys(state.config.genres);
+  // Use pre-computed morning hours and available genres
+  const hours = state.preprocessed.timeSlots.morningHours;
+  const genres = state.preprocessed.optimizations.availableGenres;
   const morningGenres = {};
 
-  morningHours.forEach((hour) => {
+  hours.forEach((hour) => {
     const selectedGenre = genres[Math.floor(Math.random() * genres.length)];
     morningGenres[hour] = selectedGenre;
   });

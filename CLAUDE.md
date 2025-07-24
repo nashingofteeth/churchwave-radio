@@ -66,10 +66,18 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - Testing requires opening `index.html` in browser and using time simulation features
 
 ## Recent Optimizations (v3.1)
-- **tracks.json size reduced**: Removed redundant properties and unused lookup tables, reduced from ~228K to ~193K
-- **config.json simplified**: Eliminated redundant category/description fields, simplified genre structure
+- **tracks.json optimized**: Removed redundant properties (filename, category fields, unused lookups) - reduced from ~228K to ~194K
+- **config.json simplified**: Eliminated redundant category/description/name fields, simplified genre structure from objects to strings
 - **Duration caching fixed**: Scheduled track durations now properly cached, eliminating unnecessary FFmpeg rescans
-- **Frontend compatibility**: All changes maintain full backward compatibility with frontend modules
+- **Frontend performance boost**: Added 5 major preprocessing optimizations that eliminate expensive repeated calculations
+- **Code cleanup**: Removed 285+ lines of redundant code and complex fallback logic from frontend modules
+
+## Frontend Performance Enhancements
+- **Hour-to-timeslot mapping**: Pre-computed lookup eliminates complex time parsing on every track selection
+- **Morning hours pre-computation**: Direct array access instead of complex range calculations
+- **Genre optimization**: Pre-computed available genres list eliminates Object.keys() calls
+- **Junk content filtering**: Pre-computed non-bumper types list eliminates runtime filtering operations
+- **Metadata preprocessing**: Added nonBumper boolean flags to junk content for faster access
 
 ## Technologies
 - Vanilla JavaScript (ES6 modules)

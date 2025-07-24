@@ -25,34 +25,9 @@ export function getAlgorithmicTimeSlot(currentHour) {
     currentHour = currentTime.getHours();
   }
 
-  // Get time slots from config
-  const algorithmicTimeSlots =
-    state.config.directories.algorithmic.subdirectories;
-
-  let timeSlot = "standard"; // Default fallback
-
-  // Check each time slot to find which one the current time falls into
-  for (const [slotName, slotConfig] of Object.entries(algorithmicTimeSlots)) {
-    if (!slotConfig.startTime || !slotConfig.endTime) continue;
-
-    const startTime = parseTimeString(slotConfig.startTime);
-    const endTime = parseTimeString(slotConfig.endTime);
-
-    // Handle time slots that cross midnight
-    if (startTime.hours > endTime.hours) {
-      if (currentHour >= startTime.hours || currentHour < endTime.hours) {
-        timeSlot = slotName;
-        break;
-      }
-    } else {
-      if (currentHour >= startTime.hours && currentHour < endTime.hours) {
-        timeSlot = slotName;
-        break;
-      }
-    }
-  }
-
-  return timeSlot;
+  // Use pre-computed hour-to-timeslot mapping for instant lookup
+  const hourToTimeSlot = state.preprocessed.timeSlots.hourToTimeSlot;
+  return hourToTimeSlot[currentHour] || "standard";
 }
 
 export function getCurrentTime() {

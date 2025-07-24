@@ -301,6 +301,11 @@ node populate-tracks.js
 - **`state.js`**: Global application state management
 - **`events.js`**: Event listener management for audio element
 - **`time.js`**: Time utilities and simulation system
+### Performance Architecture
+The system uses a **two-phase approach** for optimal performance:
+
+1. **Backend Processing** (`populate-tracks.js`): Heavy computation, file scanning, and optimization preprocessing
+2. **Frontend Consumption**: Lightweight modules that use preprocessed data for instant operations
 
 ### Key Files
 - **`index.html`**: Main web interface
