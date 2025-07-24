@@ -5,17 +5,72 @@
 
 import { skipCurrentTrack } from "./core.js";
 import { initializeUIEventListeners } from "./events.js";
-import { getApplicationState, initializeDOMElements } from "./state.js";
+import { getApplicationState, initializeDOMElements, updateApplicationState } from "./state.js";
 import { clearTimeSimulation, simulateTime, getCurrentTime } from "./time.js";
 
 /**
- * Initialize DOM elements and UI event listeners
+ * Load configuration data during DOM initialization
+ * @returns {Promise<Object|null>} Configuration data or null if failed
+ */
+export async function loadConfiguration() {
+  try {
+    const configResponse = await fetch("config.json");
+    if (!configResponse.ok) {
+      throw new Error(
+        `Config loading failed: ${configResponse.status} ${configResponse.statusText}`,
+      );
+    }
+    const configurationData = await configResponse.json();
+    updateApplicationState({ config: configurationData });
+    
+    console.log("Configuration loaded");
+    return configurationData;
+  } catch (error) {
+    console.error("Configuration loading failed:", error);
+    return null;
+  }
+}
+
+/**
+ * Preload satellite image using remote path from config
+ * @param {Object} config - Configuration object with basePaths
+ */
+export function preloadSatelliteImage(config) {
+  if (!config?.basePaths?.remote) {
+    console.warn("No remote base path found in config for satellite image");
+    return;
+  }
+
+  const satelliteImage = document.getElementById('satelliteImage');
+  if (satelliteImage) {
+    const imageUrl = `${config.basePaths.remote}/satellite.gif`;
+    
+    // Preload the image
+    const preloadImg = new Image();
+    preloadImg.onload = () => {
+      console.log("Satellite image preloaded successfully");
+      satelliteImage.src = imageUrl;
+    };
+    preloadImg.onerror = () => {
+      console.warn("Failed to preload satellite image:", imageUrl);
+    };
+    preloadImg.src = imageUrl;
+  }
+}
+
+/**
+ * Initialize application
  * @returns {Promise<boolean>} Success status
  */
-export async function initializeDOM() {
+export async function initialize() {
   try {
     initializeDOMElements();
     initializeUIEventListeners();
+    
+    const config = await loadConfiguration();
+    if (config) {
+      preloadSatelliteImage(config);
+    }
     
     console.log("DOM initialization completed");
     return true;

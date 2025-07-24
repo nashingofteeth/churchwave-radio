@@ -9,31 +9,23 @@ import {
   getActiveScheduledTrack,
   startScheduledSystem,
 } from "./scheduling.js";
-import { initializeApplicationState, updateApplicationState } from "./state.js";
+import { getApplicationState, initializeApplicationState, updateApplicationState } from "./state.js";
 
 /**
- * Load configuration and track data from JSON files
+ * Load track data
  * @returns {Promise<boolean>} Success status
  */
 export async function loadApplicationData() {
   try {
-    // Load configuration file
-    const configResponse = await fetch("config.json");
-    if (!configResponse.ok) {
-      throw new Error(
-        `Config loading failed: ${configResponse.status} ${configResponse.statusText}`,
-      );
+    // Get configuration
+    const appState = getApplicationState();
+    if (!appState.config) {
+      throw new Error("Configuration not found in application state");
     }
-    const configurationData = await configResponse.json();
-    updateApplicationState({ config: configurationData });
+    
+    const configurationData = appState.config;
 
-    // Set satellite image source using remote base path
-    const satelliteImage = document.getElementById('satelliteImage');
-    if (satelliteImage) {
-      satelliteImage.src = `${configurationData.basePaths.remote}/satellite.gif`;
-    }
-
-    // Load preprocessed track database using remote base path
+    // Load track database using remote base path
     const tracksPath = `${configurationData.basePaths.remote}/${configurationData.outputFile}`;
     const tracksResponse = await fetch(tracksPath);
     if (!tracksResponse.ok) {
