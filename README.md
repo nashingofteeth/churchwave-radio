@@ -198,7 +198,10 @@ appState;
 ### Basic Setup (`config.json`)
 ```json
 {
-  "mediaDirectory": "./media",
+  "basePaths": {
+    "local": "./media",
+    "remote": "https://your-cdn.com/media"
+  },
   "outputFile": "tracks.json",
   "timezone": "America/New_York",
   "fileExtensions": {
@@ -219,22 +222,52 @@ appState;
 }
 ```
 
-### Time Slot Configuration
+### Track Configuration
 ```json
-"algorithmic": {
-  "subdirectories": {
+"tracks": {
+  "algorithmic": {
     "lateNightLoFis": {
+      "path": "late-nite-lo-fis",
       "startTime": "00:00:00",
       "endTime": "05:00:00"
     },
     "morning": {
+      "path": "morning",
       "startTime": "05:00:00", 
       "endTime": "08:00:00"
     },
     "standard": {
+      "path": "standard",
       "startTime": "08:00:00",
-      "endTime": "23:59:59"
+      "endTime": "00:00:00"
+    },
+    "junk": {
+      "path": "junk",
+      "ads": {
+        "path": "ads",
+        "type": "ads"
+      },
+      "scripture": {
+        "path": "scripture",
+        "type": "scripture"
+      },
+      "interludes": {
+        "path": "interludes",
+        "type": "interludes"
+      },
+      "bumpers": {
+        "path": "bumpers",
+        "type": "bumpers"
+      },
+      "ads2": {
+        "path": "ads-2",
+        "type": "ads2"
+      }
     }
+  },
+  "scheduled": {
+    "path": "scheduled",
+    "recurrenceTypes": ["dates", "days", "daily"]
   }
 }
 ```
