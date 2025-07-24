@@ -6,7 +6,7 @@ import {
   getActiveScheduledTrack,
   startScheduledSystem,
 } from "./scheduling.js";
-import { getState, initializeState, updateState } from "./state.js";
+import { initializeState, updateState } from "./state.js";
 
 export async function load() {
   // Load config first

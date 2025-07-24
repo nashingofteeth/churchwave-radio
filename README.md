@@ -213,18 +213,9 @@ appState;
 ### Genre Configuration
 ```json
 "genres": {
-  "country": {
-    "path": "genre-country",
-    "displayName": "Country"
-  },
-  "rock": {
-    "path": "genre-rock", 
-    "displayName": "Rock"
-  },
-  "praise": {
-    "path": "genre-praise",
-    "displayName": "Praise & Worship"
-  }
+  "country": "Country",
+  "rock": "Rock", 
+  "praise": "Praise & Worship"
 }
 ```
 

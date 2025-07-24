@@ -66,8 +66,8 @@ function validateMediaConfig() {
       }
       
       const subdirConfig = algorithmicConfig.subdirectories[subdir];
-      if (!subdirConfig.startTime || !subdirConfig.endTime || !subdirConfig.description) {
-        throw new Error(`Subdirectory ${subdir} missing time slot properties (startTime, endTime, description)`);
+      if (!subdirConfig.startTime || !subdirConfig.endTime) {
+        throw new Error(`Subdirectory ${subdir} missing time slot properties (startTime, endTime)`);
       }
       
       // Validate time format (HH:MM:SS)
@@ -166,17 +166,13 @@ function validateMediaConfig() {
     }
 
     const requiredRecurrenceTypes = ['dates', 'days', 'daily'];
+    if (!Array.isArray(scheduledConfig.recurrenceTypes)) {
+      throw new Error('Scheduled recurrenceTypes must be an array');
+    }
+    
     for (const recType of requiredRecurrenceTypes) {
-      if (!(recType in scheduledConfig.recurrenceTypes)) {
+      if (!scheduledConfig.recurrenceTypes.includes(recType)) {
         throw new Error(`Missing scheduled recurrence type: ${recType}`);
-      }
-
-      const recConfig = scheduledConfig.recurrenceTypes[recType];
-      const requiredRecProps = ['name', 'description', 'supportsGenres', 'structure'];
-      for (const prop of requiredRecProps) {
-        if (!(prop in recConfig)) {
-          throw new Error(`Scheduled recurrence type ${recType} missing property: ${prop}`);
-        }
       }
     }
 
@@ -194,14 +190,14 @@ function validateMediaConfig() {
 
       // Warn about unknown recurrence types (they will be ignored)
       for (const actual of actualRecurrences) {
-        if (!(actual in scheduledConfig.recurrenceTypes)) {
+        if (!scheduledConfig.recurrenceTypes.includes(actual)) {
           console.warn(`⚠️  Unknown scheduled recurrence type found: ${actual} (will be ignored)`);
         }
       }
 
       // Validate date and time format in scheduled directories
       for (const recurrence of actualRecurrences) {
-        if (recurrence in scheduledConfig.recurrenceTypes) {
+        if (scheduledConfig.recurrenceTypes.includes(recurrence)) {
           const recurrencePath = path.join(scheduledPath, recurrence);
           validateScheduledStructure(recurrencePath, recurrence, config);
         }
@@ -215,18 +211,9 @@ function validateMediaConfig() {
       throw new Error('No genres defined in configuration');
     }
     
-    for (const [genreKey, genreConfig] of Object.entries(config.genres)) {
-      if (!genreConfig.path || !genreConfig.displayName) {
-        throw new Error(`Genre ${genreKey} missing path or displayName`);
-      }
-      
-      if (!genreConfig.path.startsWith('genre-')) {
-        throw new Error(`Genre ${genreKey} path must start with 'genre-' (current: ${genreConfig.path})`);
-      }
-      
-      const expectedGenreKey = genreConfig.path.replace('genre-', '');
-      if (expectedGenreKey !== genreKey) {
-        console.warn(`⚠️  Genre key '${genreKey}' doesn't match path '${genreConfig.path}' - expected '${expectedGenreKey}'`);
+    for (const [genreKey, displayName] of Object.entries(config.genres)) {
+      if (typeof displayName !== 'string' || displayName.length === 0) {
+        throw new Error(`Genre ${genreKey} must have a non-empty display name`);
       }
     }
     console.log(`✅ All genres configured: ${Object.keys(config.genres).join(', ')}`);
@@ -248,7 +235,7 @@ function validateMediaConfig() {
 
     // Validate processing settings
     const processingConfig = config.processing;
-    const requiredProcessingProps = ['progressReportInterval', 'concurrentDurationScans', 'useCachedDurations'];
+    const requiredProcessingProps = ['progressReportInterval', 'useCachedDurations'];
     for (const prop of requiredProcessingProps) {
       if (!(prop in processingConfig)) {
         throw new Error(`Missing processing configuration: ${prop}`);
@@ -257,10 +244,6 @@ function validateMediaConfig() {
 
     if (typeof processingConfig.progressReportInterval !== 'number' || processingConfig.progressReportInterval <= 0) {
       throw new Error('progressReportInterval must be a positive number');
-    }
-
-    if (typeof processingConfig.concurrentDurationScans !== 'number' || processingConfig.concurrentDurationScans <= 0) {
-      throw new Error('concurrentDurationScans must be a positive number');
     }
 
     if (typeof processingConfig.useCachedDurations !== 'boolean') {
@@ -282,7 +265,7 @@ function validateMediaConfig() {
     console.log(`   Configured Directories: ${Object.keys(config.directories).length}`);
     console.log(`   Configured Genres: ${Object.keys(config.genres).length}`);
     console.log(`   Audio Extensions: ${config.fileExtensions.audio.length}`);
-    console.log(`   Scheduled Recurrence Types: ${Object.keys(config.directories.scheduled.recurrenceTypes).length}`);
+    console.log(`   Scheduled Recurrence Types: ${config.directories.scheduled.recurrenceTypes.length}`);
     const timeSlotSubdirs = ['lateNightLoFis', 'morning', 'standard'];
     console.log(`   Algorithmic Time Slots: ${timeSlotSubdirs.length}`);
     

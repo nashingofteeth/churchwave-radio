@@ -4,33 +4,24 @@
   "directories": {
     "algorithmic": {
       "path": "algorithmic",
-      "category": "algorithmic",
       "subdirectories": {
         "lateNightLoFis": {
           "path": "late-nite-lo-fis",
-          "category": "lateNightLoFis",
           "startTime": "00:00:00",
-          "endTime": "05:00:00",
-          "description": "Late night ambient tracks"
+          "endTime": "05:00:00"
         },
         "morning": {
           "path": "morning",
-          "category": "morningMusic",
           "startTime": "05:00:00",
-          "endTime": "08:00:00",
-          "description": "Morning praise music"
+          "endTime": "08:00:00"
         },
         "standard": {
           "path": "standard",
-          "category": "standardTracks",
           "startTime": "08:00:00",
-          "endTime": "23:59:59",
-          "description": "Standard daytime programming"
+          "endTime": "23:59:59"
         },
         "junk": {
           "path": "junk",
-          "category": "junkContent",
-          "description": "Mixed throughout the day, not time-specific",
           "subdirectories": {
             "ads": {
               "path": "ads",
@@ -58,49 +49,19 @@
     },
     "scheduled": {
       "path": "scheduled",
-      "category": "scheduled",
-      "recurrenceTypes": {
-        "dates": {
-          "name": "dates",
-          "description": "Specific dates (YYYY-MM-DD folders)",
-          "supportsGenres": false,
-          "structure": "dates/YYYY-MM-DD/HH-MM-SS"
-        },
-        "days": {
-          "name": "days",
-          "description": "Days of the week",
-          "supportsGenres": false,
-          "structure": "days/dayname/HH-MM-SS"
-        },
-        "daily": {
-          "name": "daily",
-          "description": "Daily recurring schedule",
-          "supportsGenres": true,
-          "structure": "daily/HH-MM-SS[/genre]"
-        }
-      }
+      "recurrenceTypes": ["dates", "days", "daily"]
     }
   },
   "genres": {
-    "country": {
-      "path": "genre-country",
-      "displayName": "Country"
-    },
-    "rock": {
-      "path": "genre-rock",
-      "displayName": "Rock"
-    },
-    "praise": {
-      "path": "genre-praise",
-      "displayName": "Praise & Worship"
-    }
+    "country": "Country",
+    "rock": "Rock", 
+    "praise": "Praise & Worship"
   },
   "fileExtensions": {
     "audio": [".mp3"]
   },
   "processing": {
     "progressReportInterval": 10,
-    "concurrentDurationScans": 10,
     "useCachedDurations": true
   },
   "timezone": "America/New_York",
@@ -108,6 +69,6 @@
     "fadeOutDuration": 3000
   },
   "metadata": {
-    "version": "3.0"
+    "version": "3.1"
   }
 }

@@ -43,8 +43,7 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
       } else if (item.isFile() && mediaConfig.fileExtensions.audio.some(ext => item.name.toLowerCase().endsWith(ext))) {
         // Add audio files with metadata
         const fileInfo = {
-          path: `${mediaConfig.mediaDirectory.replace('./', '')}/${relativePath.replace(/\\/g, '/')}`,
-          filename: item.name
+          path: `${mediaConfig.mediaDirectory.replace('./', '')}/${relativePath.replace(/\\/g, '/')}`
         };
 
         // Add genre if specified
@@ -113,11 +112,13 @@ function loadExistingTracks() {
         }
 
         // Extract from scheduledTracks
-        if (existing.preprocessed.scheduledTracks?.all) {
-          existing.preprocessed.scheduledTracks.all.forEach(item => {
-            if (item.trackData) {
-              existingFiles[item.trackData.path] = item.trackData;
-            }
+        if (existing.preprocessed.scheduledTracks?.byHour) {
+          Object.values(existing.preprocessed.scheduledTracks.byHour).forEach(hourTracks => {
+            hourTracks.forEach(item => {
+              if (item.trackData) {
+                existingFiles[item.trackData.path] = item.trackData;
+              }
+            });
           });
         }
       }
@@ -454,9 +455,8 @@ function processScheduled(mainDirPath, fileIndex, existingFiles, files, categori
 
   for (const recurrence of recurrenceTypes) {
     const recurrencePath = path.join(scheduledPath, recurrence);
-    const recurrenceConfig = scheduledConfig.recurrenceTypes[recurrence];
 
-    if (!recurrenceConfig) {
+    if (!scheduledConfig.recurrenceTypes.includes(recurrence)) {
       console.warn(`Warning: Unknown recurrence type '${recurrence}' - ignoring`);
       continue;
     }
@@ -630,24 +630,19 @@ function preprocessTimeSlots(files, categories) {
 
   const timeSlots = {
     lateNightLoFis: {
-      timeRange: lateNightLoFisHours,
       tracks: categories.algorithmic.lateNightLoFis.map(key => ({
         key,
-        ...files[key],
-        category: 'lateNightLoFis'
+        ...files[key]
       }))
     },
     morning: {
-      timeRange: morningHours,
       genres: {},
       tracks: []
     },
     standard: {
-      timeRange: standardHours,
       tracks: categories.algorithmic.standardTracks.map(key => ({
         key,
-        ...files[key],
-        category: 'standard'
+        ...files[key]
       }))
     }
   };
@@ -658,8 +653,7 @@ function preprocessTimeSlots(files, categories) {
       tracks: trackKeys.map(key => ({
         key,
         ...files[key],
-        category: 'morning',
-        genre: genreKey,
+        genre: genreKey
       }))
     };
 
@@ -681,11 +675,8 @@ function preprocessJunkContent(files, categories) {
     junkContent.types[junkType] = {
       tracks: trackKeys.map(key => ({
         key,
-        ...files[key],
-        category: 'junk',
-        junkType
-      })),
-      nonBumper: junkType !== 'bumpers'
+        ...files[key]
+      }))
     };
   }
 
@@ -700,30 +691,14 @@ function preprocessScheduledTracks(files, categories) {
 
     const processed = {
       ...scheduledItem,
-      trackData: {
-        ...trackData,
-        category: 'scheduled'
-      },
+      trackData: trackData,
       parsedTime: {
         hours,
         minutes,
-        seconds,
-        totalSeconds: hours * 3600 + minutes * 60 + seconds
+        seconds
       },
-      displayTime: scheduledItem.time,
       priority: scheduledItem.date ? 1 : (scheduledItem.recurrence && scheduledItem.recurrence !== 'daily' ? 2 : 3)
     };
-
-    // Add parsed date if exists
-    if (scheduledItem.date) {
-      const [year, month, day] = scheduledItem.date.split('-').map(Number);
-      processed.parsedDate = {
-        year,
-        month,
-        day,
-        dateObject: new Date(year, month - 1, day)
-      };
-    }
 
     // Add day of week info if exists
     if (scheduledItem.recurrence && scheduledItem.recurrence !== 'daily') {
@@ -737,90 +712,20 @@ function preprocessScheduledTracks(files, categories) {
     return processed;
   });
 
-  // Group by time for efficient lookups
-  const byTime = {};
+  // Group by hour for efficient lookups (only what frontend uses)
   const byHour = {};
-  const byPriority = { 1: [], 2: [], 3: [] };
 
   processedScheduled.forEach(item => {
-    const timeKey = item.displayTime;
     const hourKey = item.parsedTime.hours;
-
-    if (!byTime[timeKey]) byTime[timeKey] = [];
     if (!byHour[hourKey]) byHour[hourKey] = [];
-
-    byTime[timeKey].push(item);
     byHour[hourKey].push(item);
-    byPriority[item.priority].push(item);
   });
 
   return {
-    all: processedScheduled,
-    byTime,
-    byHour,
-    byPriority,
-    totalCount: processedScheduled.length
+    byHour
   };
 }
 
-// Function to create lookup tables for efficient front-end access
-function createLookupTables(timeSlots, junkContent, scheduledTracks) {
-  const lookups = {
-    // Track key to full track data
-    tracksByKey: {},
-    // Time slot to track keys
-    tracksByTimeSlot: {},
-    // Genre to track keys
-    tracksByGenre: {},
-    // Junk type to track keys
-    tracksByJunkType: {},
-    // Hour to scheduled tracks
-    scheduledByHour: scheduledTracks.byHour
-  };
-
-  // Populate track key lookup
-  Object.values(timeSlots).forEach(slot => {
-    if (slot.tracks) {
-      slot.tracks.forEach(track => {
-        lookups.tracksByKey[track.key] = track;
-      });
-    }
-    if (slot.genres) {
-      Object.values(slot.genres).forEach(genre => {
-        genre.tracks.forEach(track => {
-          lookups.tracksByKey[track.key] = track;
-        });
-      });
-    }
-  });
-
-  Object.values(junkContent.types).forEach(type => {
-    type.tracks.forEach(track => {
-      lookups.tracksByKey[track.key] = track;
-    });
-  });
-
-  scheduledTracks.all.forEach(item => {
-    lookups.tracksByKey[item.trackKey] = item.trackData;
-  });
-
-  // Populate time slot lookup
-  lookups.tracksByTimeSlot.lateNightLoFis = timeSlots.lateNightLoFis.tracks.map(t => t.key);
-  lookups.tracksByTimeSlot.morning = timeSlots.morning.tracks.map(t => t.key);
-  lookups.tracksByTimeSlot.standard = timeSlots.standard.tracks.map(t => t.key);
-
-  // Populate genre lookup
-  Object.entries(timeSlots.morning.genres).forEach(([genreKey, genreData]) => {
-    lookups.tracksByGenre[genreKey] = genreData.tracks.map(t => t.key);
-  });
-
-  // Populate junk type lookup
-  Object.entries(junkContent.types).forEach(([junkType, typeData]) => {
-    lookups.tracksByJunkType[junkType] = typeData.tracks.map(t => t.key);
-  });
-
-  return lookups;
-}
 
 // Generate the complete tracks.json
 async function generateTracksJson() {
@@ -837,32 +742,15 @@ async function generateTracksJson() {
   const junkContent = preprocessJunkContent(files, categories);
   const scheduledTracks = preprocessScheduledTracks(files, categories);
 
-  // Create lookup tables
-  const lookups = createLookupTables(timeSlots, junkContent, scheduledTracks);
-
   const tracksJson = {
     preprocessed: {
       timeSlots,
       junkContent,
-      scheduledTracks,
-      lookups
+      scheduledTracks
     },
 
     metadata: {
-      version: mediaConfig.metadata.version,
-      lastUpdated: new Date().toISOString(),
-      totalFiles: Object.keys(files).length,
-      preprocessing: {
-        timeSlots: {
-          lateNightLoFis: timeSlots.lateNightLoFis.tracks.length,
-          morning: timeSlots.morning.tracks.length,
-          standard: timeSlots.standard.tracks.length
-        },
-        junkContent: Object.fromEntries(
-          Object.entries(junkContent.types).map(([type, data]) => [type, data.tracks.length])
-        ),
-        scheduledTracks: scheduledTracks.totalCount
-      }
+      lastUpdated: new Date().toISOString()
     }
   };
 
@@ -887,109 +775,22 @@ async function main() {
 
     const newTracksContent = await generateTracksJson();
     fs.writeFileSync(mediaConfig.outputFile, newTracksContent);
-    console.log(`✅ Successfully generated ${mediaConfig.outputFile} with optimized preprocessing`);
-    console.log('📊 Track Statistics:');
-
+    console.log(`✅ Successfully generated optimized ${mediaConfig.outputFile}`);
+    
     const data = JSON.parse(newTracksContent);
-
-    console.log(`   Time Slots:`);
-    console.log(`     Late Night Lo-Fis: ${data.metadata.preprocessing.timeSlots.lateNightLoFis} tracks`);
-    console.log(`     Morning Music: ${data.metadata.preprocessing.timeSlots.morning} tracks`);
-    console.log(`     Standard Tracks: ${data.metadata.preprocessing.timeSlots.standard} tracks`);
-
-    console.log(`   Junk Content:`);
-    for (const [type, count] of Object.entries(data.metadata.preprocessing.junkContent)) {
-      console.log(`     ${type.charAt(0).toUpperCase() + type.slice(1)}: ${count} tracks`);
-    }
-
-    console.log(`   Scheduled Entries: ${data.metadata.preprocessing.scheduledTracks} items`);
-
-    // Display morning music breakdown by genre
-    console.log('\n🎵 Morning Music Genres:');
-    for (const [genreKey, genreData] of Object.entries(data.preprocessed.timeSlots.morning.genres)) {
-      console.log(`     ${genreKey}: ${genreData.tracks.length} tracks`);
-    }
-
-    // Detailed scheduled tracks overview
-    if (data.metadata.preprocessing.scheduledTracks > 0) {
-      console.log(`\n📅 Scheduled Tracks Overview:`);
-
-      // Group scheduled items by recurrence type using priority
-      const scheduledByType = { dates: [], days: [], daily: [] };
-      data.preprocessed.scheduledTracks.all.forEach(item => {
-        if (item.priority === 1) scheduledByType.dates.push(item);
-        else if (item.priority === 2) scheduledByType.days.push(item);
-        else scheduledByType.daily.push(item);
-      });
-
-      // Display each recurrence type
-      for (const [recurrenceType, items] of Object.entries(scheduledByType)) {
-        if (items.length === 0) continue;
-
-        console.log(`\n   ${recurrenceType.toUpperCase()} (${items.length} items):`);
-
-        // Group items by time code to display horizontally
-        const itemsByTime = {};
-        items.forEach(item => {
-          if (!itemsByTime[item.displayTime]) {
-            itemsByTime[item.displayTime] = [];
-          }
-          itemsByTime[item.displayTime].push(item);
-        });
-
-        // Sort time codes and display items grouped by time
-        const sortedTimes = Object.keys(itemsByTime).sort();
-
-        sortedTimes.forEach(timeCode => {
-          const timeItems = itemsByTime[timeCode];
-
-          // Group items by genre at this timecode
-          const genresByTime = {};
-          timeItems.forEach(item => {
-            const genreKey = item.genre || 'no-genre';
-            if (!genresByTime[genreKey]) {
-              genresByTime[genreKey] = [];
-            }
-            genresByTime[genreKey].push(item);
-          });
-
-          // Display timecode first
-          console.log(`     ${timeCode}:`);
-
-          // Display each genre group under the timecode
-          for (const [genreKey, genreItems] of Object.entries(genresByTime)) {
-            // Sort items within the same genre by date/recurrence
-            const sortedGenreItems = genreItems.sort((a, b) => {
-              if (a.date && b.date) return a.date.localeCompare(b.date);
-              if (a.recurrence && b.recurrence) return a.recurrence.localeCompare(b.recurrence);
-              return 0;
-            });
-
-            const genreDisplay = genreKey === 'no-genre' ? '' : `[${genreKey}] `;
-
-            // Create horizontal display of filenames for this genre
-            const filenames = sortedGenreItems.map(item => {
-              const fileInfo = item.trackData;
-              const durationStr = fileInfo.duration ? ` (${Math.floor(fileInfo.duration / 60)}:${(fileInfo.duration % 60).toString().padStart(2, '0')})` : '';
-
-              let prefix = '';
-              if (item.date) {
-                prefix = `${item.date}: `;
-              } else if (item.recurrence && item.recurrence !== 'daily') {
-                prefix = `${item.recurrence}: `;
-              }
-
-              return `${prefix}${fileInfo.filename}${durationStr}`;
-            });
-
-            console.log(`       ${genreDisplay}${filenames.join(', ')}`);
-          }
-        });
-      }
-    }
-
-    console.log(`\n📊 Metadata summary:`);
-    console.log(`   Total files: ${data.metadata.totalFiles}`);
+    
+    // Simple statistics
+    const totalAlgorithmic = data.preprocessed.timeSlots.lateNightLoFis.tracks.length + 
+                           data.preprocessed.timeSlots.morning.tracks.length + 
+                           data.preprocessed.timeSlots.standard.tracks.length;
+    
+    const totalJunk = Object.values(data.preprocessed.junkContent.types)
+                           .reduce((sum, type) => sum + type.tracks.length, 0);
+    
+    const totalScheduled = Object.values(data.preprocessed.scheduledTracks.byHour)
+                               .reduce((sum, hour) => sum + hour.length, 0);
+    
+    console.log(`📊 ${totalAlgorithmic} algorithmic tracks, ${totalJunk} junk tracks, ${totalScheduled} scheduled tracks`);
 
   } catch (error) {
     console.error('❌ Error generating tracks.json:', error.message);

@@ -65,6 +65,12 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - No specific linting or testing framework detected
 - Testing requires opening `index.html` in browser and using time simulation features
 
+## Recent Optimizations (v3.1)
+- **tracks.json size reduced**: Removed redundant properties and unused lookup tables, reduced from ~228K to ~193K
+- **config.json simplified**: Eliminated redundant category/description fields, simplified genre structure
+- **Duration caching fixed**: Scheduled track durations now properly cached, eliminating unnecessary FFmpeg rescans
+- **Frontend compatibility**: All changes maintain full backward compatibility with frontend modules
+
 ## Technologies
 - Vanilla JavaScript (ES6 modules)
 - HTML5 Audio API

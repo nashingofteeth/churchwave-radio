@@ -2,7 +2,7 @@
 
 import { skipTrack } from "./core.js";
 import { initializeUIEventListeners } from "./events.js";
-import { getState, initializeDOMElements, updateState } from "./state.js";
+import { getState, initializeDOMElements } from "./state.js";
 import { clearSimulatedTime, simulateTime, getCurrentTime } from "./time.js";
 
 // Initialize the application
