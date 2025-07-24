@@ -1,0 +1,74 @@
+{
+  "basePaths": {
+    "local": "./media",
+    "remote": "https://filedn.com/lWzBGPuLx4KHtOlIhjgApvh/churchwave-radio"
+  },
+  "outputFile": "tracks.json",
+  "tracks": {
+    "path": "tracks",
+    "algorithmic": {
+      "path": "algorithmic",
+      "lateNightLoFis": {
+        "path": "late-nite-lo-fis",
+        "startTime": "00:00:00",
+        "endTime": "05:00:00"
+      },
+      "morning": {
+        "path": "morning",
+        "startTime": "05:00:00",
+        "endTime": "08:00:00"
+      },
+      "standard": {
+        "path": "standard",
+        "startTime": "08:00:00",
+        "endTime": "00:00:00"
+      },
+      "junk": {
+        "path": "junk",
+        "ads": {
+          "path": "ads",
+          "type": "ads"
+        },
+        "scripture": {
+          "path": "scripture",
+          "type": "scripture"
+        },
+        "interludes": {
+          "path": "interludes",
+          "type": "interludes"
+        },
+        "bumpers": {
+          "path": "bumpers",
+          "type": "bumpers"
+        },
+        "ads2": {
+          "path": "ads-2",
+          "type": "ads2"
+        }
+      }
+    },
+    "scheduled": {
+      "path": "scheduled",
+      "recurrenceTypes": ["dates", "days", "daily"]
+    }
+  },
+  "genres": {
+    "country": "Country",
+    "rock": "Rock", 
+    "praise": "Praise & Worship"
+  },
+  "fileExtensions": {
+    "audio": [".mp3"]
+  },
+  "processing": {
+    "progressReportInterval": 10,
+    "useCachedDurations": true
+  },
+  "timezone": "America/New_York",
+  "playback": {
+    "fadeOutDuration": 3000
+  },
+  "metadata": {
+    "version": "3.1"
+  }
+}

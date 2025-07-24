@@ -6,7 +6,6 @@
         <meta name="description" content="Join the 2 EVILA LIVESTREAM and tune in to the Truth! This urgent Message simply cannot wait.">
         <title>2 EVILA LIVESTREAM</title>
         <link rel="icon" href="favicon.ico" type="image/x-icon" />
-        <link rel="preload" as="image" href="https://filedn.com/lWzBGPuLx4KHtOlIhjgApvh/2-evila/satellite.gif">
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
@@ -53,8 +52,9 @@
                         >
                     </div>
                     <img
+                        id="satelliteImage"
                         class="pulsing"
-                        src="https://filedn.com/lWzBGPuLx4KHtOlIhjgApvh/2-evila/satellite.gif"
+                        src=""
                         alt="Broadcasting the truth"
                         width="100%"
                     />
@@ -86,15 +86,19 @@
                     <span style="white-space: nowrap;">Bless the journey to truth, &#x26B6; keeping evil at bay. &#128330; Amen. &#9767</span>
                 </div>
                 <p>
-                    <button id="seekButton">&#128591; SEEK</button>
-                </p>
-                <p>
                     &#128214; <a href="home">Learn more about our ministry</a> &#128214;
                 </p>
             </div>
         </main>
 
-        <script src="script.js"></script>
+        <script type="module">
+            import { initializeDOM } from './modules/app.js';
+
+            // Initialize the application when DOM is loaded
+            document.addEventListener("DOMContentLoaded", () => {
+                initializeDOM();
+            });
+        </script>
         <script data-goatcounter="https://2-evila.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     </body>
 </html>
