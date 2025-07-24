@@ -1,9 +1,16 @@
-// Event listeners module for managing audio element event listeners
+/**
+ * Event management module
+ * Handles UI event listeners and audio element event management
+ */
 
-import { addToStateArray, clearStateArray, getState } from "./state.js";
+import { addToStateArray, clearStateArray, getApplicationState } from "./state.js";
 
+/**
+ * Initialize UI event listeners for the start button and audio indicators
+ * Sets up the main application start sequence
+ */
 export function initializeUIEventListeners() {
-  const state = getState();
+  const state = getApplicationState();
 
   const startButtonHandler = async () => {
     state.loadingIndicator.style.display = "block";
@@ -51,20 +58,36 @@ export function initializeUIEventListeners() {
   });
 }
 
+/**
+ * Add an event listener for the current algorithmic track
+ * @param {string} eventType - Event type (e.g., 'ended', 'loadedmetadata')
+ * @param {Function} handler - Event handler function
+ * @param {Object} options - Event listener options
+ */
 export function addCurrentTrackListener(eventType, handler, options = {}) {
-  const state = getState();
+  const state = getApplicationState();
   state.theTransmitter.addEventListener(eventType, handler, options);
   addToStateArray("currentTrackListeners", { eventType, handler, options });
 }
 
+/**
+ * Add an event listener for the current scheduled track
+ * @param {string} eventType - Event type (e.g., 'ended', 'loadedmetadata')
+ * @param {Function} handler - Event handler function
+ * @param {Object} options - Event listener options
+ */
 export function addScheduledTrackListener(eventType, handler, options = {}) {
-  const state = getState();
+  const state = getApplicationState();
   state.theTransmitter.addEventListener(eventType, handler, options);
   addToStateArray("scheduledTrackListeners", { eventType, handler, options });
 }
 
+/**
+ * Remove all current track event listeners and clear the tracking array
+ * Called when switching tracks to prevent memory leaks
+ */
 export function cleanupCurrentTrackListeners() {
-  const state = getState();
+  const state = getApplicationState();
   state.currentTrackListeners.forEach(({ eventType, handler }) => {
     try {
       state.theTransmitter.removeEventListener(eventType, handler);
@@ -75,8 +98,12 @@ export function cleanupCurrentTrackListeners() {
   clearStateArray("currentTrackListeners");
 }
 
+/**
+ * Remove all scheduled track event listeners and clear the tracking array
+ * Called when scheduled tracks end to prevent memory leaks
+ */
 export function cleanupScheduledTrackListeners() {
-  const state = getState();
+  const state = getApplicationState();
   state.scheduledTrackListeners.forEach(({ eventType, handler }) => {
     try {
       state.theTransmitter.removeEventListener(eventType, handler);

@@ -43,7 +43,7 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
       } else if (item.isFile() && mediaConfig.fileExtensions.audio.some(ext => item.name.toLowerCase().endsWith(ext))) {
         // Add audio files with metadata
         const fileInfo = {
-          path: `${mediaConfig.mediaDirectory.replace('./', '')}/${relativePath.replace(/\\/g, '/')}`
+          path: `${mediaConfig.basePaths.remote}/${mediaConfig.tracks.path}/${relativePath.replace(/\\/g, '/')}`
         };
 
         // Add genre if specified
@@ -67,9 +67,10 @@ function loadExistingTracks() {
     return {};
   }
 
+  const existingPath = `${mediaConfig.basePaths.local}/${mediaConfig.outputFile}`;
   try {
-    if (fs.existsSync(mediaConfig.outputFile)) {
-      const existing = JSON.parse(fs.readFileSync(mediaConfig.outputFile, 'utf8'));
+    if (fs.existsSync(existingPath)) {
+      const existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
       const existingFiles = {};
 
       // Extract tracks from the current data structure
@@ -126,7 +127,7 @@ function loadExistingTracks() {
       return existingFiles;
     }
   } catch (error) {
-    console.warn(`Warning: Could not load existing ${mediaConfig.outputFile} for caching`);
+    console.warn(`Warning: Could not load existing ${existingPath} for caching`);
   }
   return {};
 }
@@ -166,9 +167,10 @@ function addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files,
 
 // Process algorithmic content (late night lo-fis, morning, standard, junk)
 function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, categories) {
-  const config = mediaConfig.directories.algorithmic;
+  const config = mediaConfig.tracks.algorithmic;
 
-  for (const [subdirKey, subdirConfig] of Object.entries(config.subdirectories)) {
+  for (const [subdirKey, subdirConfig] of Object.entries(config)) {
+    if (subdirKey === 'path') continue; // Skip the path property
     const subdirPath = path.join(mainDirPath, subdirConfig.path);
 
     if (!fs.existsSync(subdirPath)) {
@@ -241,9 +243,6 @@ function processMorningMusic(mainDirPath, basePath, config, fileIndex, existingF
 
 // Process junk content tracks
 function processJunkContent(mainDirPath, basePath, config, fileIndex, existingFiles, files, categories) {
-  if (!config.subdirectories) {
-    return;
-  }
 
   const junkSubdirs = fs.readdirSync(mainDirPath, { withFileTypes: true })
     .filter(item => item.isDirectory())
@@ -255,7 +254,8 @@ function processJunkContent(mainDirPath, basePath, config, fileIndex, existingFi
     let typeKey = '';
 
     // Find matching subdirectory config
-    for (const [key, subdirConfig] of Object.entries(config.subdirectories)) {
+    for (const [key, subdirConfig] of Object.entries(config)) {
+      if (key === 'path') continue; // Skip the path property
       if (subdirConfig.path === subdir) {
         typeKey = subdirConfig.type;
         targetArray = categories.algorithmic.junkContent[typeKey];
@@ -292,7 +292,7 @@ function isValidTimeFormat(timeStr) {
 
 // Process scheduled dates (specific YYYY-MM-DD folders)
 function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
-  const scheduledConfig = mediaConfig.directories.scheduled;
+  const scheduledConfig = mediaConfig.tracks.scheduled;
   const dates = fs.readdirSync(recurrencePath, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => item.name)
@@ -334,7 +334,7 @@ function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFi
 
 // Process scheduled days of the week
 function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
-  const scheduledConfig = mediaConfig.directories.scheduled;
+  const scheduledConfig = mediaConfig.tracks.scheduled;
   const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const dayDirs = fs.readdirSync(recurrencePath, { withFileTypes: true })
     .filter(item => item.isDirectory())
@@ -377,7 +377,7 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
 
 // Process scheduled daily recurrence with flexible genre support
 function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
-  const scheduledConfig = mediaConfig.directories.scheduled;
+  const scheduledConfig = mediaConfig.tracks.scheduled;
   const times = fs.readdirSync(recurrencePath, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => item.name)
@@ -443,7 +443,7 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
 
 // Process scheduled tracks
 function processScheduled(mainDirPath, fileIndex, existingFiles, files, categories) {
-  const scheduledConfig = mediaConfig.directories.scheduled;
+  const scheduledConfig = mediaConfig.tracks.scheduled;
   const scheduledPath = path.join(mainDirPath, scheduledConfig.path);
   if (!fs.existsSync(scheduledPath)) {
     return;
@@ -478,7 +478,7 @@ function processScheduled(mainDirPath, fileIndex, existingFiles, files, categori
 
 // Function to organize files and create normalized structure
 function organizeTracksByStructure() {
-  const mediaDir = mediaConfig.mediaDirectory;
+  const mediaDir = `${mediaConfig.basePaths.local}/${mediaConfig.tracks.path}`;
 
   if (!fs.existsSync(mediaDir)) {
     throw new Error(`Media directory not found. Make sure ${mediaDir} exists.`);
@@ -523,7 +523,8 @@ function organizeTracksByStructure() {
 
     // Find matching directory configuration
     let processed = false;
-    for (const [configKey, dirConfig] of Object.entries(mediaConfig.directories)) {
+    for (const [configKey, dirConfig] of Object.entries(mediaConfig.tracks)) {
+      if (configKey === 'path') continue; // Skip the path property
       if (dirConfig.path === mainDir) {
         switch (configKey) {
           case 'algorithmic':
@@ -572,7 +573,9 @@ async function scanDurations(files) {
       const fileInfo = files[key];
 
       // Get duration
-      const duration = await getDuration(fileInfo.path);
+      // Use local path for duration scanning but keep remote path in fileInfo
+      const localPath = fileInfo.path.replace(mediaConfig.basePaths.remote, mediaConfig.basePaths.local);
+      const duration = await getDuration(localPath);
       if (duration !== null) {
         fileInfo.duration = duration;
       }
@@ -587,9 +590,9 @@ async function scanDurations(files) {
 // Function to pre-process time slots for algorithmic tracks
 function preprocessTimeSlots(files, categories) {
   // Extract time ranges from config
-  const lateNightLoFisConfig = mediaConfig.directories.algorithmic.subdirectories.lateNightLoFis;
-  const morningConfig = mediaConfig.directories.algorithmic.subdirectories.morning;
-  const standardConfig = mediaConfig.directories.algorithmic.subdirectories.standard;
+  const lateNightLoFisConfig = mediaConfig.tracks.algorithmic.lateNightLoFis;
+  const morningConfig = mediaConfig.tracks.algorithmic.morning;
+  const standardConfig = mediaConfig.tracks.algorithmic.standard;
 
   // Parse time ranges to get hour arrays
   const parseTimeToHours = (startTime, endTime) => {
@@ -811,8 +814,9 @@ async function main() {
     }
 
     const newTracksContent = await generateTracksJson();
-    fs.writeFileSync(mediaConfig.outputFile, newTracksContent);
-    console.log(`✅ Successfully generated optimized ${mediaConfig.outputFile}`);
+    const outputPath = `${mediaConfig.basePaths.local}/${mediaConfig.outputFile}`;
+    fs.writeFileSync(outputPath, newTracksContent);
+    console.log(`✅ Successfully generated optimized ${outputPath}`);
     
     const data = JSON.parse(newTracksContent);
     

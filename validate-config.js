@@ -16,7 +16,7 @@ function validateMediaConfig() {
     console.log('✅ Configuration file loaded successfully');
 
     // Validate required top-level properties
-    const requiredProps = ['mediaDirectory', 'outputFile', 'directories', 'genres', 'fileExtensions', 'processing', 'metadata'];
+    const requiredProps = ['basePaths', 'outputFile', 'tracks', 'genres', 'fileExtensions', 'processing', 'metadata'];
     for (const prop of requiredProps) {
       if (!(prop in config)) {
         throw new Error(`Missing required configuration property: ${prop}`);
@@ -25,26 +25,27 @@ function validateMediaConfig() {
     console.log('✅ All required top-level properties present');
 
     // Validate media directory exists
-    if (!fs.existsSync(config.mediaDirectory)) {
-      console.warn(`⚠️  Media directory does not exist: ${config.mediaDirectory}`);
+    const mediaDir = `${config.basePaths.local}/${config.tracks.path}`;
+    if (!fs.existsSync(mediaDir)) {
+      console.warn(`⚠️  Media directory does not exist: ${mediaDir}`);
     } else {
-      console.log(`✅ Media directory exists: ${config.mediaDirectory}`);
+      console.log(`✅ Media directory exists: ${mediaDir}`);
     }
 
     // Validate directory configurations
     const requiredDirs = ['algorithmic', 'scheduled'];
     for (const dirKey of requiredDirs) {
-      if (!(dirKey in config.directories)) {
-        throw new Error(`Missing directory configuration: ${dirKey}`);
+      if (!(dirKey in config.tracks)) {
+        throw new Error(`Missing tracks configuration: ${dirKey}`);
       }
 
-      const dirConfig = config.directories[dirKey];
+      const dirConfig = config.tracks[dirKey];
       if (!dirConfig.path) {
         throw new Error(`Directory ${dirKey} missing 'path' property`);
       }
 
       // Check if directory exists in media folder
-      const fullPath = path.join(config.mediaDirectory, dirConfig.path);
+      const fullPath = path.join(mediaDir, dirConfig.path);
       if (fs.existsSync(fullPath)) {
         console.log(`✅ Directory exists: ${dirConfig.path}`);
       } else {
@@ -52,20 +53,17 @@ function validateMediaConfig() {
       }
     }
 
-    // Validate algorithmic subdirectories
-    const algorithmicConfig = config.directories.algorithmic;
-    if (!algorithmicConfig.subdirectories) {
-      throw new Error('Algorithmic configuration missing subdirectories');
-    }
+    // Validate algorithmic configuration
+    const algorithmicConfig = config.tracks.algorithmic;
     
     // Validate algorithmic time slots in subdirectories
     const timeSensitiveSubdirs = ['lateNightLoFis', 'morning', 'standard'];
     for (const subdir of timeSensitiveSubdirs) {
-      if (!(subdir in algorithmicConfig.subdirectories)) {
+      if (!(subdir in algorithmicConfig)) {
         throw new Error(`Missing time-sensitive subdirectory: ${subdir}`);
       }
       
-      const subdirConfig = algorithmicConfig.subdirectories[subdir];
+      const subdirConfig = algorithmicConfig[subdir];
       if (!subdirConfig.startTime || !subdirConfig.endTime) {
         throw new Error(`Subdirectory ${subdir} missing time slot properties (startTime, endTime)`);
       }
@@ -83,17 +81,17 @@ function validateMediaConfig() {
 
     const requiredAlgorithmicSubdirs = ['lateNightLoFis', 'morning', 'standard', 'junk'];
     for (const subdir of requiredAlgorithmicSubdirs) {
-      if (!(subdir in algorithmicConfig.subdirectories)) {
+      if (!(subdir in algorithmicConfig)) {
         throw new Error(`Missing algorithmic subdirectory: ${subdir}`);
       }
 
-      const subdirConfig = algorithmicConfig.subdirectories[subdir];
+      const subdirConfig = algorithmicConfig[subdir];
       if (!subdirConfig.path) {
         throw new Error(`Algorithmic subdirectory ${subdir} missing path`);
       }
 
       // Check if subdirectory exists
-      const fullPath = path.join(config.mediaDirectory, algorithmicConfig.path, subdirConfig.path);
+      const fullPath = path.join(mediaDir, algorithmicConfig.path, subdirConfig.path);
       if (fs.existsSync(fullPath)) {
         console.log(`✅ Algorithmic subdirectory exists: ${algorithmicConfig.path}/${subdirConfig.path}`);
       } else {
@@ -102,9 +100,9 @@ function validateMediaConfig() {
     }
 
     // Validate morning music directory (no longer has fixed subdirectories)
-    const morningConfig = algorithmicConfig.subdirectories.morning;
+    const morningConfig = algorithmicConfig.morning;
     if (morningConfig) {
-      const morningPath = path.join(config.mediaDirectory, algorithmicConfig.path, morningConfig.path);
+      const morningPath = path.join(mediaDir, algorithmicConfig.path, morningConfig.path);
       if (fs.existsSync(morningPath)) {
         console.log(`✅ Morning directory exists: ${algorithmicConfig.path}/${morningConfig.path}`);
         
@@ -135,22 +133,22 @@ function validateMediaConfig() {
       }
     }
 
-    // Validate junk content subdirectories
-    const junkConfig = algorithmicConfig.subdirectories.junk;
-    if (junkConfig && junkConfig.subdirectories) {
+    // Validate junk content
+    const junkConfig = algorithmicConfig.junk;
+    if (junkConfig) {
       const requiredJunkSubdirs = ['ads', 'scripture', 'interludes', 'bumpers', 'ads2'];
       for (const subdir of requiredJunkSubdirs) {
-        if (!(subdir in junkConfig.subdirectories)) {
+        if (!(subdir in junkConfig)) {
           throw new Error(`Missing junk content subdirectory: ${subdir}`);
         }
 
-        const subdirConfig = junkConfig.subdirectories[subdir];
+        const subdirConfig = junkConfig[subdir];
         if (!subdirConfig.path || !subdirConfig.type) {
           throw new Error(`Junk subdirectory ${subdir} missing path or type`);
         }
 
         // Check if subdirectory exists
-        const fullPath = path.join(config.mediaDirectory, algorithmicConfig.path, junkConfig.path, subdirConfig.path);
+        const fullPath = path.join(mediaDir, algorithmicConfig.path, junkConfig.path, subdirConfig.path);
         if (fs.existsSync(fullPath)) {
           console.log(`✅ Junk subdirectory exists: ${algorithmicConfig.path}/${junkConfig.path}/${subdirConfig.path}`);
         } else {
@@ -160,7 +158,7 @@ function validateMediaConfig() {
     }
 
     // Validate scheduled configuration
-    const scheduledConfig = config.directories.scheduled;
+    const scheduledConfig = config.tracks.scheduled;
     if (!scheduledConfig.recurrenceTypes) {
       throw new Error('Scheduled configuration missing recurrenceTypes');
     }
@@ -177,7 +175,7 @@ function validateMediaConfig() {
     }
 
     // Check if scheduled directory exists
-    const scheduledPath = path.join(config.mediaDirectory, scheduledConfig.path);
+    const scheduledPath = path.join(mediaDir, scheduledConfig.path);
     if (fs.existsSync(scheduledPath)) {
       console.log(`✅ Scheduled directory exists: ${scheduledConfig.path}`);
 
@@ -260,18 +258,18 @@ function validateMediaConfig() {
 
     // Summary
     console.log('\n📊 Configuration Summary:');
-    console.log(`   Media Directory: ${config.mediaDirectory}`);
+    console.log(`   Media Directory: ${mediaDir}`);
     console.log(`   Output File: ${config.outputFile}`);
-    console.log(`   Configured Directories: ${Object.keys(config.directories).length}`);
+    console.log(`   Configured Tracks: ${Object.keys(config.tracks).length - 1}`); // -1 for path property
     console.log(`   Configured Genres: ${Object.keys(config.genres).length}`);
     console.log(`   Audio Extensions: ${config.fileExtensions.audio.length}`);
-    console.log(`   Scheduled Recurrence Types: ${config.directories.scheduled.recurrenceTypes.length}`);
+    console.log(`   Scheduled Recurrence Types: ${config.tracks.scheduled.recurrenceTypes.length}`);
     const timeSlotSubdirs = ['lateNightLoFis', 'morning', 'standard'];
     console.log(`   Algorithmic Time Slots: ${timeSlotSubdirs.length}`);
     
     console.log('\n⏰ Time Slot Summary:');
     for (const subdirName of timeSlotSubdirs) {
-      const subdirConfig = config.directories.algorithmic.subdirectories[subdirName];
+      const subdirConfig = config.tracks.algorithmic[subdirName];
       if (subdirConfig && subdirConfig.startTime && subdirConfig.endTime) {
         console.log(`   ${subdirName}: ${subdirConfig.startTime} - ${subdirConfig.endTime}`);
       }

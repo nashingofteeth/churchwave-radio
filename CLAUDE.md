@@ -22,7 +22,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 
 ### Configuration
 - `config.json` - Main configuration file with media paths, genres, and system settings
-- `tracks.json` - Generated track database (output from `populate-tracks.js`)
+- `tracks.json` - Generated track database (output from `load-tracks.js`)
 
 ### Media Organization
 - `media/algorithmic/` - Content selected algorithmically by time slots
@@ -36,7 +36,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
   - `dates/` - Specific calendar dates
 
 ### Processing Scripts
-- `populate-tracks.js` - Scans media directory and generates tracks database
+- `load-tracks.js` - Scans media directory and generates tracks database
 - `validate-config.js` - Validates configuration file formatting and structure (NOT for testing code changes)
 
 ## Key Features
@@ -51,7 +51,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 1. Organize media files in proper directory structure
 2. Configure `config.json` for your media layout and genres
 3. Run `node validate-config.js` to check configuration
-4. Run `node populate-tracks.js` to generate tracks database
+4. Run `node load-tracks.js` to generate tracks database
 5. Open `index.html` in browser to run the radio system
 
 ## Current Git Status
@@ -61,7 +61,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 
 ## Build/Test Commands
 - Configuration file validation: `node validate-config.js` (checks config.json formatting only)
-- Track database generation: `node populate-tracks.js`
+- Track database generation: `node load-tracks.js`
 - No specific linting or testing framework detected
 - Testing requires opening `index.html` in browser and using time simulation features
 

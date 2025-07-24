@@ -1,8 +1,11 @@
-// Time management module for time-related operations
+/**
+ * Time management module
+ * Handles time simulation, time slot determination, and time-based operations
+ */
 
 import {
-  getState,
-  updateState,
+  getApplicationState,
+  updateApplicationState,
   clearUsedAlgorithmicTracks,
   clearUsedJunkTracks,
 } from "./state.js";
@@ -15,10 +18,15 @@ import {
   cleanupCurrentTrackListeners,
   cleanupScheduledTrackListeners,
 } from "./events.js";
-import { startPlayback } from "./core.js";
+import { beginPlayback } from "./core.js";
 
+/**
+ * Determine the algorithmic time slot for a given hour
+ * @param {number} [currentHour] - Hour to check (uses current time if not provided)
+ * @returns {string} Time slot name ("lateNightLoFis", "morning", or "standard")
+ */
 export function getAlgorithmicTimeSlot(currentHour) {
-  const state = getState();
+  const state = getApplicationState();
 
   if (!currentHour) {
     const currentTime = getCurrentTime();
@@ -30,8 +38,12 @@ export function getAlgorithmicTimeSlot(currentHour) {
   return hourToTimeSlot[currentHour] || "standard";
 }
 
+/**
+ * Get the current time, accounting for time simulation
+ * @returns {Date} Current time (real or simulated)
+ */
 export function getCurrentTime() {
-  const state = getState();
+  const state = getApplicationState();
 
   // If we're not simulating time, return the actual current time
   if (!state.isTimeSimulated) {
@@ -42,21 +54,27 @@ export function getCurrentTime() {
   return new Date(state.simulatedTime);
 }
 
+/**
+ * Stop time simulation and return to real time
+ */
 export function stopTimeSimulation() {
-  stopSimulationClock(); // Clear any existing simulation clock
-
-  // No interval needed for real time - getCurrentTime() will fetch real time
-  updateState({
+  stopSimulationClock();
+  
+  updateApplicationState({
     isTimeSimulated: false,
     simulationSpeed: 1,
   });
 }
 
+/**
+ * Start time simulation at specified speed
+ * @param {number} [speed=1] - Simulation speed multiplier
+ */
 export function startTimeSimulation(speed = 1) {
-  stopSimulationClock(); // Clear any existing simulation clock
+  stopSimulationClock();
 
   const simulationInterval = setInterval(() => {
-    const state = getState();
+    const state = getApplicationState();
     state.simulatedTime.setSeconds(state.simulatedTime.getSeconds() + speed);
 
     // Log time every minute for debugging
@@ -67,33 +85,49 @@ export function startTimeSimulation(speed = 1) {
     }
   }, 1000);
 
-  updateState({
+  updateApplicationState({
     simulationInterval,
     isTimeSimulated: true,
     simulationSpeed: speed,
   });
 }
 
+/**
+ * Set the simulated time to a specific hour, minute, and second
+ * @param {number} hour - Hour (0-23)
+ * @param {number} [minute=0] - Minute (0-59)
+ * @param {number} [second=0] - Second (0-59)
+ * @param {Date} [date=null] - Base date (uses current date if null)
+ * @returns {Date} The set simulated time
+ */
 function setSimulatedTime(hour, minute = 0, second = 0, date = null) {
   const newTime = date ? new Date(date) : new Date();
   newTime.setHours(hour, minute, second, 0);
 
-  updateState({ simulatedTime: newTime });
+  updateApplicationState({ simulatedTime: newTime });
 
   console.log(`Simulated time set to: ${newTime.toLocaleString()}`);
   return newTime;
 }
 
+/**
+ * Stop the simulation clock interval
+ */
 function stopSimulationClock() {
-  const state = getState();
+  const state = getApplicationState();
   if (state.simulationInterval) {
     clearInterval(state.simulationInterval);
-    updateState({ simulationInterval: null });
+    updateApplicationState({ simulationInterval: null });
   }
 }
 
+/**
+ * Get time adjusted for configured timezone
+ * @param {Date} [date=null] - Source date (uses current time if null)
+ * @returns {Date} Time adjusted for configured timezone
+ */
 export function getConfiguredTime(date = null) {
-  const state = getState();
+  const state = getApplicationState();
   const sourceTime = date || new Date();
 
   if (state.config.timezone) {
@@ -106,65 +140,74 @@ export function getConfiguredTime(date = null) {
   }
 }
 
+/**
+ * Parse a time string into hour, minute, and second components
+ * @param {string} timeStr - Time string in format "HH:MM" or "HH:MM:SS"
+ * @returns {Object} Object with hours, minutes, and seconds properties
+ */
 export function parseTimeString(timeStr) {
   const [hours, minutes, seconds = 0] = timeStr.split(":").map(Number);
   return { hours, minutes, seconds };
 }
 
+/**
+ * Generate a random start time for a track to avoid playing from the beginning
+ * @param {number} duration - Track duration in seconds
+ * @returns {number} Random start time in seconds (up to 90% of track duration)
+ */
 export function getRandomStartTime(duration) {
   return Math.floor(Math.random() * (duration * 0.9));
 }
 
-// Minimal reset function for time simulation only
+/**
+ * Reset system state for time simulation
+ * Clears timeouts, listeners, usage tracking, and restarts playback
+ */
 function resetForTimeSimulation() {
   clearAllScheduledTimeouts();
 
-  // Reset scheduling state
-  updateState({
+  updateApplicationState({
     isInScheduledMode: false,
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });
 
-  // Clear player listeners
   cleanupCurrentTrackListeners();
   cleanupScheduledTrackListeners();
-
-  // Clear track usage
+  
   clearUsedAlgorithmicTracks();
   clearUsedJunkTracks();
   clearUsedScheduledTracks();
 
-  // Restart scheduling system
   startScheduledSystem();
-
-  // Pick something to play
-  startPlayback();
+  beginPlayback();
 }
 
-// Simulation function that properly handles reset and initialization
+/**
+ * Start time simulation at a specific time
+ * @param {number} hour - Hour to simulate (0-23)
+ * @param {number} [minute=0] - Minute to simulate (0-59)
+ * @param {number} [second=0] - Second to simulate (0-59)
+ * @param {Date} [date=null] - Base date for simulation
+ */
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
-  const state = getState();
+  const state = getApplicationState();
   if (Object.keys(state.config).length === 0) {
     console.error("Playback not initialized.");
     return;
   }
-  // Set the simulated time
   setSimulatedTime(hour, minute, second, date);
-
-  // Start simulated time progression
   startTimeSimulation(1);
-
-  // Reset what's needed for time simulation
   resetForTimeSimulation();
 }
 
-export function clearSimulatedTime() {
-  // Switch back to real time (no simulatedTime needed since getCurrentTime() fetches real time)
+/**
+ * Clear time simulation and return to real time
+ * Resets the system to use actual current time
+ */
+export function clearTimeSimulation() {
   stopTimeSimulation();
-
-  // Reset what's needed for time simulation
   resetForTimeSimulation();
-
-  console.log("Cleared simulated time - now using real time");
+  
+  console.log("Time simulation cleared - using real time");
 }

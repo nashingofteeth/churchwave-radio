@@ -1,32 +1,41 @@
-// Main app module that imports and initializes all modules
+/**
+ * Application entry point module
+ * Handles DOM initialization and exposes debug functions to global scope
+ */
 
-import { skipTrack } from "./core.js";
+import { skipCurrentTrack } from "./core.js";
 import { initializeUIEventListeners } from "./events.js";
-import { getState, initializeDOMElements } from "./state.js";
-import { clearSimulatedTime, simulateTime, getCurrentTime } from "./time.js";
+import { getApplicationState, initializeDOMElements } from "./state.js";
+import { clearTimeSimulation, simulateTime, getCurrentTime } from "./time.js";
 
-// Initialize the application
-export async function initDOM() {
+/**
+ * Initialize DOM elements and UI event listeners
+ * @returns {Promise<boolean>} Success status
+ */
+export async function initializeDOM() {
   try {
-    // Initialize DOM elements
     initializeDOMElements();
-
-    // Initialize UI event listeners
     initializeUIEventListeners();
-
-    console.log("DOM listeners initialized");
+    
+    console.log("DOM initialization completed");
     return true;
   } catch (error) {
-    console.error("Failed to initialize DOM:", error);
+    console.error("DOM initialization failed:", error);
     return false;
   }
 }
 
-// Export functions for global access (for debugging and console use)
-window.skipTrack = skipTrack;
-window.simulateTime = simulateTime;
-window.clearSimulatedTime = clearSimulatedTime;
-window.getCurrentTime = getCurrentTime;
+/**
+ * Expose debugging functions and state to global window object
+ * Available in browser console for testing and debugging
+ */
+function exposeDebugFunctions() {
+  window.skipTrack = skipCurrentTrack;
+  window.simulateTime = simulateTime;
+  window.clearSimulatedTime = clearTimeSimulation;
+  window.getCurrentTime = getCurrentTime;
+  window.appState = getApplicationState();
+}
 
-// Export full app state
-window.appState = getState();
+// Initialize debug functions
+exposeDebugFunctions();

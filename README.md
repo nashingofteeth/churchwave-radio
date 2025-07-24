@@ -15,7 +15,7 @@ ChurchWave Radio is a web-based radio automation system that combines:
 1. **Set up your media directory** according to the structure below
 2. **Configure settings** in `config.json`
 3. **Validate configuration**: `node validate-config.js`
-4. **Generate tracks database**: `node populate-tracks.js`
+4. **Generate tracks database**: `node load-tracks.js`
 5. **Open `index.html`** in your web browser to start broadcasting
 
 ## Media Directory Structure
@@ -246,10 +246,10 @@ appState;
 node validate-config.js
 
 # Generate track database from media files
-node populate-tracks.js
+node load-tracks.js
 ```
 
-### What `populate-tracks.js` Does
+### What `load-tracks.js` Does
 1. Scans media directory structure according to `config.json`
 2. Extracts audio duration using FFmpeg
 3. Organizes tracks by category (algorithmic vs scheduled)
@@ -287,7 +287,7 @@ node populate-tracks.js
 4. Use time simulation to test: `simulateTime(HH, MM-1, 0)` to test 1 minute before
 
 ### Console Error: "Playback not initialized"
-- Run `node populate-tracks.js` to generate tracks database
+- Run `node load-tracks.js` to generate tracks database
 - Refresh browser page
 - Ensure `tracks.json` exists and contains valid data
 
@@ -304,15 +304,15 @@ node populate-tracks.js
 ### Performance Architecture
 The system uses a **two-phase approach** for optimal performance:
 
-1. **Backend Processing** (`populate-tracks.js`): Heavy computation, file scanning, and optimization preprocessing
+1. **Backend Processing** (`load-tracks.js`): Heavy computation, file scanning, and optimization preprocessing
 2. **Frontend Consumption**: Lightweight modules that use preprocessed data for instant operations
 
 ### Key Files
 - **`index.html`**: Main web interface
 - **`config.json`**: System configuration
-- **`tracks.json`**: Generated track database (created by `populate-tracks.js`)
+- **`tracks.json`**: Generated track database (created by `load-tracks.js`)
 - **`style.css`**: Interface styling
-- **`populate-tracks.js`**: Media scanning and database generation
+- **`load-tracks.js`**: Media scanning and database generation
 - **`validate-config.js`**: Configuration validation utility
 
 This system provides a robust foundation for automated Christian radio broadcasting with both scheduled programming and intelligent algorithmic content selection.

@@ -1,49 +1,49 @@
 {
-  "mediaDirectory": "./media",
+  "basePaths": {
+    "local": "./media",
+    "remote": "/media"
+  },
   "outputFile": "tracks.json",
-  "directories": {
+  "tracks": {
+    "path": "tracks",
     "algorithmic": {
       "path": "algorithmic",
-      "subdirectories": {
-        "lateNightLoFis": {
-          "path": "late-nite-lo-fis",
-          "startTime": "00:00:00",
-          "endTime": "05:00:00"
+      "lateNightLoFis": {
+        "path": "late-nite-lo-fis",
+        "startTime": "00:00:00",
+        "endTime": "05:00:00"
+      },
+      "morning": {
+        "path": "morning",
+        "startTime": "05:00:00",
+        "endTime": "08:00:00"
+      },
+      "standard": {
+        "path": "standard",
+        "startTime": "08:00:00",
+        "endTime": "00:00:00"
+      },
+      "junk": {
+        "path": "junk",
+        "ads": {
+          "path": "ads",
+          "type": "ads"
         },
-        "morning": {
-          "path": "morning",
-          "startTime": "05:00:00",
-          "endTime": "08:00:00"
+        "scripture": {
+          "path": "scripture",
+          "type": "scripture"
         },
-        "standard": {
-          "path": "standard",
-          "startTime": "08:00:00",
-          "endTime": "23:59:59"
+        "interludes": {
+          "path": "interludes",
+          "type": "interludes"
         },
-        "junk": {
-          "path": "junk",
-          "subdirectories": {
-            "ads": {
-              "path": "ads",
-              "type": "ads"
-            },
-            "scripture": {
-              "path": "scripture",
-              "type": "scripture"
-            },
-            "interludes": {
-              "path": "interludes",
-              "type": "interludes"
-            },
-            "bumpers": {
-              "path": "bumpers",
-              "type": "bumpers"
-            },
-            "ads2": {
-              "path": "ads-2",
-              "type": "ads2"
-            }
-          }
+        "bumpers": {
+          "path": "bumpers",
+          "type": "bumpers"
+        },
+        "ads2": {
+          "path": "ads-2",
+          "type": "ads2"
         }
       }
     },

@@ -1,13 +1,16 @@
-// Scheduling module for managing scheduled tracks
+/**
+ * Scheduled content management module
+ * Handles time-based scheduled tracks, morning genres, and preschedule warnings
+ */
 
 import { cleanupScheduledTrackListeners } from "./events.js";
-import { playAlgorithmicTrack, playTrack } from "./player.js";
+import { playAlgorithmicTrack, playAudioTrack } from "./player.js";
 import {
-  getState,
+  getApplicationState,
   markScheduledFileUsed,
   clearUsedAlgorithmicTracks,
   clearUsedJunkTracks,
-  updateState,
+  updateApplicationState,
   removeFromUpcomingScheduled,
 } from "./state.js";
 import {
@@ -16,24 +19,22 @@ import {
   parseTimeString,
 } from "./time.js";
 
+/**
+ * Initialize the complete scheduled content system
+ * Sets up hourly scheduling, morning genres, and preschedule warnings
+ */
 export function startScheduledSystem() {
-  const now = getCurrentTime();
-  const currentHour = now.getHours();
+  const currentTime = getCurrentTime();
+  const currentHour = currentTime.getHours();
 
-  // Set initial morning genres
   setMorningGenres();
-
-  // Schedule current and next hour blocks
-  scheduleHourBlock(currentHour);
-  scheduleHourBlock((currentHour + 1) % 24);
-
-  // Schedule hourly updates
+  
+  scheduleTracksForHour(currentHour);
+  scheduleTracksForHour((currentHour + 1) % 24);
+  
   scheduleHourlyUpdates();
-
-  // Schedule daily morning genre updates
   scheduleDailyMorningGenreUpdate();
-
-  // Check if we're currently in a preschedule range
+  
   checkAndSetPrescheduleJunkState();
 }
 
@@ -93,7 +94,7 @@ export function getScheduledTrackTime(scheduledTrack, referenceDate = null) {
 }
 
 export function clearOldUsedScheduledTracks() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - 24 * 60 * 60 * 1000;
 
@@ -104,15 +105,15 @@ export function clearOldUsedScheduledTracks() {
     }
   });
 
-  updateState({ usedScheduledFiles: cleanedUsedScheduledFiles });
+  updateApplicationState({ usedScheduledFiles: cleanedUsedScheduledFiles });
 }
 
 export function clearUsedScheduledTracks() {
-  updateState({ usedScheduledFiles: {} });
+  updateApplicationState({ usedScheduledFiles: {} });
 }
 
 export function getActiveScheduledTrack() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   const currentHour = now.getHours();
   const hourlyTracks =
@@ -152,7 +153,7 @@ export function selectTrackByHierarchy(tracks, scheduledHour = null) {
   if (tracks.length === 1) return tracks[0];
 
   // Filter by genre if we're in morning time slot
-  const state = getState();
+  const state = getApplicationState();
   const hourToCheck =
     scheduledHour !== null ? scheduledHour : getCurrentTime().getHours();
   const timeSlot = getAlgorithmicTimeSlot(hourToCheck);
@@ -190,12 +191,16 @@ export function selectTrackByHierarchy(tracks, scheduledHour = null) {
 
 export function returnToAlgorithmicPlayback() {
   console.log("Leaving scheduled mode");
-  updateState({ isInScheduledMode: false });
+  updateApplicationState({ isInScheduledMode: false });
   playAlgorithmicTrack();
 }
 
-export function scheduleHourBlock(hour) {
-  const state = getState();
+/**
+ * Schedule all valid tracks for a specific hour
+ * @param {number} hour - Hour to schedule tracks for (0-23)
+ */
+export function scheduleTracksForHour(hour) {
+  const state = getApplicationState();
   const now = getCurrentTime();
 
   const hourTracks = state.preprocessed.scheduledTracks.byHour[hour] || [];
@@ -268,7 +273,7 @@ export function selectTracksWithHierarchy(tracks) {
 }
 
 export function scheduleTracks(tracks) {
-  const state = getState();
+  const state = getApplicationState();
   const newTimeouts = [];
   const newUpcomingScheduled = [];
 
@@ -290,7 +295,7 @@ export function scheduleTracks(tracks) {
     if (timeUntil15Min > 0) {
       const warning15Timeout = setTimeout(() => {
         console.log("15-minute warning: switching to junk-only mode");
-        updateState({ preScheduledJunkOnly: true });
+        updateApplicationState({ preScheduledJunkOnly: true });
       }, timeUntil15Min);
 
       newTimeouts.push(warning15Timeout);
@@ -300,7 +305,7 @@ export function scheduleTracks(tracks) {
     if (timeUntil5Min > 0) {
       const warning5Timeout = setTimeout(() => {
         console.log("5-minute warning: switching to non-bumper junk-only mode");
-        updateState({ preScheduledNonBumperJunkOnly: true });
+        updateApplicationState({ preScheduledNonBumperJunkOnly: true });
       }, timeUntil5Min);
 
       newTimeouts.push(warning5Timeout);
@@ -311,8 +316,8 @@ export function scheduleTracks(tracks) {
       const fadeTimeout = setTimeout(() => {
         if (!state.isInScheduledMode && !state.theTransmitter.paused) {
           // Import fadeOut dynamically to avoid circular dependencies
-          import("./player.js").then(({ fadeOut }) => {
-            fadeOut();
+          import("./player.js").then(({ fadeOutCurrentTrack }) => {
+            fadeOutCurrentTrack();
           });
         }
       }, timeUntilFade);
@@ -333,14 +338,14 @@ export function scheduleTracks(tracks) {
     .sort((a, b) => a.scheduledTime - b.scheduledTime);
 
   // Add all timeouts and update ledger atomically
-  updateState({
+  updateApplicationState({
     scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts],
     upcomingScheduled: combinedUpcoming,
   });
 }
 
 export function checkAndSetPrescheduleJunkState() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
 
   // Use the first entry in upcomingScheduled ledger (already sorted by time)
@@ -354,12 +359,12 @@ export function checkAndSetPrescheduleJunkState() {
     console.log(
       `Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
     );
-    updateState({ preScheduledJunkOnly: true });
+    updateApplicationState({ preScheduledJunkOnly: true });
   } else if (minutesUntilTrack <= 5 && minutesUntilTrack > 0) {
     console.log(
       `Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
     );
-    updateState({
+    updateApplicationState({
       preScheduledJunkOnly: true,
       preScheduledNonBumperJunkOnly: true,
     });
@@ -367,7 +372,7 @@ export function checkAndSetPrescheduleJunkState() {
 }
 
 export function scheduleHourlyUpdates() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   const nextHour = new Date(now.getTime());
   nextHour.setHours(nextHour.getHours() + 1, 0, 5, 0); // Add 5 second buffer
@@ -383,11 +388,11 @@ export function scheduleHourlyUpdates() {
     scheduleHourlyUpdates(); // Schedule next update
   }, timeUntilNextHour);
 
-  updateState({ hourlyScheduleTimeout });
+  updateApplicationState({ hourlyScheduleTimeout });
 }
 
 export function scheduleDailyMorningGenreUpdate() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   const nextFourAm = new Date(now.getTime());
 
@@ -412,7 +417,7 @@ export function scheduleDailyMorningGenreUpdate() {
     scheduleDailyMorningGenreUpdate(); // Schedule next update
   }, timeUntilFourAm);
 
-  updateState({ dailyMorningGenreTimeout });
+  updateApplicationState({ dailyMorningGenreTimeout });
 }
 
 export function performHourlyTasks(currentHour) {
@@ -428,11 +433,11 @@ export function performHourlyTasks(currentHour) {
   clearUsedJunkTracks();
 
   // Schedule next hour block of tracks
-  scheduleHourBlock((currentHour + 1) % 24);
+  scheduleTracksForHour((currentHour + 1) % 24);
 }
 
 export function shuffleJunkCycleOrder() {
-  const state = getState();
+  const state = getApplicationState();
   if (!state.preprocessed?.junkContent?.cycleOrder) {
     console.warn("No junk cycle order found to shuffle");
     return;
@@ -441,14 +446,14 @@ export function shuffleJunkCycleOrder() {
   const shuffled = [...state.preprocessed.junkContent.cycleOrder].sort(
     () => Math.random() - 0.5,
   );
-  updateState({
+  updateApplicationState({
     junkCycleOrder: shuffled,
     junkCycleIndex: 0,
   });
 }
 
 export function setMorningGenres() {
-  const state = getState();
+  const state = getApplicationState();
 
   if (!state.config.genres) {
     console.warn("No genres configured");
@@ -465,13 +470,13 @@ export function setMorningGenres() {
     morningGenres[hour] = selectedGenre;
   });
 
-  updateState({
+  updateApplicationState({
     morningGenres,
   });
 }
 
 export function clearAllScheduledTimeouts() {
-  const state = getState();
+  const state = getApplicationState();
   state.scheduledTimeouts.forEach((timeout) => clearTimeout(timeout));
 
   if (state.hourlyScheduleTimeout) {
@@ -482,7 +487,7 @@ export function clearAllScheduledTimeouts() {
     clearTimeout(state.dailyMorningGenreTimeout);
   }
 
-  updateState({
+  updateApplicationState({
     scheduledTimeouts: [],
     hourlyScheduleTimeout: null,
     dailyMorningGenreTimeout: null,
@@ -491,7 +496,7 @@ export function clearAllScheduledTimeouts() {
 }
 
 export function enterScheduledMode(track) {
-  const state = getState();
+  const state = getApplicationState();
 
   // Don't start a new scheduled track if we're already playing one
   if (state.isInScheduledMode) {
@@ -505,7 +510,7 @@ export function enterScheduledMode(track) {
 
     removeFromUpcomingScheduled(track.trackKey);
 
-    updateState({
+    updateApplicationState({
       preScheduledJunkOnly: false,
       preScheduledNonBumperJunkOnly: false,
     });
@@ -513,7 +518,7 @@ export function enterScheduledMode(track) {
     return;
   }
 
-  updateState({
+  updateApplicationState({
     isInScheduledMode: true,
   });
 
@@ -535,7 +540,7 @@ export function enterScheduledMode(track) {
   console.log("Entering scheduled mode");
   markScheduledFileUsed(track.trackKey, now);
 
-  playTrack({
+  playAudioTrack({
     trackPath: trackData.path,
     startTime: offsetSeconds,
     isScheduled: true,
@@ -543,7 +548,7 @@ export function enterScheduledMode(track) {
 }
 
 export function onScheduledTrackEnd() {
-  updateState({
+  updateApplicationState({
     preScheduledJunkOnly: false,
     preScheduledNonBumperJunkOnly: false,
   });

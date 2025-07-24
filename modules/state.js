@@ -1,8 +1,15 @@
+/**
+ * Application state management module
+ * Centralized state container with getters, setters, and initialization functions
+ */
+
 import { shuffleJunkCycleOrder } from "./scheduling.js";
 
-// State management module for global application state
-
-export const state = {
+/**
+ * Global application state object
+ * Contains all runtime state for the radio system
+ */
+export const applicationState = {
   // DOM elements
   theTransmitter: null,
   startButton: null,
@@ -48,122 +55,175 @@ export const state = {
   scheduledTrackListeners: [],
 };
 
-// Initialize DOM elements
+/**
+ * Initialize DOM element references in application state
+ * Must be called after DOM is loaded
+ */
 export function initializeDOMElements() {
-  state.theTransmitter = document.getElementById("theTransmitter");
-  state.startButton = document.getElementById("startButton");
-  state.loadingIndicator = document.getElementById("loadingIndicator");
-  state.playingIndicator = document.getElementById("playingIndicator");
+  applicationState.theTransmitter = document.getElementById("theTransmitter");
+  applicationState.startButton = document.getElementById("startButton");
+  applicationState.loadingIndicator = document.getElementById("loadingIndicator");
+  applicationState.playingIndicator = document.getElementById("playingIndicator");
 }
 
-// State getters
-export function getState() {
-  return state;
+/**
+ * Get the complete application state object
+ * @returns {Object} Current application state
+ */
+export function getApplicationState() {
+  return applicationState;
 }
 
-// State setters
-export function updateState(updates) {
-  // Validate critical updates
+/**
+ * Update application state with new values
+ * @param {Object} updates - Object containing state updates
+ * @throws {Error} If simulatedTime is not a Date object
+ */
+export function updateApplicationState(updates) {
   if (updates.simulatedTime && !(updates.simulatedTime instanceof Date)) {
     throw new Error("simulatedTime must be a Date object");
   }
 
-  Object.assign(state, updates);
+  Object.assign(applicationState, updates);
 }
 
-// Helper function for array operations
+/**
+ * Add an item to a nested array in the application state
+ * @param {string} arrayPath - Dot-notation path to array (e.g., "listeners.current")
+ * @param {*} item - Item to add to the array
+ */
 export function addToStateArray(arrayPath, item) {
-  const keys = arrayPath.split(".");
-  let current = state;
+  const pathSegments = arrayPath.split(".");
+  let currentObject = applicationState;
 
-  // Navigate to the array
-  for (let i = 0; i < keys.length - 1; i++) {
-    current = current[keys[i]];
+  // Navigate to the parent object containing the target array
+  for (let i = 0; i < pathSegments.length - 1; i++) {
+    currentObject = currentObject[pathSegments[i]];
   }
 
-  const arrayName = keys[keys.length - 1];
-  if (!Array.isArray(current[arrayName])) {
-    current[arrayName] = [];
+  const arrayPropertyName = pathSegments[pathSegments.length - 1];
+  if (!Array.isArray(currentObject[arrayPropertyName])) {
+    currentObject[arrayPropertyName] = [];
   }
 
-  current[arrayName].push(item);
+  currentObject[arrayPropertyName].push(item);
 }
 
+/**
+ * Clear a nested array in the application state
+ * @param {string} arrayPath - Dot-notation path to array
+ */
 export function clearStateArray(arrayPath) {
-  const keys = arrayPath.split(".");
-  let current = state;
+  const pathSegments = arrayPath.split(".");
+  let currentObject = applicationState;
 
-  // Navigate to the array
-  for (let i = 0; i < keys.length - 1; i++) {
-    current = current[keys[i]];
+  // Navigate to the parent object containing the target array
+  for (let i = 0; i < pathSegments.length - 1; i++) {
+    currentObject = currentObject[pathSegments[i]];
   }
 
-  const arrayName = keys[keys.length - 1];
-  current[arrayName] = [];
+  const arrayPropertyName = pathSegments[pathSegments.length - 1];
+  currentObject[arrayPropertyName] = [];
 }
 
+/**
+ * Clear all used algorithmic track markers across all categories
+ * Resets the "used" status for all algorithmic tracks
+ */
 export function clearUsedAlgorithmicTracks() {
-  // Reset all existing algorithmic track categories
-  const clearUsedAlgorithmicTracks = {};
-  for (const category in state.usedAlgorithmicTracks) {
-    clearUsedAlgorithmicTracks[category] = {};
+  const resetUsageTracking = {};
+  for (const category in applicationState.usedAlgorithmicTracks) {
+    resetUsageTracking[category] = {};
   }
-  updateState({ usedAlgorithmicTracks: clearUsedAlgorithmicTracks });
+  updateApplicationState({ usedAlgorithmicTracks: resetUsageTracking });
 }
 
+/**
+ * Clear used track markers for a specific algorithmic category
+ * @param {string} category - Category name (e.g., "morning", "standard")
+ */
 export function clearUsedAlgorithmicTracksForCategory(category) {
-  if (state.usedAlgorithmicTracks[category]) {
-    state.usedAlgorithmicTracks[category] = {};
+  if (applicationState.usedAlgorithmicTracks[category]) {
+    applicationState.usedAlgorithmicTracks[category] = {};
   }
 }
 
+/**
+ * Clear used track markers for a specific junk content type
+ * @param {string} junkType - Junk type name (e.g., "ads", "bumpers")
+ */
 export function clearUsedJunkTracksForType(junkType) {
-  if (state.usedJunkTracksByType[junkType]) {
-    state.usedJunkTracksByType[junkType] = {};
+  if (applicationState.usedJunkTracksByType[junkType]) {
+    applicationState.usedJunkTracksByType[junkType] = {};
   }
 }
 
+/**
+ * Clear all used junk track markers across all types
+ * Resets the "used" status for all junk content
+ */
 export function clearUsedJunkTracks() {
-  for (const junkType in state.usedJunkTracksByType) {
-    state.usedJunkTracksByType[junkType] = {};
+  for (const junkType in applicationState.usedJunkTracksByType) {
+    applicationState.usedJunkTracksByType[junkType] = {};
   }
 }
 
-// Helper functions for tracking usage
+/**
+ * Mark an algorithmic track as used to prevent immediate replay
+ * @param {string} category - Track category (e.g., "morning", "standard")
+ * @param {string} trackKey - Unique identifier for the track
+ */
 export function markAlgorithmicTrackUsed(category, trackKey) {
-  if (!state.usedAlgorithmicTracks[category]) {
-    state.usedAlgorithmicTracks[category] = {};
+  if (!applicationState.usedAlgorithmicTracks[category]) {
+    applicationState.usedAlgorithmicTracks[category] = {};
   }
-  state.usedAlgorithmicTracks[category][trackKey] = true;
+  applicationState.usedAlgorithmicTracks[category][trackKey] = true;
 }
 
+/**
+ * Mark a junk track as used to prevent immediate replay within its type
+ * @param {string} junkType - Junk content type (e.g., "ads", "bumpers")
+ * @param {string} trackKey - Unique identifier for the track
+ */
 export function markJunkTrackUsed(junkType, trackKey) {
-  if (!state.usedJunkTracksByType[junkType]) {
-    state.usedJunkTracksByType[junkType] = {};
+  if (!applicationState.usedJunkTracksByType[junkType]) {
+    applicationState.usedJunkTracksByType[junkType] = {};
   }
-  state.usedJunkTracksByType[junkType][trackKey] = true;
+  applicationState.usedJunkTracksByType[junkType][trackKey] = true;
 }
 
+/**
+ * Remove a track from the upcoming scheduled tracks ledger
+ * @param {string} trackKey - Unique identifier for the scheduled track
+ */
 export function removeFromUpcomingScheduled(trackKey) {
-  state.upcomingScheduled = state.upcomingScheduled.filter(
+  applicationState.upcomingScheduled = applicationState.upcomingScheduled.filter(
     (entry) => entry.track.trackKey !== trackKey
   );
 }
 
+/**
+ * Mark a scheduled file as used and remove from upcoming schedule
+ * @param {string} trackKey - Unique identifier for the track
+ * @param {Date} timestamp - When the track was played
+ */
 export function markScheduledFileUsed(trackKey, timestamp) {
-  state.usedScheduledFiles[trackKey] = timestamp;
+  applicationState.usedScheduledFiles[trackKey] = timestamp;
   removeFromUpcomingScheduled(trackKey);
 }
 
-// Initialize state from config and reset to defaults
-export function initializeState() {
-  const state = getState();
+/**
+ * Initialize application state from configuration data
+ * Sets up usage tracking, playback settings, and default values
+ */
+export function initializeApplicationState() {
+  const state = getApplicationState();
 
   // Initialize from config if available
   const config = state.config;
   if (config?.playback && !state.fadeOutDuration) {
     // Set playback configuration values
-    updateState({
+    updateApplicationState({
       fadeOutDuration: config.playback.fadeOutDuration,
     });
   } else {
@@ -172,25 +232,26 @@ export function initializeState() {
 
   // Initialize usedAlgorithmicTracks structure from config
   if (
-    config.directories?.algorithmic?.subdirectories &&
+    config.tracks?.algorithmic &&
     Object.keys(state.usedAlgorithmicTracks).length === 0
   ) {
     const usedAlgorithmicTracks = {};
 
     // Create tracking objects for each algorithmic subdirectory
-    Object.keys(config.directories.algorithmic.subdirectories).forEach(
+    Object.keys(config.tracks.algorithmic).forEach(
       (key) => {
-        const subdir = config.directories.algorithmic.subdirectories[key];
+        if (key === 'path') return; // Skip the path property
+        const subdir = config.tracks.algorithmic[key];
         // Skip junk as it has its own tracking system
-        if (subdir.category !== "junkContent") {
+        if (key !== "junk") {
           usedAlgorithmicTracks[key] = {};
         }
       },
     );
 
-    updateState({ usedAlgorithmicTracks });
+    updateApplicationState({ usedAlgorithmicTracks });
   } else {
-    console.warn("Algorithmic directories not found");
+    console.warn("Algorithmic tracks not found");
   }
 
   // Initialize usedJunkTracksByType structure from preprocessed data
@@ -205,11 +266,11 @@ export function initializeState() {
       usedJunkTracksByType[junkType] = {};
     });
 
-    updateState({ usedJunkTracksByType });
+    updateApplicationState({ usedJunkTracksByType });
   }
 
   // Initialize junk cycle order if preprocessed data is available
   shuffleJunkCycleOrder();
 
-  console.log("State initialized");
+  console.log("Application state initialized successfully");
 }

@@ -1,4 +1,7 @@
-// Player module for audio playback control functions
+/**
+ * Audio player module
+ * Handles track playback, selection logic, and audio control
+ */
 
 import {
   addCurrentTrackListener,
@@ -8,10 +11,10 @@ import {
 import {
   clearUsedAlgorithmicTracksForCategory,
   clearUsedJunkTracksForType,
-  getState,
+  getApplicationState,
   markAlgorithmicTrackUsed,
   markJunkTrackUsed,
-  updateState,
+  updateApplicationState,
 } from "./state.js";
 import {
   getRandomStartTime,
@@ -19,13 +22,21 @@ import {
   getCurrentTime,
 } from "./time.js";
 
-export function playTrack({
+/**
+ * Play an audio track with specified parameters
+ * @param {Object} options - Playback options
+ * @param {string} options.trackPath - Path to the audio file
+ * @param {Function} options.callback - Function to call when track ends
+ * @param {number|null} options.startTime - Start position in seconds (null for auto)
+ * @param {boolean} options.isScheduled - Whether this is a scheduled track
+ */
+export function playAudioTrack({
   trackPath,
   callback,
   startTime = null,
   isScheduled = false,
 }) {
-  const state = getState();
+  const state = getApplicationState();
 
   // Clean up any existing current track listeners first
   cleanupCurrentTrackListeners();
@@ -44,7 +55,7 @@ export function playTrack({
       state.theTransmitter.currentTime = getRandomStartTime(
         state.theTransmitter.duration,
       );
-      updateState({ isFirstTrack: false });
+      updateApplicationState({ isFirstTrack: false });
     }
     state.theTransmitter.play();
   };
@@ -65,8 +76,13 @@ export function playTrack({
   });
 }
 
+/**
+ * Check if a track will finish before the next scheduled content
+ * @param {number} trackDuration - Duration of track in seconds
+ * @returns {boolean} True if track will finish before scheduled content
+ */
 function trackWillFinishBeforeScheduled(trackDuration) {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   
   // Use the first entry in upcomingScheduled ledger (already sorted by time)
@@ -78,8 +94,15 @@ function trackWillFinishBeforeScheduled(trackDuration) {
   return trackEndTime <= nextScheduledTime;
 }
 
+/**
+ * Get available algorithmic tracks, filtering out recently used ones
+ * @param {Array} tracks - Array of track objects
+ * @param {string} category - Track category for usage tracking
+ * @param {Function} [trackKey] - Function to extract track key
+ * @returns {Array} Available tracks for playback
+ */
 function getAvailableAlgorithmicTracks(tracks, category, trackKey) {
-  const state = getState();
+  const state = getApplicationState();
   let availableTracks = tracks.filter(
     (track) => !state.usedAlgorithmicTracks[category][track.key || trackKey?.(track)]
   );
@@ -92,8 +115,14 @@ function getAvailableAlgorithmicTracks(tracks, category, trackKey) {
   return availableTracks;
 }
 
+/**
+ * Filter tracks by duration to ensure they finish before scheduled content
+ * @param {Array} tracks - Array of track objects
+ * @param {Function} fallbackAction - Action to take if no tracks fit
+ * @returns {Array} Tracks that will finish before scheduled content
+ */
 function filterTracksByDuration(tracks, fallbackAction) {
-  const state = getState();
+  const state = getApplicationState();
   
   if (state.preScheduledJunkOnly) {
     return tracks;
@@ -112,6 +141,13 @@ function filterTracksByDuration(tracks, fallbackAction) {
   }
 }
 
+/**
+ * Select and play an algorithmic track from available options
+ * @param {Array} tracks - Available tracks to choose from
+ * @param {string} category - Track category for usage tracking
+ * @param {string} errorMessage - Error message if no tracks available
+ * @param {Function} [fallbackTrackFunction] - Fallback function if no tracks
+ */
 function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackTrackFunction) {
   if (tracks.length === 0) {
     console.error(errorMessage);
@@ -126,11 +162,15 @@ function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackT
 
   const selectedTrack = filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
   markAlgorithmicTrackUsed(category, selectedTrack.key);
-  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
+  playAudioTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
+/**
+ * Play an algorithmic track based on current time slot
+ * Selects appropriate track type (late night, morning, or standard)
+ */
 export function playAlgorithmicTrack() {
-  const state = getState();
+  const state = getApplicationState();
 
   // Check pre-scheduled warnings
   if (state.preScheduledJunkOnly) {
@@ -148,8 +188,11 @@ export function playAlgorithmicTrack() {
   }
 }
 
+/**
+ * Play a late night lo-fi track (00:00-05:00)
+ */
 export function playLateNightLoFi() {
-  const state = getState();
+  const state = getApplicationState();
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "lateNightLoFis");
   
@@ -161,8 +204,11 @@ export function playLateNightLoFi() {
   );
 }
 
+/**
+ * Play a morning track based on current hour's genre (05:00-08:00)
+ */
 export function playMorningTrack() {
-  const state = getState();
+  const state = getApplicationState();
   const now = getCurrentTime();
   const currentHour = now.getHours();
   const genre = state.morningGenres?.[currentHour];
@@ -183,8 +229,11 @@ export function playMorningTrack() {
   );
 }
 
+/**
+ * Play a standard daytime track (08:00-23:59)
+ */
 export function playStandardTrack() {
-  const state = getState();
+  const state = getApplicationState();
   const tracks = state.preprocessed.timeSlots.standard.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "standard");
   
@@ -195,8 +244,12 @@ export function playStandardTrack() {
   );
 }
 
+/**
+ * Play junk content (ads, bumpers, scripture, interludes)
+ * Cycles through different types and respects pre-scheduled restrictions
+ */
 export function playJunkTrack() {
-  const state = getState();
+  const state = getApplicationState();
   const junkContent = state.preprocessed.junkContent;
 
   // Get current junk type from cycle
@@ -206,7 +259,7 @@ export function playJunkTrack() {
   if (state.preScheduledNonBumperJunkOnly && currentJunkType === "bumpers") {
     // Move to next in cycle
     const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
-    updateState({ junkCycleIndex: nextIndex });
+    updateApplicationState({ junkCycleIndex: nextIndex });
     currentJunkType = state.junkCycleOrder[nextIndex];
 
     // If we've cycled through all and still hit bumpers, pick a non-bumper type
@@ -242,13 +295,17 @@ export function playJunkTrack() {
 
   // Move to next junk type for next time
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
-  updateState({ junkCycleIndex: nextIndex });
+  updateApplicationState({ junkCycleIndex: nextIndex });
 
-  playTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
+  playAudioTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
 }
 
-export function fadeOut() {
-  const state = getState();
+/**
+ * Gradually fade out the current track over configured duration
+ * Used before scheduled content to provide smooth transitions
+ */
+export function fadeOutCurrentTrack() {
+  const state = getApplicationState();
 
   if (state.fadeOutInterval) return; // Prevent multiple fades
 
@@ -268,10 +325,10 @@ export function fadeOut() {
 
     if (currentStep >= steps) {
       clearInterval(fadeOutInterval);
-      updateState({ fadeOutInterval: null });
+      updateApplicationState({ fadeOutInterval: null });
       state.theTransmitter.volume = originalVolume; // Reset volume for next track
     }
   }, state.fadeOutDuration / steps);
 
-  updateState({ fadeOutInterval });
+  updateApplicationState({ fadeOutInterval });
 }

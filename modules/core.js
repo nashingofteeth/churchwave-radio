@@ -1,4 +1,7 @@
-// Core module for main application functions
+/**
+ * Core application module
+ * Handles data loading, playback initialization, and track skipping
+ */
 
 import { playAlgorithmicTrack } from "./player.js";
 import {
@@ -6,74 +9,90 @@ import {
   getActiveScheduledTrack,
   startScheduledSystem,
 } from "./scheduling.js";
-import { initializeState, updateState } from "./state.js";
+import { initializeApplicationState, updateApplicationState } from "./state.js";
 
-export async function load() {
-  // Load config first
+/**
+ * Load configuration and track data from JSON files
+ * @returns {Promise<boolean>} Success status
+ */
+export async function loadApplicationData() {
   try {
-    const response = await fetch("config.json");
-    if (!response.ok) {
+    // Load configuration file
+    const configResponse = await fetch("config.json");
+    if (!configResponse.ok) {
       throw new Error(
-        `Failed to load config: ${response.status} ${response.statusText}`,
+        `Config loading failed: ${configResponse.status} ${configResponse.statusText}`,
       );
     }
-    const configData = await response.json();
-    updateState({ config: configData });
+    const configurationData = await configResponse.json();
+    updateApplicationState({ config: configurationData });
 
-    const tracksResponse = await fetch("tracks.json");
+    // Load preprocessed track database using remote base path
+    const tracksPath = `${configurationData.basePaths.remote}/${configurationData.outputFile}`;
+    const tracksResponse = await fetch(tracksPath);
     if (!tracksResponse.ok) {
       throw new Error(
-        `Failed to load tracks: ${tracksResponse.status} ${tracksResponse.statusText}`,
+        `Tracks loading failed: ${tracksResponse.status} ${tracksResponse.statusText}`,
       );
     }
-    const tracksData = await tracksResponse.json();
+    const trackData = await tracksResponse.json();
 
-    if (!tracksData.preprocessed) {
-      throw new Error("Tracks data missing preprocessed information");
+    if (!trackData.preprocessed) {
+      throw new Error("Track data missing required preprocessed information");
     }
 
-    updateState({
-      preprocessed: tracksData.preprocessed,
+    updateApplicationState({
+      preprocessed: trackData.preprocessed,
     });
 
-    console.log("Data loaded");
+    console.log("Application data loaded successfully");
     return true;
   } catch (error) {
-    console.error("Error loading data:", error);
+    console.error("Application data loading failed:", error);
     return false;
   }
 }
 
+/**
+ * Initialize the complete playback system
+ * Loads data, initializes state, starts scheduling, and begins playback
+ * @returns {Promise<boolean>} Success status
+ */
 export async function initializePlayback() {
-  // Load configuration and track data
-  const loadSuccess = await load();
-
-  if (!loadSuccess) {
-    console.error("Failed to load configuration and track data");
+  const dataLoadSuccess = await loadApplicationData();
+  
+  if (!dataLoadSuccess) {
+    console.error("Playback initialization failed: could not load data");
     return false;
   }
 
-  initializeState();
+  initializeApplicationState();
   startScheduledSystem();
-  startPlayback();
+  beginPlayback();
 
   return true;
 }
 
-export function startPlayback() {
-  console.log("Starting playback");
+/**
+ * Begin audio playback, checking for scheduled content first
+ * Falls back to algorithmic playback if no scheduled content is active
+ */
+export function beginPlayback() {
+  console.log("Beginning audio playback");
 
-  // Check for any currently playing scheduled track
-  const activeTrack = getActiveScheduledTrack();
-  if (activeTrack) {
-    enterScheduledMode(activeTrack);
+  const currentScheduledTrack = getActiveScheduledTrack();
+  if (currentScheduledTrack) {
+    enterScheduledMode(currentScheduledTrack);
   } else {
     playAlgorithmicTrack();
   }
 }
 
-export function skipTrack() {
-  console.log("Skipping track");
-
+/**
+ * Skip the currently playing track and start algorithmic playback
+ * Used for manual track skipping by user or debug functions
+ */
+export function skipCurrentTrack() {
+  console.log("Skipping current track");
   playAlgorithmicTrack();
 }
