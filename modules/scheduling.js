@@ -505,7 +505,7 @@ export function enterScheduledMode(track) {
     return;
   }
 
-  if (state.theTransmitter.paused) {
+  if (state.theTransmitter.paused && !state.isFirstTrack) {
     console.log("Player paused, skipping scheduled track");
 
     removeFromUpcomingScheduled(track.trackKey);
