@@ -40,6 +40,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 ### Processing Scripts
 - `load-tracks.js` - Scans media directory and generates tracks database
 - `validate-config.js` - Validates configuration file formatting and structure
+  - Only for validating the structure of config.json
 
 ## Key Features
 - **Algorithmic Playback**: Time-based automatic music selection
