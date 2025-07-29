@@ -53,6 +53,9 @@ export const applicationState = {
   // Event listener management
   currentTrackListeners: [],
   scheduledTrackListeners: [],
+
+  // Browser capabilities 
+  capabilities: {},
 };
 
 /**

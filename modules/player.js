@@ -15,6 +15,7 @@ import {
   markAlgorithmicTrackUsed,
   markJunkTrackUsed,
   updateApplicationState,
+  markScheduledFileUsed,
 } from "./state.js";
 import {
   getRandomStartTime,
@@ -84,13 +85,13 @@ export function playAudioTrack({
 function trackWillFinishBeforeScheduled(trackDuration) {
   const state = getApplicationState();
   const now = getCurrentTime();
-  
+
   // Use the first entry in upcomingScheduled ledger (already sorted by time)
   if (state.upcomingScheduled.length === 0) return true; // No scheduled tracks, safe to play
-  
+
   const nextScheduledTime = state.upcomingScheduled[0].scheduledTime;
   const trackEndTime = new Date(now.getTime() + trackDuration * 1000);
-  
+
   return trackEndTime <= nextScheduledTime;
 }
 
@@ -168,9 +169,16 @@ function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackT
 /**
  * Play an algorithmic track based on current time slot
  * Selects appropriate track type (late night, morning, or standard)
+ * Checks for opportunistic scheduled tracks first
  */
 export function playAlgorithmicTrack() {
   const state = getApplicationState();
+
+  // Check for opportunistic scheduled tracks first
+  const opportunisticTrack = checkForOpportunisticScheduledTrack();
+  if (opportunisticTrack) {
+    return playOpportunisticScheduledTrack(opportunisticTrack);
+  }
 
   // Check pre-scheduled warnings
   if (state.preScheduledJunkOnly) {
@@ -186,6 +194,54 @@ export function playAlgorithmicTrack() {
     default:
       return playStandardTrack();
   }
+}
+
+/**
+ * Check if there's a scheduled track ready to play opportunistically
+ * Only runs when in opportunistic mode
+ * @returns {Object|null} Scheduled track object or null
+ */
+function checkForOpportunisticScheduledTrack() {
+  const state = getApplicationState();
+
+  // Only check for opportunistic tracks when in opportunistic mode
+  if (!state.capabilities?.opportunisticMode) return null;
+
+  const now = getCurrentTime();
+
+  // Find any scheduled tracks that have passed their scheduled time
+  const readyTracks = state.upcomingScheduled.filter((entry) => {
+    return entry.scheduledTime <= now;
+  });
+
+  if (readyTracks.length === 0) return null;
+
+  // Return the earliest scheduled track
+  return readyTracks.sort((a, b) => a.scheduledTime - b.scheduledTime)[0];
+}
+
+/**
+ * Play an opportunistic scheduled track
+ * @param {Object} scheduledEntry - Scheduled track entry
+ */
+function playOpportunisticScheduledTrack(scheduledEntry) {
+  const { track, scheduledTime } = scheduledEntry;
+  const now = getCurrentTime();
+
+  console.log(
+    `Playing opportunistic scheduled track (${Math.round((now - scheduledTime) / 60000)} minutes after scheduled time)`,
+  );
+
+  markScheduledFileUsed(track.trackKey, now);
+
+  playAudioTrack({
+    trackPath: track.trackData.path,
+    startTime: 0,
+    callback: () => {
+      console.log("Opportunistic scheduled track finished");
+      playAlgorithmicTrack();
+    },
+  });
 }
 
 /**
@@ -308,6 +364,14 @@ export function fadeOutCurrentTrack() {
   const state = getApplicationState();
 
   if (state.fadeOutInterval) return; // Prevent multiple fades
+
+  // Check if fade effects are supported
+  const fadeSupported = state.capabilities?.fadeSupported || false;
+
+  if (!fadeSupported) {
+    console.log("Fade not supported");
+    return;
+  }
 
   const steps = 30;
   const originalVolume = state.theTransmitter.volume;

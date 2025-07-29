@@ -72,10 +72,21 @@ export async function initialize() {
       preloadSatelliteImage(config);
     }
     
-    console.log("DOM initialization completed");
+    // Detect device capabilities
+    const { detectCapabilities, startCapabilityMonitoring } = await import("./capabilities.js");
+    const capabilities = await detectCapabilities();
+    
+    updateApplicationState({ capabilities });
+    
+    // Start monitoring setTimeout performance if not using opportunistic mode
+    if (!capabilities.opportunisticMode) {
+      startCapabilityMonitoring();
+    }
+    
+    console.log("Initialization successfully");
     return true;
   } catch (error) {
-    console.error("DOM initialization failed:", error);
+    console.error("Initialization failed:", error);
     return false;
   }
 }

@@ -274,6 +274,23 @@ export function selectTracksWithHierarchy(tracks) {
 
 export function scheduleTracks(tracks) {
   const state = getApplicationState();
+  
+  // Check if we should use opportunistic scheduling
+  const useOpportunistic = state.capabilities?.opportunisticMode || false;
+  
+  if (useOpportunistic) {
+    scheduleTracksOpportunistic(tracks);
+  } else {
+    scheduleTracksPrecise(tracks);
+  }
+}
+
+/**
+ * Precise scheduling using setTimeout
+ * Used when setTimeout is reliable and fade is supported
+ */
+function scheduleTracksPrecise(tracks) {
+  const state = getApplicationState();
   const newTimeouts = [];
   const newUpcomingScheduled = [];
 
@@ -342,6 +359,37 @@ export function scheduleTracks(tracks) {
     scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts],
     upcomingScheduled: combinedUpcoming,
   });
+  
+  console.log(`Scheduled ${tracks.length} tracks using precise mode`);
+}
+
+/**
+ * Opportunistic scheduling for mobile/unreliable environments
+ * Tracks are queued but played at the end of current tracks instead of exact times
+ */
+function scheduleTracksOpportunistic(tracks) {
+  const state = getApplicationState();
+  const newUpcomingScheduled = [];
+
+  tracks.forEach((track) => {
+    const startTime = getScheduledTrackTime(track);
+    const now = getCurrentTime();
+
+    if (startTime <= now) return; // Skip past times
+
+    // Add to upcoming scheduled ledger
+    newUpcomingScheduled.push({ track, scheduledTime: startTime });
+  });
+
+  // Sort upcoming scheduled tracks by time and add to existing ledger
+  const combinedUpcoming = [...state.upcomingScheduled, ...newUpcomingScheduled]
+    .sort((a, b) => a.scheduledTime - b.scheduledTime);
+
+  updateApplicationState({
+    upcomingScheduled: combinedUpcoming,
+  });
+  
+  console.log(`Scheduled ${tracks.length} tracks using opportunistic mode`);
 }
 
 export function checkAndSetPrescheduleJunkState() {
