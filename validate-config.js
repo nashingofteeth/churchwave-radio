@@ -16,7 +16,7 @@ function validateMediaConfig() {
     console.log('✅ Configuration file loaded successfully');
 
     // Validate required top-level properties
-    const requiredProps = ['basePaths', 'outputFile', 'tracks', 'genres', 'fileExtensions', 'processing', 'metadata'];
+    const requiredProps = ['basePath', 'outputFile', 'tracks', 'genres', 'fileExtensions', 'processing', 'metadata'];
     for (const prop of requiredProps) {
       if (!(prop in config)) {
         throw new Error(`Missing required configuration property: ${prop}`);
@@ -25,7 +25,7 @@ function validateMediaConfig() {
     console.log('✅ All required top-level properties present');
 
     // Validate media directory exists
-    const mediaDir = `${config.basePaths.local}/${config.tracks.path}`;
+    const mediaDir = `${config.basePath}/${config.tracks.path}`;
     if (!fs.existsSync(mediaDir)) {
       console.warn(`⚠️  Media directory does not exist: ${mediaDir}`);
     } else {
