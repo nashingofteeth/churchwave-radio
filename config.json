@@ -51,7 +51,7 @@
   },
   "genres": {
     "country": "Country",
-    "rock": "Rock", 
+    "rock": "Rock",
     "praise": "Praise & Worship"
   },
   "fileExtensions": {
@@ -59,9 +59,12 @@
   },
   "processing": {
     "progressReportInterval": 10,
-    "useCachedDurations": true
+    "useCachedDurations": true,
+    "showExecOutput": false,
+    "uploadToRemote": false
   },
   "metadata": {
     "version": "3.1"
   }
 }
+

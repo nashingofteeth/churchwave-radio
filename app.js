@@ -12,11 +12,14 @@ const frontendConfig = JSON.parse(fs.readFileSync('./docs/config.json', 'utf8'))
 // Function to get duration of MP3 file using ffprobe
 async function getDuration(filePath) {
   try {
-    const { stdout } = await execAsync(`ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${filePath}"`);
+    const { stdout, stderr } = await execAsync(`ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${filePath}"`);
+    if (mediaConfig.processing.showExecOutput && stdout) console.log(`ffprobe stdout: ${stdout}`);
+    if (stderr) console.log(`ffprobe stderr: ${stderr}`);
     const duration = parseFloat(stdout.trim());
     return Number.isNaN(duration) ? null : Math.round(duration);
   } catch (error) {
-    console.warn(`Warning: Could not get duration for ${filePath}: ${error.message}`);
+    console.warn(`⚠️ Warning: Could not get duration for ${filePath}: ${error.message}`);
+    if (error.stderr) console.log(`ffprobe error stderr: ${error.stderr}`);
     return null;
   }
 }
@@ -56,7 +59,7 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
       }
     }
   } catch (error) {
-    console.warn(`Warning: Could not read directory ${dir}: ${error.message}`);
+    console.warn(`⚠️ Warning: Could not read directory ${dir}: ${error.message}`);
   }
 
   return fileInfos;
@@ -128,7 +131,7 @@ function loadExistingTracks() {
       return existingFiles;
     }
   } catch (error) {
-    console.warn(`Warning: Could not load existing ${existingPath} for caching`);
+    console.warn(`⚠️ Warning: Could not load existing ${existingPath} for caching`);
   }
   return {};
 }
@@ -175,7 +178,7 @@ function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, catego
     const subdirPath = path.join(mainDirPath, subdirConfig.path);
 
     if (!fs.existsSync(subdirPath)) {
-      console.warn(`Warning: Algorithmic subdirectory not found: ${subdirConfig.path}`);
+      console.warn(`⚠️ Warning: Algorithmic subdirectory not found: ${subdirConfig.path}`);
       continue;
     }
 
@@ -231,11 +234,11 @@ function processMorningMusic(mainDirPath, basePath, config, fileIndex, existingF
           addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.morningMusic[genreKey]);
         }
       } else {
-        console.warn(`Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${subdir}`);
+        console.warn(`⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${subdir}`);
       }
     } else {
       // Ignore non-genre directories in morning music
-      console.warn(`Warning: Non-genre directory '${subdir}' found in morning music - ignoring (use genre-* format)`);
+      console.warn(`⚠️ Warning: Non-genre directory '${subdir}' found in morning music - ignoring (use genre-* format)`);
     }
   }
 }
@@ -299,7 +302,7 @@ function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFi
     .map(item => item.name)
     .filter(date => {
       if (!isValidDateFormat(date)) {
-        console.warn(`Warning: Invalid date format '${date}' in timeline/${recurrence}/`);
+        console.warn(`⚠️ Warning: Invalid date format '${date}' in timeline/${recurrence}/`);
         return false;
       }
       return true;
@@ -312,7 +315,7 @@ function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFi
       .map(item => item.name)
       .filter(timeDir => {
         if (!isValidTimeFormat(timeDir)) {
-          console.warn(`Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${date}/`);
+          console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${date}/`);
           return false;
         }
         return true;
@@ -342,7 +345,7 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
     .map(item => item.name)
     .filter(day => {
       if (!validDays.includes(day.toLowerCase())) {
-        console.warn(`Warning: Invalid day name '${day}' in scheduled/${recurrence}/`);
+        console.warn(`⚠️ Warning: Invalid day name '${day}' in scheduled/${recurrence}/`);
         return false;
       }
       return true;
@@ -355,7 +358,7 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
       .map(item => item.name)
       .filter(timeDir => {
         if (!isValidTimeFormat(timeDir)) {
-          console.warn(`Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${day}/`);
+          console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${day}/`);
           return false;
         }
         return true;
@@ -384,7 +387,7 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
     .map(item => item.name)
     .filter(timeDir => {
       if (!isValidTimeFormat(timeDir)) {
-        console.warn(`Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/`);
+        console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/`);
         return false;
       }
       return true;
@@ -423,7 +426,7 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
             });
           }
         } else {
-          console.warn(`Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${genreItem.name}`);
+          console.warn(`⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${genreItem.name}`);
         }
       }
     } else {
@@ -458,7 +461,7 @@ function processScheduled(mainDirPath, fileIndex, existingFiles, files, categori
     const recurrencePath = path.join(scheduledPath, recurrence);
 
     if (!scheduledConfig.recurrenceTypes.includes(recurrence)) {
-      console.warn(`Warning: Unknown recurrence type '${recurrence}' - ignoring`);
+      console.warn(`⚠️ Warning: Unknown recurrence type '${recurrence}' - ignoring`);
       continue;
     }
 
@@ -541,7 +544,7 @@ function organizeTracksByStructure() {
     }
 
     if (!processed) {
-      console.warn(`Warning: Unknown directory '${mainDir}' - skipping`);
+      console.warn(`⚠️ Warning: Unknown directory '${mainDir}' - skipping`);
     }
   }
 
@@ -809,12 +812,15 @@ async function main() {
 
     // Check if ffprobe is available
     try {
-      await execAsync('ffprobe -version');
+      const { stdout, stderr } = await execAsync('ffprobe -version');
+      if (mediaConfig.processing.showExecOutput && stdout) console.log(stdout);
+      if (stderr) console.log(`ffprobe version stderr: ${stderr}`);
     } catch (error) {
       console.error('❌ ffprobe not found. Please install FFmpeg to scan durations.');
       console.log('   On macOS: brew install ffmpeg');
       console.log('   On Ubuntu: sudo apt install ffmpeg');
       console.log('   On Windows: Download from https://ffmpeg.org/');
+      if (error.stderr) console.log(`ffprobe error stderr: ${error.stderr}`);
       process.exit(1);
     }
 
@@ -837,6 +843,23 @@ async function main() {
                                .reduce((sum, hour) => sum + hour.length, 0);
     
     console.log(`📊 ${totalAlgorithmic} algorithmic tracks, ${totalJunk} junk tracks, ${totalScheduled} scheduled tracks`);
+
+    // Upload media folder to remote storage
+    if (mediaConfig.processing.uploadToRemote) {
+      console.log('☁️ Uploading media folder to remote storage...');
+      try {
+        const { stdout, stderr } = await execAsync('rclone sync media/ storj:churchwave-radio -P');
+        if (mediaConfig.processing.showExecOutput && stdout) console.log(stdout);
+        if (stderr) console.log(stderr);
+        console.log('✅ Successfully uploaded media folder to storj:churchwave-radio');
+      } catch (uploadError) {
+        console.warn(`⚠️ Warning: Failed to upload to remote storage: ${uploadError.message}`);
+        if (uploadError.stderr) console.log('stderr:', uploadError.stderr);
+        console.log('   Continuing without upload - tracks.json generation was successful');
+      }
+    } else {
+      console.log('⏭️ Skipping remote upload');
+    }
 
   } catch (error) {
     console.error('❌ Error generating tracks.json:', error.message);
