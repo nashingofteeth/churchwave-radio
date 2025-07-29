@@ -4,26 +4,41 @@
 JavaScript-based radio station automation system for church/Christian radio broadcasting.
 
 ## Architecture
-- **Frontend**: Vanilla HTML/CSS/JS with ES6 modules
-- **Backend**: Node.js scripts for media processing
+- **Frontend**: Vanilla HTML/CSS/JS with ES6 modules (located in `/docs/` for GitHub Pages)
+- **Backend**: Node.js scripts for media processing (root directory)
 - **Audio**: HTML5 Audio API for playback
 - **Data**: JSON-based configuration and track database
 - **Media Storage**: Supports both local and remote media paths via configurable base paths
+- **Deployment**: Frontend served from `/docs/` folder for GitHub Pages compatibility
 
 ## Key Components
 
-### Core Modules (`/modules/`)
-- `app.js` - Main application initialization
-- `core.js` - Core playback functions and data loading
-- `player.js` - Audio playback logic and track selection
-- `scheduling.js` - Scheduled content management
-- `state.js` - Application state management
-- `events.js` - UI event handlers
-- `time.js` - Time simulation and utilities
+### Frontend (`/docs/`)
+- `index.html` - Main web interface
+- `style.css` - Interface styling  
+- `satellite.gif` - Animated satellite image
+- `favicon.ico` - Site favicon
+- `config.json` - Frontend-specific configuration
+- `/modules/` - Frontend JavaScript modules:
+  - `app.js` - Main application initialization
+  - `core.js` - Core playback functions and data loading
+  - `player.js` - Audio playback logic and track selection
+  - `scheduling.js` - Scheduled content management
+  - `state.js` - Application state management
+  - `events.js` - UI event handlers
+  - `time.js` - Time simulation and utilities
+  - `capabilities.js` - Feature detection and browser compatibility
+
+### Backend (Root Directory)
+- `app.js` - Media processing and track database generation (renamed from `load-tracks.js`)
+- `validate-config.js` - Configuration file validation
+- `package.json` - Node.js dependencies and scripts
+- `config.json` - Backend processing configuration
 
 ### Configuration
-- `config.json` - Main configuration file with media paths, genres, and system settings
-- `media/tracks.json` - Generated track database (output from `load-tracks.js`)
+- `/config.json` - Backend configuration for media processing
+- `/docs/config.json` - Frontend configuration for playback
+- `media/tracks.json` - Generated track database (output from backend processing)
 
 ### Media Organization
 - `media/tracks/algorithmic/` - Content selected algorithmically by time slots
@@ -38,7 +53,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
   - `dates/` - Specific calendar dates
 
 ### Processing Scripts
-- `load-tracks.js` - Scans media directory and generates tracks database
+- `app.js` - Scans media directory and generates tracks database
 - `validate-config.js` - Validates configuration file formatting and structure
   - Only for validating the structure of config.json
 
@@ -56,8 +71,8 @@ JavaScript-based radio station automation system for church/Christian radio broa
 1. Organize media files in proper directory structure under `media/tracks/`
 2. Configure `config.json` for your media layout and genres
 3. Run `node validate-config.js` to check configuration
-4. Run `node load-tracks.js` to generate tracks database
-5. Open `index.html` in browser to run the radio system
+4. Run `node app.js` to generate tracks database
+5. Open `docs/index.html` in browser to run the radio system
 
 ## Current Git Status
 - Branch: `main` (merged from v2)
@@ -66,9 +81,10 @@ JavaScript-based radio station automation system for church/Christian radio broa
 
 ## Build/Test Commands
 - Configuration validation: `node validate-config.js`
-- Track database generation: `node load-tracks.js`  
-- No package.json detected - pure vanilla JavaScript project
-- Testing requires opening `index.html` in browser and using time simulation features
+- Track database generation: `node app.js` (also available as `npm run update-tracks`)
+- Process all: `npm run process` (validates config and generates tracks)
+- Start processing: `npm start`
+- Testing requires opening `docs/index.html` in browser and using time simulation features
 
 ## Current Version (v3.1)
 Based on config metadata and recent optimizations:

@@ -10,13 +10,109 @@ ChurchWave Radio is a web-based radio automation system that combines:
 - **Intelligent track management** to avoid repeats and ensure smooth transitions
 - **Time simulation tools** for testing different broadcast scenarios
 
+## System Requirements
+
+- **Node.js**: Version 14.0.0 or higher
+- **FFmpeg**: Required for audio duration analysis
+- **Git**: Required for downloading and updating the application
+- **Rclone**: Required for remote media storage sync
+- **Operating System**: Windows, macOS, or Linux
+
+## Setup Guide
+
+### Windows Setup
+
+1. **Install Git**
+   - Download from [git-scm.com](https://git-scm.com/download/win)
+   - Run the installer with default settings
+   - Verify installation: Open Command Prompt and run `git --version`
+
+2. **Install Node.js**
+   - Download from [nodejs.org](https://nodejs.org/)
+   - Choose the LTS version (recommended)
+   - Run the installer and follow the setup wizard
+
+3. **Install FFmpeg**
+   - Download from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows)
+   - Extract the files to a folder (e.g., `C:\ffmpeg`)
+   - Add the `bin` folder to your system PATH:
+     - Open "Environment Variables" from Windows Settings
+     - Add `C:\ffmpeg\bin` to your PATH variable
+   - Verify installation: Open Command Prompt and run `ffmpeg -version`
+
+4. **Install Rclone**
+   - Download from [rclone.org](https://rclone.org/downloads/)
+   - Extract the executable to a folder (e.g., `C:\rclone`)
+   - Add the folder to your system PATH
+   - Verify installation: Open Command Prompt and run `rclone version`
+
+5. **Clone the Repository**
+   ```cmd
+   git clone https://github.com/nashingofteeth/churchwave-radio.git
+   cd churchwave-radio
+   ```
+
+6. **Install Project Dependencies**
+   ```cmd
+   npm install
+   ```
+
+### macOS/Linux Setup
+
+1. **Install Git**
+   ```bash
+   # macOS (usually pre-installed, or with Homebrew)
+   brew install git
+   
+   # Ubuntu/Debian
+   sudo apt update && sudo apt install git
+   ```
+
+2. **Install Node.js**
+   ```bash
+   # macOS (using Homebrew)
+   brew install node
+   
+   # Ubuntu/Debian
+   sudo apt update && sudo apt install nodejs npm
+   ```
+
+3. **Install FFmpeg**
+   ```bash
+   # macOS
+   brew install ffmpeg
+   
+   # Ubuntu/Debian
+   sudo apt install ffmpeg
+   ```
+
+4. **Install Rclone**
+   ```bash
+   # macOS
+   brew install rclone
+   
+   # Ubuntu/Debian
+   sudo apt install rclone
+   ```
+
+5. **Clone the Repository**
+   ```bash
+   git clone https://github.com/nashingofteeth/churchwave-radio.git
+   cd churchwave-radio
+   ```
+
+6. **Install Project Dependencies**
+   ```bash
+   npm install
+   ```
+
 ## Quick Start
 
 1. **Set up your media directory** according to the structure below
 2. **Configure settings** in `config.json`
 3. **Validate configuration**: `node validate-config.js`
-4. **Generate tracks database**: `node load-tracks.js`
-5. **Open `index.html`** in your web browser to start broadcasting
+4. **Generate tracks database**: `node app.js`
+5. **Open `docs/index.html`** in your web browser to start broadcasting
 
 ## Media Directory Structure
 
@@ -279,10 +375,15 @@ appState;
 node validate-config.js
 
 # Generate track database from media files
-node load-tracks.js
+node app.js
+# or
+npm run update-tracks
+
+# Process everything (validate + generate)
+npm run process
 ```
 
-### What `load-tracks.js` Does
+### What `app.js` Does
 1. Scans media directory structure according to `config.json`
 2. Extracts audio duration using FFmpeg
 3. Organizes tracks by category (algorithmic vs scheduled)
@@ -302,8 +403,9 @@ node load-tracks.js
 
 ### FFmpeg Issues
 - **Error**: "FFmpeg not found"
-- **Solution**: Install FFmpeg and add to system PATH
-- **Windows**: Download from https://ffmpeg.org, extract, add bin folder to PATH
+- **Solution**: Install FFmpeg and add to system PATH (see Setup Guide above)
+- **Windows**: Ensure `C:\ffmpeg\bin` is in your PATH environment variable
+- **Verification**: Run `ffmpeg -version` in Command Prompt/Terminal
 
 ### Time Format Issues
 - **Correct**: `09-30-00` (9:30:00 AM)
@@ -320,7 +422,7 @@ node load-tracks.js
 4. Use time simulation to test: `simulateTime(HH, MM-1, 0)` to test 1 minute before
 
 ### Console Error: "Playback not initialized"
-- Run `node load-tracks.js` to generate tracks database
+- Run `node app.js` to generate tracks database
 - Refresh browser page
 - Ensure `tracks.json` exists and contains valid data
 
@@ -337,15 +439,16 @@ node load-tracks.js
 ### Performance Architecture
 The system uses a **two-phase approach** for optimal performance:
 
-1. **Backend Processing** (`load-tracks.js`): Heavy computation, file scanning, and optimization preprocessing
+1. **Backend Processing** (`app.js`): Heavy computation, file scanning, and optimization preprocessing
 2. **Frontend Consumption**: Lightweight modules that use preprocessed data for instant operations
 
 ### Key Files
-- **`index.html`**: Main web interface
-- **`config.json`**: System configuration
-- **`tracks.json`**: Generated track database (created by `load-tracks.js`)
-- **`style.css`**: Interface styling
-- **`load-tracks.js`**: Media scanning and database generation
+- **`docs/index.html`**: Main web interface (served from docs/ for GitHub Pages)
+- **`config.json`**: Backend processing configuration
+- **`docs/config.json`**: Frontend configuration
+- **`media/tracks.json`**: Generated track database (created by `app.js`)
+- **`docs/style.css`**: Interface styling
+- **`app.js`**: Media scanning and database generation
 - **`validate-config.js`**: Configuration validation utility
 
 This system provides a robust foundation for automated Christian radio broadcasting with both scheduled programming and intelligent algorithmic content selection.
