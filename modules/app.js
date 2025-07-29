@@ -5,7 +5,11 @@
 
 import { skipCurrentTrack } from "./core.js";
 import { initializeUIEventListeners } from "./events.js";
-import { getApplicationState, initializeDOMElements, updateApplicationState } from "./state.js";
+import {
+  getApplicationState,
+  initializeDOMElements,
+  updateApplicationState,
+} from "./state.js";
 import { clearTimeSimulation, simulateTime, getCurrentTime } from "./time.js";
 
 /**
@@ -22,7 +26,7 @@ export async function loadConfiguration() {
     }
     const configurationData = await configResponse.json();
     updateApplicationState({ config: configurationData });
-    
+
     console.log("Configuration loaded successfully");
     return configurationData;
   } catch (error) {
@@ -41,10 +45,10 @@ export function preloadSatelliteImage(config) {
     return;
   }
 
-  const satelliteImage = document.getElementById('satelliteImage');
+  const satelliteImage = document.getElementById("satelliteImage");
   if (satelliteImage) {
     const imageUrl = `${config.basePaths.remote}/satellite.gif`;
-    
+
     // Preload the image
     const preloadImg = new Image();
     preloadImg.onload = () => {
@@ -66,23 +70,25 @@ export async function initialize() {
   try {
     initializeDOMElements();
     initializeUIEventListeners();
-    
+
     const config = await loadConfiguration();
     if (config) {
       preloadSatelliteImage(config);
     }
-    
+
     // Detect device capabilities
-    const { detectCapabilities, startCapabilityMonitoring } = await import("./capabilities.js");
+    const { detectCapabilities, startCapabilityMonitoring } = await import(
+      "./capabilities.js"
+    );
     const capabilities = await detectCapabilities();
-    
+
     updateApplicationState({ capabilities });
-    
+
     // Start monitoring setTimeout performance if not using opportunistic mode
     if (!capabilities.opportunisticMode) {
       startCapabilityMonitoring();
     }
-    
+
     console.log("Initialization successfully");
     return true;
   } catch (error) {

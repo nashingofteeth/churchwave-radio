@@ -28,13 +28,13 @@ export function startScheduledSystem() {
   const currentHour = currentTime.getHours();
 
   setMorningGenres();
-  
+
   scheduleTracksForHour(currentHour);
   scheduleTracksForHour((currentHour + 1) % 24);
-  
+
   scheduleHourlyUpdates();
   scheduleDailyMorningGenreUpdate();
-  
+
   checkAndSetPrescheduleJunkState();
 }
 
@@ -274,10 +274,10 @@ export function selectTracksWithHierarchy(tracks) {
 
 export function scheduleTracks(tracks) {
   const state = getApplicationState();
-  
+
   // Check if we should use opportunistic scheduling
   const useOpportunistic = state.capabilities?.opportunisticMode || false;
-  
+
   if (useOpportunistic) {
     scheduleTracksOpportunistic(tracks);
   } else {
@@ -351,15 +351,17 @@ function scheduleTracksPrecise(tracks) {
   });
 
   // Sort upcoming scheduled tracks by time and add to existing ledger
-  const combinedUpcoming = [...state.upcomingScheduled, ...newUpcomingScheduled]
-    .sort((a, b) => a.scheduledTime - b.scheduledTime);
+  const combinedUpcoming = [
+    ...state.upcomingScheduled,
+    ...newUpcomingScheduled,
+  ].sort((a, b) => a.scheduledTime - b.scheduledTime);
 
   // Add all timeouts and update ledger atomically
   updateApplicationState({
     scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts],
     upcomingScheduled: combinedUpcoming,
   });
-  
+
   console.log(`Scheduled ${tracks.length} tracks using precise mode`);
 }
 
@@ -382,13 +384,15 @@ function scheduleTracksOpportunistic(tracks) {
   });
 
   // Sort upcoming scheduled tracks by time and add to existing ledger
-  const combinedUpcoming = [...state.upcomingScheduled, ...newUpcomingScheduled]
-    .sort((a, b) => a.scheduledTime - b.scheduledTime);
+  const combinedUpcoming = [
+    ...state.upcomingScheduled,
+    ...newUpcomingScheduled,
+  ].sort((a, b) => a.scheduledTime - b.scheduledTime);
 
   updateApplicationState({
     upcomingScheduled: combinedUpcoming,
   });
-  
+
   console.log(`Scheduled ${tracks.length} tracks using opportunistic mode`);
 }
 
@@ -579,7 +583,7 @@ export function enterScheduledMode(track) {
     console.log(
       "Scheduled track would be finished, returning to algorithmic playback",
     );
-    
+
     removeFromUpcomingScheduled(track.trackKey);
     returnToAlgorithmicPlayback();
     return;

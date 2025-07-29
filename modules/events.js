@@ -3,7 +3,11 @@
  * Handles UI event listeners and audio element event management
  */
 
-import { addToStateArray, clearStateArray, getApplicationState } from "./state.js";
+import {
+  addToStateArray,
+  clearStateArray,
+  getApplicationState,
+} from "./state.js";
 
 /**
  * Initialize UI event listeners for the start button and audio indicators

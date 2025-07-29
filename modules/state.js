@@ -54,7 +54,7 @@ export const applicationState = {
   currentTrackListeners: [],
   scheduledTrackListeners: [],
 
-  // Browser capabilities 
+  // Browser capabilities
   capabilities: {},
 };
 
@@ -65,8 +65,10 @@ export const applicationState = {
 export function initializeDOMElements() {
   applicationState.theTransmitter = document.getElementById("theTransmitter");
   applicationState.startButton = document.getElementById("startButton");
-  applicationState.loadingIndicator = document.getElementById("loadingIndicator");
-  applicationState.playingIndicator = document.getElementById("playingIndicator");
+  applicationState.loadingIndicator =
+    document.getElementById("loadingIndicator");
+  applicationState.playingIndicator =
+    document.getElementById("playingIndicator");
 }
 
 /**
@@ -200,9 +202,10 @@ export function markJunkTrackUsed(junkType, trackKey) {
  * @param {string} trackKey - Unique identifier for the scheduled track
  */
 export function removeFromUpcomingScheduled(trackKey) {
-  applicationState.upcomingScheduled = applicationState.upcomingScheduled.filter(
-    (entry) => entry.track.trackKey !== trackKey
-  );
+  applicationState.upcomingScheduled =
+    applicationState.upcomingScheduled.filter(
+      (entry) => entry.track.trackKey !== trackKey,
+    );
 }
 
 /**
@@ -241,16 +244,14 @@ export function initializeApplicationState() {
     const usedAlgorithmicTracks = {};
 
     // Create tracking objects for each algorithmic subdirectory
-    Object.keys(config.tracks.algorithmic).forEach(
-      (key) => {
-        if (key === 'path') return; // Skip the path property
-        const subdir = config.tracks.algorithmic[key];
-        // Skip junk as it has its own tracking system
-        if (key !== "junk") {
-          usedAlgorithmicTracks[key] = {};
-        }
-      },
-    );
+    Object.keys(config.tracks.algorithmic).forEach((key) => {
+      if (key === "path") return; // Skip the path property
+
+      // Skip junk as it has its own tracking system
+      if (key !== "junk") {
+        usedAlgorithmicTracks[key] = {};
+      }
+    });
 
     updateApplicationState({ usedAlgorithmicTracks });
   } else {

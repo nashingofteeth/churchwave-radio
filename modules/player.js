@@ -105,7 +105,8 @@ function trackWillFinishBeforeScheduled(trackDuration) {
 function getAvailableAlgorithmicTracks(tracks, category, trackKey) {
   const state = getApplicationState();
   let availableTracks = tracks.filter(
-    (track) => !state.usedAlgorithmicTracks[category][track.key || trackKey?.(track)]
+    (track) =>
+      !state.usedAlgorithmicTracks[category][track.key || trackKey?.(track)],
   );
 
   if (availableTracks.length === 0) {
@@ -124,15 +125,15 @@ function getAvailableAlgorithmicTracks(tracks, category, trackKey) {
  */
 function filterTracksByDuration(tracks, fallbackAction) {
   const state = getApplicationState();
-  
+
   if (state.preScheduledJunkOnly) {
     return tracks;
   }
 
-  const durationsCheckedTracks = tracks.filter((track) => 
-    trackWillFinishBeforeScheduled(track.duration)
+  const durationsCheckedTracks = tracks.filter((track) =>
+    trackWillFinishBeforeScheduled(track.duration),
   );
-  
+
   if (durationsCheckedTracks.length > 0) {
     return durationsCheckedTracks;
   } else {
@@ -149,7 +150,12 @@ function filterTracksByDuration(tracks, fallbackAction) {
  * @param {string} errorMessage - Error message if no tracks available
  * @param {Function} [fallbackTrackFunction] - Fallback function if no tracks
  */
-function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackTrackFunction) {
+function selectAndPlayAlgorithmicTrack(
+  tracks,
+  category,
+  errorMessage,
+  fallbackTrackFunction,
+) {
   if (tracks.length === 0) {
     console.error(errorMessage);
     if (fallbackTrackFunction) {
@@ -161,9 +167,13 @@ function selectAndPlayAlgorithmicTrack(tracks, category, errorMessage, fallbackT
   const filteredTracks = filterTracksByDuration(tracks, playJunkTrack);
   if (filteredTracks.length === 0) return;
 
-  const selectedTrack = filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
+  const selectedTrack =
+    filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
   markAlgorithmicTrackUsed(category, selectedTrack.key);
-  playAudioTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
+  playAudioTrack({
+    trackPath: selectedTrack.path,
+    callback: playAlgorithmicTrack,
+  });
 }
 
 /**
@@ -250,13 +260,16 @@ function playOpportunisticScheduledTrack(scheduledEntry) {
 export function playLateNightLoFi() {
   const state = getApplicationState();
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
-  const availableTracks = getAvailableAlgorithmicTracks(tracks, "lateNightLoFis");
-  
+  const availableTracks = getAvailableAlgorithmicTracks(
+    tracks,
+    "lateNightLoFis",
+  );
+
   selectAndPlayAlgorithmicTrack(
-    availableTracks, 
-    "lateNightLoFis", 
-    "No late night tracks available", 
-    playStandardTrack
+    availableTracks,
+    "lateNightLoFis",
+    "No late night tracks available",
+    playStandardTrack,
   );
 }
 
@@ -276,12 +289,12 @@ export function playMorningTrack() {
 
   const tracks = state.preprocessed.timeSlots.morning.genres[genre].tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "morning");
-  
+
   selectAndPlayAlgorithmicTrack(
-    availableTracks, 
-    "morning", 
-    `No morning tracks available for genre: ${genre}`, 
-    playStandardTrack
+    availableTracks,
+    "morning",
+    `No morning tracks available for genre: ${genre}`,
+    playStandardTrack,
   );
 }
 
@@ -292,11 +305,11 @@ export function playStandardTrack() {
   const state = getApplicationState();
   const tracks = state.preprocessed.timeSlots.standard.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "standard");
-  
+
   selectAndPlayAlgorithmicTrack(
-    availableTracks, 
-    "standard", 
-    "No standard tracks available"
+    availableTracks,
+    "standard",
+    "No standard tracks available",
   );
 }
 
@@ -320,7 +333,8 @@ export function playJunkTrack() {
 
     // If we've cycled through all and still hit bumpers, pick a non-bumper type
     if (currentJunkType === "bumpers") {
-      const nonBumperTypes = state.preprocessed.optimizations.nonBumperJunkTypes;
+      const nonBumperTypes =
+        state.preprocessed.optimizations.nonBumperJunkTypes;
       currentJunkType =
         nonBumperTypes[Math.floor(Math.random() * nonBumperTypes.length)];
     }
@@ -353,7 +367,10 @@ export function playJunkTrack() {
   const nextIndex = (state.junkCycleIndex + 1) % state.junkCycleOrder.length;
   updateApplicationState({ junkCycleIndex: nextIndex });
 
-  playAudioTrack({ trackPath: selectedTrack.path, callback: playAlgorithmicTrack });
+  playAudioTrack({
+    trackPath: selectedTrack.path,
+    callback: playAlgorithmicTrack,
+  });
 }
 
 /**

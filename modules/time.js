@@ -59,7 +59,7 @@ export function getCurrentTime() {
  */
 export function stopTimeSimulation() {
   stopSimulationClock();
-  
+
   updateApplicationState({
     isTimeSimulated: false,
     simulationSpeed: 1,
@@ -174,7 +174,7 @@ function resetForTimeSimulation() {
 
   cleanupCurrentTrackListeners();
   cleanupScheduledTrackListeners();
-  
+
   clearUsedAlgorithmicTracks();
   clearUsedJunkTracks();
   clearUsedScheduledTracks();
@@ -208,6 +208,6 @@ export function simulateTime(hour, minute = 0, second = 0, date = null) {
 export function clearTimeSimulation() {
   stopTimeSimulation();
   resetForTimeSimulation();
-  
+
   console.log("Time simulation cleared - using real time");
 }
