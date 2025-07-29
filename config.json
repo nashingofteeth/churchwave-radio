@@ -61,7 +61,7 @@
     "progressReportInterval": 10,
     "useCachedDurations": true,
     "showExecOutput": false,
-    "uploadToRemote": false
+    "uploadToRemote": true
   },
   "metadata": {
     "version": "3.1"
