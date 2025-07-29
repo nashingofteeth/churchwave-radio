@@ -557,22 +557,18 @@ export function enterScheduledMode(track) {
     return;
   }
 
+  updateApplicationState({
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false,
+  });
+
   if (state.theTransmitter.paused && !state.isFirstTrack) {
     console.log("Player paused, skipping scheduled track");
 
     removeFromUpcomingScheduled(track.trackKey);
 
-    updateApplicationState({
-      preScheduledJunkOnly: false,
-      preScheduledNonBumperJunkOnly: false,
-    });
-
     return;
   }
-
-  updateApplicationState({
-    isInScheduledMode: true,
-  });
 
   const trackData = track.trackData;
   const scheduledTime = getScheduledTrackTime(track);
@@ -590,6 +586,11 @@ export function enterScheduledMode(track) {
   }
 
   console.log("Entering scheduled mode");
+
+  updateApplicationState({
+    isInScheduledMode: true,
+  });
+
   markScheduledFileUsed(track.trackKey, now);
 
   playAudioTrack({
@@ -600,11 +601,6 @@ export function enterScheduledMode(track) {
 }
 
 export function onScheduledTrackEnd() {
-  updateApplicationState({
-    preScheduledJunkOnly: false,
-    preScheduledNonBumperJunkOnly: false,
-  });
-
   // Shuffle junk order
   shuffleJunkCycleOrder();
 

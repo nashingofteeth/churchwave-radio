@@ -8,6 +8,7 @@ import {
   addScheduledTrackListener,
   cleanupCurrentTrackListeners,
 } from "./events.js";
+import { checkAndSetPrescheduleJunkState } from "./scheduling.js";
 import {
   clearUsedAlgorithmicTracksForCategory,
   clearUsedJunkTracksForType,
@@ -172,7 +173,14 @@ function selectAndPlayAlgorithmicTrack(
   markAlgorithmicTrackUsed(category, selectedTrack.key);
   playAudioTrack({
     trackPath: selectedTrack.path,
-    callback: playAlgorithmicTrack,
+    callback: () => {
+      // Check for preschedule junk state if in opportunistic mode
+      const state = getApplicationState();
+      if (state.capabilities?.opportunisticMode) {
+        checkAndSetPrescheduleJunkState();
+      }
+      playAlgorithmicTrack();
+    },
   });
 }
 
@@ -242,15 +250,18 @@ function playOpportunisticScheduledTrack(scheduledEntry) {
     `Playing opportunistic scheduled track (${Math.round((now - scheduledTime) / 60000)} minutes after scheduled time)`,
   );
 
+  updateApplicationState({
+    isInScheduledMode: true,
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false,
+  });
+
   markScheduledFileUsed(track.trackKey, now);
 
   playAudioTrack({
     trackPath: track.trackData.path,
     startTime: 0,
-    callback: () => {
-      console.log("Opportunistic scheduled track finished");
-      playAlgorithmicTrack();
-    },
+    isScheduled: true,
   });
 }
 
