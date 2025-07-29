@@ -7,7 +7,7 @@ const execAsync = promisify(exec);
 
 // Load media configuration
 const mediaConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-const frontendConfig = JSON.parse(fs.readFileSync('./public/config.json', 'utf8'));
+const frontendConfig = JSON.parse(fs.readFileSync('./docs/config.json', 'utf8'));
 
 // Function to get duration of MP3 file using ffprobe
 async function getDuration(filePath) {
