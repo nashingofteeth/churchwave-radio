@@ -1,8 +1,5 @@
 {
-  "basePaths": {
-    "local": "./media",
-    "remote": "https://link.storjshare.io/raw/jxh32vdro323akif5uz4dcdgvdtq/churchwave-radio"
-  },
+  "basePath": "./media",
   "outputFile": "tracks.json",
   "tracks": {
     "path": "tracks",
@@ -63,10 +60,6 @@
   "processing": {
     "progressReportInterval": 10,
     "useCachedDurations": true
-  },
-  "timezone": "America/New_York",
-  "playback": {
-    "fadeOutDuration": 3000
   },
   "metadata": {
     "version": "3.1"

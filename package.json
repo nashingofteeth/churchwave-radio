@@ -1,0 +1,34 @@
+{
+  "name": "churchwave-radio",
+  "version": "3.1.0",
+  "description": "Backend data processing for ChurchWave Radio station automation system",
+  "main": "load-tracks.js",
+  "scripts": {
+    "load-tracks": "node load-tracks.js",
+    "validate-config": "node validate-config.js",
+    "process": "npm run validate-config && npm run load-tracks",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "radio",
+    "automation",
+    "church",
+    "christian",
+    "broadcasting",
+    "media",
+    "audio"
+  ],
+  "author": "nashingofteeth",
+  "license": "MIT",
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nashingofteeth/churchwave-radio"
+  }
+}

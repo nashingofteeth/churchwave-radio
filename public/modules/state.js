@@ -236,26 +236,21 @@ export function initializeApplicationState() {
     console.warn("Playback settings not found");
   }
 
-  // Initialize usedAlgorithmicTracks structure from config
+  // Initialize usedAlgorithmicTracks structure from preprocessed data
   if (
-    config.tracks?.algorithmic &&
+    state.preprocessed?.optimizations?.algorithmicTrackTypes &&
     Object.keys(state.usedAlgorithmicTracks).length === 0
   ) {
     const usedAlgorithmicTracks = {};
 
-    // Create tracking objects for each algorithmic subdirectory
-    Object.keys(config.tracks.algorithmic).forEach((key) => {
-      if (key === "path") return; // Skip the path property
-
-      // Skip junk as it has its own tracking system
-      if (key !== "junk") {
-        usedAlgorithmicTracks[key] = {};
-      }
+    // Create tracking objects for each algorithmic track type
+    state.preprocessed.optimizations.algorithmicTrackTypes.forEach((trackType) => {
+      usedAlgorithmicTracks[trackType] = {};
     });
 
     updateApplicationState({ usedAlgorithmicTracks });
   } else {
-    console.warn("Algorithmic tracks not found");
+    console.warn("Algorithmic track types not found in preprocessed data");
   }
 
   // Initialize usedJunkTracksByType structure from preprocessed data

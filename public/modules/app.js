@@ -35,32 +35,6 @@ export async function loadConfiguration() {
   }
 }
 
-/**
- * Preload satellite image using remote path from config
- * @param {Object} config - Configuration object with basePaths
- */
-export function preloadSatelliteImage(config) {
-  if (!config?.basePaths?.remote) {
-    console.warn("No remote base path found in config for satellite image");
-    return;
-  }
-
-  const satelliteImage = document.getElementById("satelliteImage");
-  if (satelliteImage) {
-    const imageUrl = `${config.basePaths.remote}/satellite.gif`;
-
-    // Preload the image
-    const preloadImg = new Image();
-    preloadImg.onload = () => {
-      console.log("Satellite image preloaded successfully");
-      satelliteImage.src = imageUrl;
-    };
-    preloadImg.onerror = () => {
-      console.warn("Failed to preload satellite image:", imageUrl);
-    };
-    preloadImg.src = imageUrl;
-  }
-}
 
 /**
  * Initialize application
@@ -71,10 +45,7 @@ export async function initialize() {
     initializeDOMElements();
     initializeUIEventListeners();
 
-    const config = await loadConfiguration();
-    if (config) {
-      preloadSatelliteImage(config);
-    }
+    await loadConfiguration();
 
     // Detect device capabilities
     const { detectCapabilities, startCapabilityMonitoring } = await import(

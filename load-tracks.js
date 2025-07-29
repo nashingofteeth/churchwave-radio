@@ -7,6 +7,7 @@ const execAsync = promisify(exec);
 
 // Load media configuration
 const mediaConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+const frontendConfig = JSON.parse(fs.readFileSync('./public/config.json', 'utf8'));
 
 // Function to get duration of MP3 file using ffprobe
 async function getDuration(filePath) {
@@ -43,7 +44,7 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
       } else if (item.isFile() && mediaConfig.fileExtensions.audio.some(ext => item.name.toLowerCase().endsWith(ext))) {
         // Add audio files with metadata
         const fileInfo = {
-          path: `${mediaConfig.basePaths.remote}/${mediaConfig.tracks.path}/${relativePath.replace(/\\/g, '/')}`
+          path: `${frontendConfig.mediaPath}/${mediaConfig.tracks.path}/${relativePath.replace(/\\/g, '/')}`
         };
 
         // Add genre if specified
@@ -67,7 +68,7 @@ function loadExistingTracks() {
     return {};
   }
 
-  const existingPath = `${mediaConfig.basePaths.local}/${mediaConfig.outputFile}`;
+  const existingPath = `${mediaConfig.basePath}/${mediaConfig.outputFile}`;
   try {
     if (fs.existsSync(existingPath)) {
       const existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
@@ -478,7 +479,7 @@ function processScheduled(mainDirPath, fileIndex, existingFiles, files, categori
 
 // Function to organize files and create normalized structure
 function organizeTracksByStructure() {
-  const mediaDir = `${mediaConfig.basePaths.local}/${mediaConfig.tracks.path}`;
+  const mediaDir = `${mediaConfig.basePath}/${mediaConfig.tracks.path}`;
 
   if (!fs.existsSync(mediaDir)) {
     throw new Error(`Media directory not found. Make sure ${mediaDir} exists.`);
@@ -574,7 +575,7 @@ async function scanDurations(files) {
 
       // Get duration
       // Use local path for duration scanning but keep remote path in fileInfo
-      const localPath = fileInfo.path.replace(mediaConfig.basePaths.remote, mediaConfig.basePaths.local);
+      const localPath = fileInfo.path.replace(frontendConfig.mediaPath, mediaConfig.basePath);
       const duration = await getDuration(localPath);
       if (duration !== null) {
         fileInfo.duration = duration;
@@ -755,6 +756,10 @@ function preprocessPerformanceOptimizations(timeSlots, junkContent, scheduledTra
     // Pre-compute available genres from config
     availableGenres: Object.keys(mediaConfig.genres),
     
+    // Pre-compute algorithmic track types (excluding junk) for state initialization
+    algorithmicTrackTypes: Object.keys(mediaConfig.tracks.algorithmic)
+      .filter(key => key !== 'path' && key !== 'junk'),
+    
     // Pre-compute non-bumper junk types for pre-schedule filtering
     nonBumperJunkTypes: Object.entries(junkContent.types)
       .filter(([_, typeData]) => typeData.nonBumper)
@@ -814,7 +819,7 @@ async function main() {
     }
 
     const newTracksContent = await generateTracksJson();
-    const outputPath = `${mediaConfig.basePaths.local}/${mediaConfig.outputFile}`;
+    const outputPath = `${mediaConfig.basePath}/${mediaConfig.outputFile}`;
     fs.writeFileSync(outputPath, newTracksContent);
     console.log(`✅ Successfully generated optimized ${outputPath}`);
     

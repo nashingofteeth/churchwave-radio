@@ -25,8 +25,8 @@ export async function loadApplicationData() {
     
     const configurationData = appState.config;
 
-    // Load track database using remote base path
-    const tracksPath = `${configurationData.basePaths.remote}/${configurationData.outputFile}`;
+    // Load track database using media path
+    const tracksPath = `${configurationData.mediaPath}/tracks.json`;
     const tracksResponse = await fetch(tracksPath);
     if (!tracksResponse.ok) {
       throw new Error(

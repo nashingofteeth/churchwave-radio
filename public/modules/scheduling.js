@@ -507,8 +507,8 @@ export function shuffleJunkCycleOrder() {
 export function setMorningGenres() {
   const state = getApplicationState();
 
-  if (!state.config.genres) {
-    console.warn("No genres configured");
+  if (!state.preprocessed?.optimizations?.availableGenres) {
+    console.warn("No genres available in tracks data");
     return;
   }
 
