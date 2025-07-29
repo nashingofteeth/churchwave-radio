@@ -2,9 +2,9 @@
   "name": "churchwave-radio",
   "version": "3.1.0",
   "description": "Backend data processing for ChurchWave Radio station automation system",
-  "main": "load-tracks.js",
+  "main": "app.js",
   "scripts": {
-    "load-tracks": "node load-tracks.js",
+    "load-tracks": "node app.js",
     "validate-config": "node validate-config.js",
     "process": "npm run validate-config && npm run load-tracks",
     "test": "echo \"Error: no test specified\" && exit 1"
