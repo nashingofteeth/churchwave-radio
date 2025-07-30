@@ -107,6 +107,9 @@ export function beginPlayback() {
  * Used for manual track skipping by user or debug functions
  */
 export function skipCurrentTrack() {
+  const state = getApplicationState();
+
   console.log("Skipping current track");
-  playAlgorithmicTrack();
+
+  state.theTransmitter.dispatchEvent(new Event('ended'));
 }
