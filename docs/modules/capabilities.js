@@ -73,6 +73,7 @@ class SetTimeoutMonitor {
     this.samples = [];
     this.maxSamples = 10;
     this.isMonitoring = false;
+    this.currentTimeoutId = null;
   }
 
   startMonitoring() {
@@ -83,6 +84,15 @@ class SetTimeoutMonitor {
 
   stopMonitoring() {
     this.isMonitoring = false;
+    if (this.currentTimeoutId) {
+      clearTimeout(this.currentTimeoutId);
+      this.currentTimeoutId = null;
+    }
+  }
+
+  cleanup() {
+    this.stopMonitoring();
+    this.samples = [];
   }
 
   scheduleNext() {
@@ -91,7 +101,11 @@ class SetTimeoutMonitor {
     const startTime = performance.now();
     const expectedDelay = 5000; // 5 second intervals
 
-    setTimeout(() => {
+    this.currentTimeoutId = setTimeout(() => {
+      this.currentTimeoutId = null;
+      
+      if (!this.isMonitoring) return; // Double-check monitoring status
+      
       const actualDelay = performance.now() - startTime;
       const accuracy = Math.abs(actualDelay - expectedDelay) / expectedDelay;
 
@@ -110,8 +124,10 @@ class SetTimeoutMonitor {
       // Update capabilities based on recent performance
       this.updateReliabilityStatus();
 
-      // Schedule next test
-      this.scheduleNext();
+      // Schedule next test only if still monitoring
+      if (this.isMonitoring) {
+        this.scheduleNext();
+      }
     }, expectedDelay);
   }
 
@@ -243,7 +259,7 @@ export function startCapabilityMonitoring() {
  * Stop monitoring setTimeout performance
  */
 export function stopCapabilityMonitoring() {
-  timeoutMonitor.stopMonitoring();
+  timeoutMonitor.cleanup();
 
   const state = getApplicationState();
   updateApplicationState({
