@@ -41,16 +41,17 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - `media/tracks.json` - Generated track database (output from backend processing)
 
 ### Media Organization
-- `media/tracks/algorithmic/` - Content selected algorithmically by time slots
-  - `late-nite-lo-fis/` - Late night ambient content (00:00-05:00)
-  - `morning/` - Morning music with genre subfolders (05:00-08:00)
-    - `genre-country/`, `genre-praise/`, `genre-rock/` - Genre-specific morning content
-  - `standard/` - General daytime programming (08:00-00:00)
-  - `junk/` - Station elements (ads, ads-2, scripture, bumpers, interludes)
-- `media/tracks/scheduled/` - Time-specific scheduled content
-  - `daily/` - Every day at specific times (00-00-00 through 23-00-00 folders)
-  - `days/` - Specific weekdays (monday/, tuesday/, etc.)
-  - `dates/` - Specific calendar dates
+- `media/tracks/` - Main media directory containing all audio content
+  - `algorithmic/` - Content selected algorithmically by time slots
+    - `late-nite-lo-fis/` - Late night ambient content (00:00-05:00)
+    - `morning/` - Morning music with genre subfolders (05:00-08:00)
+      - `genre-country/`, `genre-praise/`, `genre-rock/` - Genre-specific morning content
+    - `standard/` - General daytime programming (08:00-00:00)
+    - `junk/` - Station elements (ads, ads-2, scripture, bumpers, interludes)
+  - `scheduled/` - Time-specific scheduled content
+    - `daily/` - Every day at specific times (00-00-00 through 23-00-00 folders)
+    - `days/` - Specific weekdays (monday/, tuesday/, etc.)
+    - `dates/` - Specific calendar dates
 
 ### Processing Scripts
 - `app.js` - Scans media directory and generates tracks database

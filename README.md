@@ -116,14 +116,14 @@ ChurchWave Radio is a web-based radio automation system that combines:
 
 ## Media Directory Structure
 
-Your media should be organized into two main categories:
+Your media should be organized into two main categories under the `media/tracks/` directory:
 
-### Algorithmic Content (`media/algorithmic/`)
+### Algorithmic Content (`media/tracks/algorithmic/`)
 
 Content selected automatically based on time of day:
 
 ```
-media/algorithmic/
+media/tracks/algorithmic/
 ├── late-nite-lo-fis/        # Midnight to 5:00 AM
 │   ├── ambient1.mp3
 │   └── ambient2.mp3
@@ -151,12 +151,12 @@ media/algorithmic/
         └── commercial2.mp3
 ```
 
-### Scheduled Content (`media/scheduled/`)
+### Scheduled Content (`media/tracks/scheduled/`)
 
 Content that plays at exact times:
 
 ```
-media/scheduled/
+media/tracks/scheduled/
 ├── daily/                   # Every day at specific times
 │   ├── 06-00-00/           # 6:00:00 AM daily
 │   │   ├── genre-country/  # Genre-specific content
@@ -279,7 +279,7 @@ appState;
 4. `simulateTime(6, 0, 0)` - See if different genre for next hour
 
 #### Test Scheduled Content
-1. Add content to `media/scheduled/daily/HH-MM-SS/`
+1. Add content to `media/tracks/scheduled/daily/HH-MM-SS/`
 2. `simulateTime(HH, MM-16, 0)` - 16 minutes before
 3. Watch system switch to junk-only mode at 15-minute mark
 4. Watch fade and scheduled content start at exact time
