@@ -372,8 +372,6 @@ function scheduleTracksPrecise(tracks) {
     scheduledTimeouts: [...state.scheduledTimeouts, ...newTimeouts],
     upcomingScheduled: combinedUpcoming,
   });
-
-  console.log(`Scheduled ${tracks.length} tracks using precise mode`);
 }
 
 /**
@@ -403,8 +401,6 @@ function scheduleTracksOpportunistic(tracks) {
   updateApplicationState({
     upcomingScheduled: combinedUpcoming,
   });
-
-  console.log(`Scheduled ${tracks.length} tracks using opportunistic mode`);
 }
 
 export function checkAndSetPrescheduleJunkState() {
