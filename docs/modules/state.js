@@ -18,7 +18,7 @@ export const applicationState = {
 
   // Preprocessed track data
   preprocessed: null,
-  config: {},
+  config: null,
 
   // Usage tracking
   usedScheduledFiles: {},

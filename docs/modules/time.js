@@ -192,8 +192,8 @@ function resetForTimeSimulation() {
  */
 export function simulateTime(hour, minute = 0, second = 0, date = null) {
   const state = getApplicationState();
-  if (Object.keys(state.config).length === 0) {
-    console.error("Playback not initialized.");
+  if (!state.preprocessed) {
+    console.error("Playback not started");
     return;
   }
   setSimulatedTime(hour, minute, second, date);
