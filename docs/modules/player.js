@@ -183,7 +183,8 @@ function selectAndPlayAlgorithmicTrack(
     callback: () => {
       // Check for preschedule junk state if in opportunistic mode
       const state = getApplicationState();
-      if (state.capabilities?.opportunisticMode) {
+      const isOpportunisticMode = state.capabilities?.opportunisticMode === true;
+      if (isOpportunisticMode) {
         checkAndSetPrescheduleJunkState();
       }
       playAlgorithmicTrack();
@@ -230,7 +231,8 @@ function checkForOpportunisticScheduledTrack() {
   const state = getApplicationState();
 
   // Only check for opportunistic tracks when in opportunistic mode
-  if (!state.capabilities?.opportunisticMode) return null;
+  const isOpportunisticMode = state.capabilities?.opportunisticMode === true;
+  if (!isOpportunisticMode) return null;
 
   const now = getCurrentTime();
 
@@ -277,6 +279,12 @@ function playOpportunisticScheduledTrack(scheduledEntry) {
  */
 export function playLateNightLoFi() {
   const state = getApplicationState();
+  
+  if (!state.preprocessed?.timeSlots?.lateNightLoFis?.tracks) {
+    console.error("Late night tracks not available, falling back to standard");
+    return playStandardTrack();
+  }
+  
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(
     tracks,
@@ -305,6 +313,11 @@ export function playMorningTrack() {
     return playStandardTrack();
   }
 
+  if (!state.preprocessed?.timeSlots?.morning?.genres?.[genre]?.tracks) {
+    console.error(`Morning tracks not available for genre: ${genre}, falling back to standard`);
+    return playStandardTrack();
+  }
+
   const tracks = state.preprocessed.timeSlots.morning.genres[genre].tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "morning");
 
@@ -321,6 +334,12 @@ export function playMorningTrack() {
  */
 export function playStandardTrack() {
   const state = getApplicationState();
+  
+  if (!state.preprocessed?.timeSlots?.standard?.tracks) {
+    console.error("Standard tracks not available - cannot play any tracks");
+    return;
+  }
+  
   const tracks = state.preprocessed.timeSlots.standard.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "standard");
 
@@ -337,6 +356,12 @@ export function playStandardTrack() {
  */
 export function playJunkTrack() {
   const state = getApplicationState();
+  
+  if (!state.preprocessed?.junkContent) {
+    console.error("Junk content not available");
+    return;
+  }
+  
   const junkContent = state.preprocessed.junkContent;
 
   // Get current junk type from cycle
@@ -352,9 +377,11 @@ export function playJunkTrack() {
     // If we've cycled through all and still hit bumpers, pick a non-bumper type
     if (currentJunkType === "bumpers") {
       const nonBumperTypes =
-        state.preprocessed.optimizations.nonBumperJunkTypes;
-      currentJunkType =
-        nonBumperTypes[Math.floor(Math.random() * nonBumperTypes.length)];
+        state.preprocessed?.optimizations?.nonBumperJunkTypes;
+      if (nonBumperTypes && nonBumperTypes.length > 0) {
+        currentJunkType =
+          nonBumperTypes[Math.floor(Math.random() * nonBumperTypes.length)];
+      }
     }
   }
 

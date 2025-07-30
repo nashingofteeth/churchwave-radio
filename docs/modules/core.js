@@ -19,11 +19,16 @@ export async function loadApplicationData() {
   try {
     // Get configuration
     const appState = getApplicationState();
-    if (!appState.config) {
+    if (!appState || !appState.config) {
       throw new Error("Configuration not found in application state");
     }
     
     const configurationData = appState.config;
+    
+    // Validate required configuration properties
+    if (!configurationData.mediaPath) {
+      throw new Error("Media path not configured");
+    }
 
     // Load track database using media path
     const tracksPath = `${configurationData.mediaPath}/tracks.json`;
@@ -35,6 +40,11 @@ export async function loadApplicationData() {
     }
     const trackData = await tracksResponse.json();
 
+    // Validate track data structure
+    if (!trackData || typeof trackData !== 'object') {
+      throw new Error("Invalid track data format");
+    }
+    
     if (!trackData.preprocessed) {
       throw new Error("Track data missing required preprocessed information");
     }

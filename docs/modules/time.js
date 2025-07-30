@@ -34,7 +34,12 @@ export function getAlgorithmicTimeSlot(currentHour) {
   }
 
   // Use pre-computed hour-to-timeslot mapping for instant lookup
-  const hourToTimeSlot = state.preprocessed.timeSlots.hourToTimeSlot;
+  const hourToTimeSlot = state.preprocessed?.timeSlots?.hourToTimeSlot;
+  if (!hourToTimeSlot) {
+    console.warn("Hour to timeslot mapping not available, defaulting to standard");
+    return "standard";
+  }
+  
   return hourToTimeSlot[currentHour] || "standard";
 }
 
