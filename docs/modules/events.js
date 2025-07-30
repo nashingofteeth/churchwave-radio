@@ -47,9 +47,23 @@ export function initializeUIEventListeners() {
 
   state.startButton.addEventListener("click", startButtonHandler);
 
+  // Pause/Play button functionality
+  const pausePlayHandler = () => {
+    if (state.theTransmitter.paused) {
+      state.theTransmitter.play();
+    } else {
+      state.theTransmitter.pause();
+    }
+  };
+
+  state.pausePlayButton.addEventListener("click", pausePlayHandler);
+
   // These UI indicator listeners are permanent
   state.theTransmitter.addEventListener("pause", () => {
     state.playingIndicator.classList.remove("playing");
+    if (state.pausePlayButton) {
+      state.pausePlayButton.innerHTML = "&#x25B6; PLAY";
+    }
   });
   state.theTransmitter.addEventListener("waiting", () => {
     state.playingIndicator.classList.remove("playing");
@@ -59,6 +73,9 @@ export function initializeUIEventListeners() {
   });
   state.theTransmitter.addEventListener("playing", () => {
     state.playingIndicator.classList.add("playing");
+    if (state.pausePlayButton) {
+      state.pausePlayButton.innerHTML = "&#x23F8; PAUSE";
+    }
   });
 }
 

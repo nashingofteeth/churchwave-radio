@@ -16,6 +16,7 @@ export const applicationState = {
   startButton: null,
   loadingIndicator: null,
   playingIndicator: null,
+  pausePlayButton: null,
 
   // Preprocessed track data
   preprocessed: null,
@@ -71,6 +72,7 @@ export function initializeDOMElements() {
     document.getElementById("loadingIndicator");
   applicationState.playingIndicator =
     document.getElementById("playingIndicator");
+  applicationState.pausePlayButton = document.getElementById("pausePlayButton");
 }
 
 /**

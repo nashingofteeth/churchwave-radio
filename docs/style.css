@@ -27,6 +27,10 @@ a {
 #seekButton {
     width: 100%;
 }
+#pausePlayButton {
+    margin: 15px 0;
+    width: 100%;
+}
 #revealed {
     display: none;
     width: 320px;
