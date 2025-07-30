@@ -135,11 +135,8 @@ export function getConfiguredTime(date = null) {
   const state = getApplicationState();
   const sourceTime = date || new Date();
 
-  if (state.config.timezone) {
-    const localTime = sourceTime.toLocaleString("en-US", {
-      timeZone: state.config.timezone,
-    });
-    return new Date(localTime);
+  if (state.timezoneOffset !== null) {
+    return new Date(sourceTime.getTime() + state.timezoneOffset);
   } else {
     return new Date(sourceTime);
   }

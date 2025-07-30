@@ -20,6 +20,7 @@ export const applicationState = {
   // Preprocessed track data
   preprocessed: null,
   config: null,
+  timezoneOffset: null,
 
   // Usage tracking
   usedScheduledFiles: {},
@@ -257,6 +258,21 @@ export function initializeApplicationState() {
     });
   } else {
     console.warn("Playback settings not found");
+  }
+
+  // Calculate and cache timezone offset for performance
+  if (config?.timezone && !state.timezoneOffset) {
+    try {
+      const testDate = new Date();
+      const localTime = testDate.toLocaleString("en-US", {
+        timeZone: config.timezone,
+      });
+      const timezoneOffset = new Date(localTime).getTime() - testDate.getTime();
+      updateApplicationState({ timezoneOffset });
+    } catch (error) {
+      console.warn("Invalid timezone configuration, using local time");
+      updateApplicationState({ timezoneOffset: 0 });
+    }
   }
 
   // Initialize usedAlgorithmicTracks structure from preprocessed data

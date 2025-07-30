@@ -241,23 +241,32 @@ export function scheduleTracksForHour(hour) {
 
   // Apply hierarchy and sort by time
   const prioritizedTracks = selectTracksWithHierarchy(filteredTracks);
-  prioritizedTracks.sort((a, b) => {
-    const timeA = getScheduledTrackTime(a);
-    const timeB = getScheduledTrackTime(b);
-    return timeA - timeB;
-  });
+
+  // Cache scheduled times to avoid redundant calculations
+  const tracksWithTimes = prioritizedTracks.map((track) => ({
+    track,
+    scheduledTime: getScheduledTrackTime(track),
+  }));
+
+  tracksWithTimes.sort((a, b) => a.scheduledTime - b.scheduledTime);
+  const sortedTracks = tracksWithTimes.map((item) => item.track);
 
   // Schedule individual tracks
-  scheduleTracks(prioritizedTracks);
+  scheduleTracks(sortedTracks);
 
-  console.log(`Scheduled ${prioritizedTracks.length} tracks for hour ${hour}`);
+  console.log(`Scheduled ${sortedTracks.length} tracks for hour ${hour}`);
 }
 
 export function selectTracksWithHierarchy(tracks) {
   // Group tracks by start time to handle overlaps
   const timeGroups = {};
+  const trackTimeCache = new Map();
+
   tracks.forEach((track) => {
-    const time = getScheduledTrackTime(track).getTime();
+    const scheduledTime = getScheduledTrackTime(track);
+    trackTimeCache.set(track, scheduledTime);
+
+    const time = scheduledTime.getTime();
     if (!timeGroups[time]) timeGroups[time] = [];
     timeGroups[time].push(track);
   });
@@ -265,7 +274,7 @@ export function selectTracksWithHierarchy(tracks) {
   // Select one track per time slot using hierarchy
   return Object.values(timeGroups)
     .map((group) => {
-      const scheduledTime = getScheduledTrackTime(group[0]);
+      const scheduledTime = trackTimeCache.get(group[0]);
       const scheduledHour = scheduledTime.getHours();
       return selectTrackByHierarchy(group, scheduledHour);
     })
@@ -405,35 +414,44 @@ function scheduleTracksOpportunistic(tracks) {
 
 export function checkAndSetPrescheduleJunkState() {
   const state = getApplicationState();
-  const now = getCurrentTime();
 
-  // Use the first entry in upcomingScheduled ledger (already sorted by time)
+  // Early return if no scheduled tracks
   if (state.upcomingScheduled.length === 0) return;
 
-  // Check if we're in morning hours - skip prescheduled junk during this time
+  const now = getCurrentTime();
   const currentHour = now.getHours();
+
+  // Check if we're in morning hours - skip prescheduled junk during this time
   const morningHours = state.preprocessed?.timeSlots?.morningHours;
   if (morningHours && morningHours.includes(currentHour)) {
     return;
   }
 
   const nextTrackTime = state.upcomingScheduled[0].scheduledTime;
-  const timeUntilTrack = nextTrackTime - now;
-  const minutesUntilTrack = timeUntilTrack / (60 * 1000);
+  const minutesUntilTrack = (nextTrackTime - now) / 60000;
 
-  if (minutesUntilTrack <= 15 && minutesUntilTrack > 5) {
-    console.log(
-      `Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
-    );
-    updateApplicationState({ preScheduledJunkOnly: true });
-  } else if (minutesUntilTrack <= 5 && minutesUntilTrack > 0) {
-    console.log(
-      `Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
-    );
-    updateApplicationState({
-      preScheduledJunkOnly: true,
-      preScheduledNonBumperJunkOnly: true,
-    });
+  // Early return if outside preschedule range
+  if (minutesUntilTrack > 15 || minutesUntilTrack <= 0) return;
+
+  if (minutesUntilTrack > 5) {
+    // 15-minute range
+    if (!state.preScheduledJunkOnly) {
+      console.log(
+        `Currently in 15-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
+      );
+      updateApplicationState({ preScheduledJunkOnly: true });
+    }
+  } else {
+    // 5-minute range
+    if (!state.preScheduledNonBumperJunkOnly) {
+      console.log(
+        `Currently in 5-minute preschedule range (${minutesUntilTrack.toFixed(1)} minutes until scheduled track)`,
+      );
+      updateApplicationState({
+        preScheduledJunkOnly: true,
+        preScheduledNonBumperJunkOnly: true,
+      });
+    }
   }
 }
 

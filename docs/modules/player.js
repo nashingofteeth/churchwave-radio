@@ -183,7 +183,8 @@ function selectAndPlayAlgorithmicTrack(
     callback: () => {
       // Check for preschedule junk state if in opportunistic mode
       const state = getApplicationState();
-      const isOpportunisticMode = state.capabilities?.opportunisticMode === true;
+      const isOpportunisticMode =
+        state.capabilities?.opportunisticMode === true;
       if (isOpportunisticMode) {
         checkAndSetPrescheduleJunkState();
       }
@@ -236,15 +237,16 @@ function checkForOpportunisticScheduledTrack() {
 
   const now = getCurrentTime();
 
-  // Find any scheduled tracks that have passed their scheduled time
-  const readyTracks = state.upcomingScheduled.filter((entry) => {
-    return entry.scheduledTime <= now;
-  });
+  // Find the first (earliest) ready track
+  for (const entry of state.upcomingScheduled) {
+    if (entry.scheduledTime <= now) {
+      return entry;
+    }
+    // Since array is sorted, we can break early when we hit future times
+    break;
+  }
 
-  if (readyTracks.length === 0) return null;
-
-  // Return the earliest scheduled track
-  return readyTracks.sort((a, b) => a.scheduledTime - b.scheduledTime)[0];
+  return null;
 }
 
 /**
@@ -279,12 +281,12 @@ function playOpportunisticScheduledTrack(scheduledEntry) {
  */
 export function playLateNightLoFi() {
   const state = getApplicationState();
-  
+
   if (!state.preprocessed?.timeSlots?.lateNightLoFis?.tracks) {
     console.error("Late night tracks not available, falling back to standard");
     return playStandardTrack();
   }
-  
+
   const tracks = state.preprocessed.timeSlots.lateNightLoFis.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(
     tracks,
@@ -314,7 +316,9 @@ export function playMorningTrack() {
   }
 
   if (!state.preprocessed?.timeSlots?.morning?.genres?.[genre]?.tracks) {
-    console.error(`Morning tracks not available for genre: ${genre}, falling back to standard`);
+    console.error(
+      `Morning tracks not available for genre: ${genre}, falling back to standard`,
+    );
     return playStandardTrack();
   }
 
@@ -334,12 +338,12 @@ export function playMorningTrack() {
  */
 export function playStandardTrack() {
   const state = getApplicationState();
-  
+
   if (!state.preprocessed?.timeSlots?.standard?.tracks) {
     console.error("Standard tracks not available - cannot play any tracks");
     return;
   }
-  
+
   const tracks = state.preprocessed.timeSlots.standard.tracks;
   const availableTracks = getAvailableAlgorithmicTracks(tracks, "standard");
 
@@ -356,12 +360,12 @@ export function playStandardTrack() {
  */
 export function playJunkTrack() {
   const state = getApplicationState();
-  
+
   if (!state.preprocessed?.junkContent) {
     console.error("Junk content not available");
     return;
   }
-  
+
   const junkContent = state.preprocessed.junkContent;
 
   // Get current junk type from cycle
