@@ -303,29 +303,40 @@ function scheduleTracksPrecise(tracks) {
     // Add to upcoming scheduled ledger
     newUpcomingScheduled.push({ track, scheduledTime: startTime });
 
+    // Check if this track is scheduled during morning hours
+    const scheduledHour = startTime.getHours();
+    const morningHours = state.preprocessed?.timeSlots?.morningHours;
+    const isDuringMorningHours =
+      morningHours && morningHours.includes(scheduledHour);
+
     const timeUntilStart = startTime - now;
     const timeUntilFade = timeUntilStart - state.fadeOutDuration;
     const timeUntil15Min = timeUntilStart - 15 * 60 * 1000; // 15 minutes before
     const timeUntil5Min = timeUntilStart - 5 * 60 * 1000; // 5 minutes before
 
-    // Schedule 15-minute warning
-    if (timeUntil15Min > 0) {
-      const warning15Timeout = setTimeout(() => {
-        console.log("15-minute warning: switching to junk-only mode");
-        updateApplicationState({ preScheduledJunkOnly: true });
-      }, timeUntil15Min);
+    // Skip warning timeouts for tracks scheduled during morning hours
+    if (!isDuringMorningHours) {
+      // Schedule 15-minute warning
+      if (timeUntil15Min > 0) {
+        const warning15Timeout = setTimeout(() => {
+          console.log("15-minute warning: switching to junk-only mode");
+          updateApplicationState({ preScheduledJunkOnly: true });
+        }, timeUntil15Min);
 
-      newTimeouts.push(warning15Timeout);
-    }
+        newTimeouts.push(warning15Timeout);
+      }
 
-    // Schedule 5-minute warning
-    if (timeUntil5Min > 0) {
-      const warning5Timeout = setTimeout(() => {
-        console.log("5-minute warning: switching to non-bumper junk-only mode");
-        updateApplicationState({ preScheduledNonBumperJunkOnly: true });
-      }, timeUntil5Min);
+      // Schedule 5-minute warning
+      if (timeUntil5Min > 0) {
+        const warning5Timeout = setTimeout(() => {
+          console.log(
+            "5-minute warning: switching to non-bumper junk-only mode",
+          );
+          updateApplicationState({ preScheduledNonBumperJunkOnly: true });
+        }, timeUntil5Min);
 
-      newTimeouts.push(warning5Timeout);
+        newTimeouts.push(warning5Timeout);
+      }
     }
 
     // Schedule fade
@@ -402,6 +413,13 @@ export function checkAndSetPrescheduleJunkState() {
 
   // Use the first entry in upcomingScheduled ledger (already sorted by time)
   if (state.upcomingScheduled.length === 0) return;
+
+  // Check if we're in morning hours - skip prescheduled junk during this time
+  const currentHour = now.getHours();
+  const morningHours = state.preprocessed?.timeSlots?.morningHours;
+  if (morningHours && morningHours.includes(currentHour)) {
+    return;
+  }
 
   const nextTrackTime = state.upcomingScheduled[0].scheduledTime;
   const timeUntilTrack = nextTrackTime - now;

@@ -63,6 +63,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - **Scheduled Programming**: Exact-time scheduled content with daily/weekly/date-specific options
 - **Genre Support**: Multiple Christian music genres (country, rock, praise & worship)
 - **Station Elements**: Multiple ad sets, scripture readings, bumpers, interludes
+- **Morning Hour Protection**: Pre-scheduled junk cycles disabled during morning hours (05:00-08:00) to maintain genre consistency
 - **Time Simulation**: Debug feature to test different broadcast times
 - **Duration Scanning**: FFmpeg integration for audio file analysis
 - **Remote Media Support**: Configurable local/remote media base paths

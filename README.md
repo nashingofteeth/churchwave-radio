@@ -183,7 +183,7 @@ The radio operates in **algorithmic mode** by default, selecting content based o
 - **Late Night (00:00-05:00)**: Ambient/lo-fi tracks from `late-nite-lo-fis/`
 - **Morning (05:00-08:00)**: Genre-specific music from `morning/genre-*/` folders
 - **Standard (08:00-23:59)**: General rotation from `standard/` folder
-- **Junk Content**: Station elements mixed throughout all time periods
+- **Junk Content**: Station elements mixed throughout all time periods (except during morning pre-scheduled periods)
 
 #### Morning Genre Selection
 Each morning (4:00 AM), the system randomly assigns genres to morning hours:
@@ -205,6 +205,7 @@ Before scheduled content plays, the system switches to "junk-only" mode:
 - **15 minutes before**: Only junk content (ads, scripture, bumpers, interludes)
 - **5 minutes before**: Only non-bumper junk (no station IDs that might conflict)
 - **At scheduled time**: Fades current track and plays scheduled content
+- **Morning hours exception**: During morning time (05:00-08:00), pre-scheduled junk cycles are disabled to maintain genre consistency
 
 #### Schedule Priority Hierarchy
 When multiple items are scheduled for the same time:

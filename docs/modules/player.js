@@ -131,6 +131,13 @@ function filterTracksByDuration(tracks, fallbackAction) {
     return tracks;
   }
 
+  // Skip duration checking during morning hours to maintain genre consistency
+  const currentHour = getCurrentTime().getHours();
+  const morningHours = state.preprocessed?.timeSlots?.morningHours;
+  if (morningHours && morningHours.includes(currentHour)) {
+    return tracks;
+  }
+
   const durationsCheckedTracks = tracks.filter((track) =>
     trackWillFinishBeforeScheduled(track.duration),
   );
