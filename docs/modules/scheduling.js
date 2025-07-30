@@ -564,22 +564,20 @@ export function clearAllScheduledTimeouts() {
 export function enterScheduledMode(track) {
   const state = getApplicationState();
 
-  // Don't start a new scheduled track if we're already playing one
   if (state.isInScheduledMode) {
     console.log("Already in scheduled mode, skipping scheduled track");
-
     return;
   }
-
-  updateApplicationState({
-    preScheduledJunkOnly: false,
-    preScheduledNonBumperJunkOnly: false,
-  });
 
   if (state.theTransmitter.paused && !state.isFirstTrack) {
     console.log("Player paused, skipping scheduled track");
 
     removeFromUpcomingScheduled(track.trackKey);
+
+    updateApplicationState({
+      preScheduledJunkOnly: false,
+      preScheduledNonBumperJunkOnly: false,
+    });
 
     return;
   }
@@ -595,6 +593,12 @@ export function enterScheduledMode(track) {
     );
 
     removeFromUpcomingScheduled(track.trackKey);
+
+    updateApplicationState({
+      preScheduledJunkOnly: false,
+      preScheduledNonBumperJunkOnly: false,
+    });
+
     returnToAlgorithmicPlayback();
     return;
   }
@@ -603,6 +607,8 @@ export function enterScheduledMode(track) {
 
   updateApplicationState({
     isInScheduledMode: true,
+    preScheduledJunkOnly: false,
+    preScheduledNonBumperJunkOnly: false,
   });
 
   markScheduledFileUsed(track.trackKey, now);
