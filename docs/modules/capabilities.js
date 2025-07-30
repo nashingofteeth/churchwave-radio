@@ -297,8 +297,6 @@ function migratePendingScheduledTracks() {
 
     updateApplicationState({
       scheduledTimeouts: [],
-      preScheduledJunkOnly: false,
-      preScheduledNonBumperJunkOnly: false,
     });
 
     const trackCount = state.upcomingScheduled.length;
