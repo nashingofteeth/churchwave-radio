@@ -4,6 +4,7 @@
  */
 
 import { shuffleJunkCycleOrder } from "./scheduling.js";
+import { getCurrentTime } from "./time.js";
 
 /**
  * Global application state object
@@ -132,15 +133,32 @@ export function clearStateArray(arrayPath) {
 }
 
 /**
- * Clear all used algorithmic track markers across all categories
- * Resets the "used" status for all algorithmic tracks
+ * Clear old used standard tracks (24-hour cycle) and reset other categories hourly
  */
 export function clearUsedAlgorithmicTracks() {
-  const resetUsageTracking = {};
-  for (const category in applicationState.usedAlgorithmicTracks) {
-    resetUsageTracking[category] = {};
+  const now = getCurrentTime();
+  const twentyFourHoursAgo = now.getTime() - 24 * 60 * 60 * 1000;
+  
+  const cleanedUsedAlgorithmicTracks = { ...applicationState.usedAlgorithmicTracks };
+  
+  for (const category in cleanedUsedAlgorithmicTracks) {
+    if (category === 'standard') {
+      // Standard tracks use 24-hour cycle
+      const cleanedStandardTracks = {};
+      Object.keys(cleanedUsedAlgorithmicTracks[category]).forEach((trackKey) => {
+        const usedTimestamp = cleanedUsedAlgorithmicTracks[category][trackKey];
+        if (usedTimestamp && usedTimestamp.getTime && usedTimestamp.getTime() >= twentyFourHoursAgo) {
+          cleanedStandardTracks[trackKey] = usedTimestamp;
+        }
+      });
+      cleanedUsedAlgorithmicTracks[category] = cleanedStandardTracks;
+    } else {
+      // Late night and morning tracks clear hourly
+      cleanedUsedAlgorithmicTracks[category] = {};
+    }
   }
-  updateApplicationState({ usedAlgorithmicTracks: resetUsageTracking });
+  
+  updateApplicationState({ usedAlgorithmicTracks: cleanedUsedAlgorithmicTracks });
 }
 
 /**
@@ -182,7 +200,12 @@ export function markAlgorithmicTrackUsed(category, trackKey) {
   if (!applicationState.usedAlgorithmicTracks[category]) {
     applicationState.usedAlgorithmicTracks[category] = {};
   }
-  applicationState.usedAlgorithmicTracks[category][trackKey] = true;
+  // Store timestamp for standard tracks, boolean for others
+  if (category === 'standard') {
+    applicationState.usedAlgorithmicTracks[category][trackKey] = getCurrentTime();
+  } else {
+    applicationState.usedAlgorithmicTracks[category][trackKey] = true;
+  }
 }
 
 /**
