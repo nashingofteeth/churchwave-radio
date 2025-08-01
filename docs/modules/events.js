@@ -8,6 +8,7 @@ import {
   clearStateArray,
   getApplicationState,
 } from "./state.js";
+import { updateCurrentlyPlayingIndicator } from "./indicator.js";
 
 /**
  * Initialize UI event listeners for the start button and audio indicators
@@ -70,6 +71,7 @@ export function initializeUIEventListeners() {
   });
   state.theTransmitter.addEventListener("ended", () => {
     state.playingIndicator.classList.remove("playing");
+    updateCurrentlyPlayingIndicator();
   });
   state.theTransmitter.addEventListener("playing", () => {
     state.playingIndicator.classList.add("playing");

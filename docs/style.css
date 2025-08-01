@@ -35,10 +35,14 @@ a {
     display: none;
     width: 320px;
 }
-#prayer {
-    font-size: 12px;
-    margin-bottom: 25px;
-    text-align: justify;
+#currentlyPlaying {
+    font-size: 14px;
+    margin: 15px 0;
+    color: #ffff00;
+    text-align: center;
+    font-style: italic;
+    text-shadow: 0 0 5px #ffff00;
+    letter-spacing: 2px;
 }
 .marquee {
     position: fixed;

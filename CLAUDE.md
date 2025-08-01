@@ -28,6 +28,8 @@ JavaScript-based radio station automation system for church/Christian radio broa
   - `events.js` - UI event handlers
   - `time.js` - Time simulation and utilities
   - `capabilities.js` - Feature detection and browser compatibility
+  - `indicator.js` - Currently playing atmospheric text indicator
+  - `messages.js` - Atmospheric message content for the indicator
 
 ### Backend (Root Directory)
 - `app.js` - Media processing and track database generation (renamed from `load-tracks.js`)
@@ -64,6 +66,7 @@ JavaScript-based radio station automation system for church/Christian radio broa
 - **Genre Support**: Multiple Christian music genres (country, rock, praise & worship)
 - **Station Elements**: Multiple ad sets, scripture readings, bumpers, interludes
 - **Morning Hour Protection**: Pre-scheduled junk cycles disabled during morning hours (05:00-08:00) to maintain genre consistency
+- **Currently Playing Indicator**: Dynamic atmospheric text display that updates with each track change
 - **Time Simulation**: Debug feature to test different broadcast times
 - **Duration Scanning**: FFmpeg integration for audio file analysis
 - **Remote Media Support**: Configurable local/remote media base paths

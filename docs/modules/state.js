@@ -17,6 +17,7 @@ export const applicationState = {
   loadingIndicator: null,
   playingIndicator: null,
   pausePlayButton: null,
+  currentlyPlayingText: null,
 
   // Preprocessed track data
   preprocessed: null,
@@ -59,6 +60,9 @@ export const applicationState = {
 
   // Browser capabilities
   capabilities: {},
+
+  // Currently playing indicator state
+  currentMessageIndex: 0,
 };
 
 /**
@@ -73,6 +77,8 @@ export function initializeDOMElements() {
   applicationState.playingIndicator =
     document.getElementById("playingIndicator");
   applicationState.pausePlayButton = document.getElementById("pausePlayButton");
+  applicationState.currentlyPlayingText =
+    document.getElementById("currentlyPlayingText");
 }
 
 /**

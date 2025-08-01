@@ -10,6 +10,7 @@ import {
   startScheduledSystem,
 } from "./scheduling.js";
 import { getApplicationState, initializeApplicationState, updateApplicationState } from "./state.js";
+import { updateCurrentlyPlayingIndicator } from "./indicator.js";
 
 /**
  * Load track data
@@ -81,6 +82,7 @@ export async function initializePlayback() {
   }
 
   initializeApplicationState();
+  updateCurrentlyPlayingIndicator();
   startScheduledSystem();
   beginPlayback();
 
