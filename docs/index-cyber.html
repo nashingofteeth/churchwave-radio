@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Join Churchwave Radio and tune in to the Truth! This urgent Message simply cannot wait.">
+        <title>Churchwave Radio - CYBER TRANSMISSION</title>
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="preload" href="satellite.gif" as="image" />
+        <link rel="stylesheet" href="style-cyber.css" />
+    </head>
+    <body>
+        <!-- Digital rain effect -->
+        <div id="matrix-rain"></div>
+        
+        <!-- Neon grid overlay -->
+        <div class="neon-grid"></div>
+        
+        <!-- Scrolling system messages -->
+        <div class="cyber-ticker top">
+            <div class="ticker-content">
+                >>> INITIATING DIVINE UPLINK... >>> ESTABLISHING HOLY CONNECTION... >>> FREQUENCY LOCKED... >>> DIVINE SIGNAL ACQUIRED... >>> BROADCASTING TRUTH WAVES... >>>
+            </div>
+        </div>
+        
+        <div class="cyber-ticker bottom">
+            <div class="ticker-content">
+                <<< SACRED TRANSMISSION ACTIVE <<< CELESTIAL DATA STREAM <<< HOLY BANDWIDTH OPTIMIZED <<< SPIRITUAL PACKETS FLOWING <<< DIVINE PROTOCOL ENGAGED <<<
+            </div>
+        </div>
+
+        <div class="marquee" id="topMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+        <div class="marquee" id="bottomMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+
+        <!-- Floating cyber elements -->
+        <div class="floating-element hex1">⬢</div>
+        <div class="floating-element hex2">⬣</div>
+        <div class="floating-element binary1">01101000</div>
+        <div class="floating-element binary2">11001010</div>
+        <div class="floating-element circuit1">◊━━◊</div>
+        <div class="floating-element circuit2">◊━◊━◊</div>
+
+        <main>
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <span class="terminal-title">CHURCHWAVE.RADIO.EXE</span>
+                    <div class="terminal-controls">
+                        <span class="control minimize">_</span>
+                        <span class="control maximize">□</span>
+                        <span class="control close">×</span>
+                    </div>
+                </div>
+                
+                <div class="scanlines"></div>
+                
+                <button id="startButton">
+                    [CONNECT] ◈ TUNE IN TO THE TRUTH ◈ [CONNECT]
+                </button>
+
+                <div id="loadingIndicator" style="display: none;">
+                    ⧗ ESTABLISHING SECURE CONNECTION... ⧗
+                </div>
+
+                <div id="revealed">
+                    <div class="status-bar">
+                        <span class="status-item">SIGNAL: ████████░░ 80%</span>
+                        <span class="status-item">UPTIME: ∞</span>
+                        <span class="status-item">STATUS: ONLINE</span>
+                    </div>
+                    
+                    <div id="playingIndicator">
+                        <div class="musicNotes">
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.1s"></span>
+                            <span class="musicNote eighth"></span>
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.5s"></span>
+                            <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.3s"></span>
+                            <span class="musicNote eighth" style="animation-delay: 0.6s"></span>
+                        </div>
+                        <img
+                            id="satelliteImage"
+                            class="pulsing"
+                            src="satellite.gif"
+                            alt="Broadcasting the truth"
+                            width="100%"
+                        />
+                        <div class="musicNotes">
+                            <span class="musicNote eighth" style="animation-delay: 0.5s"></span>
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.1s"></span>
+                            <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.3s"></span>
+                            <span class="musicNote eighth"></span>
+                            <span class="musicNote beamedEighth" style="animation-delay: 0.6s"></span>
+                        </div>
+                    </div>
+
+                    <audio id="theTransmitter"></audio>
+
+                    <div id="currentlyPlaying">
+                        <span id="currentlyPlayingText">>>> BROADCASTING DIVINE FREQUENCIES...</span>
+                    </div>
+
+                    <button id="pausePlayButton">
+                        [PAUSE] ◈◈ TRANSMISSION ◈◈ [PAUSE]
+                    </button>
+
+                    <p class="ministry-link">
+                        ◈ <a href="home">ACCESS MINISTRY DATABASE</a> ◈
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <script type="module">
+            import { initialize } from './modules/app.js';
+
+            // Create matrix rain effect
+            function createMatrixRain() {
+                const container = document.getElementById('matrix-rain');
+                const chars = '01†☩✝⟡◊◈⬢⬣';
+                
+                for (let i = 0; i < 50; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'matrix-drop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.animationDelay = Math.random() * 5 + 's';
+                    drop.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    drop.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    container.appendChild(drop);
+                }
+            }
+
+            // Initialize the application when DOM is loaded
+            document.addEventListener("DOMContentLoaded", () => {
+                createMatrixRain();
+                initialize();
+            });
+        </script>
+        <script data-goatcounter="https://2-evila.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    </body>
+</html>

@@ -1,0 +1,551 @@
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Arial&family=Courier+New&display=swap');
+
+body {
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: "Times New Roman", serif;
+    margin: 0;
+    overflow-x: auto;
+    position: relative;
+}
+
+/* Tiled background pattern */
+.tile-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 0, 0, 0.1) 10px, rgba(255, 0, 0, 0.1) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0, 0, 255, 0.1) 10px, rgba(0, 0, 255, 0.1) 20px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Construction workers floating around */
+.construction-worker {
+    position: fixed;
+    font-size: 30px;
+    z-index: 10;
+    pointer-events: none;
+    animation: constructionFloat 8s ease-in-out infinite;
+    transition: all 2s ease;
+}
+
+.worker1 { top: 20%; left: 10%; animation-delay: 0s; }
+.worker2 { top: 60%; right: 15%; animation-delay: 2s; }
+.worker3 { top: 80%; left: 20%; animation-delay: 4s; }
+.worker4 { top: 30%; right: 25%; animation-delay: 6s; }
+
+@keyframes constructionFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(10deg); }
+}
+
+/* Web ring banner */
+.webring-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background: linear-gradient(90deg, #FF0000, #00FF00, #0000FF, #FFFF00, #FF00FF);
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid #000000;
+}
+
+.banner-content {
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 12px;
+    text-shadow: 2px 2px 0px #000000;
+    animation: bannerScroll 15s linear infinite;
+}
+
+@keyframes bannerScroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Under construction GIF */
+.construction-gif {
+    position: fixed;
+    top: 30px;
+    right: 10px;
+    z-index: 12;
+    background: #FFFF00;
+    border: 3px solid #FF0000;
+    padding: 5px;
+    animation: constructionBlink 1s infinite;
+}
+
+.gif-placeholder {
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 12px;
+    animation: textBlink 0.5s infinite;
+}
+
+@keyframes constructionBlink {
+    0%, 50% { background: #FFFF00; }
+    51%, 100% { background: #FF0000; }
+}
+
+@keyframes textBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Blinking text elements */
+.blink-text {
+    position: fixed;
+    font-weight: bold;
+    font-size: 18px;
+    z-index: 11;
+    animation: blink 1s infinite;
+    background: #FFFF00;
+    border: 2px solid #FF0000;
+    padding: 5px;
+    color: #FF0000;
+}
+
+.top-left { top: 50px; left: 10px; }
+.top-right { top: 50px; right: 10px; }
+.bottom-left { bottom: 50px; left: 10px; }
+.bottom-right { bottom: 50px; right: 10px; }
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+main {
+    padding: 50px 20px 20px 20px;
+    position: relative;
+    z-index: 5;
+    min-height: 100vh;
+}
+
+.geocities-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border: 5px solid #000000;
+    padding: 20px;
+}
+
+/* Header with mixed fonts */
+.geocities-header {
+    text-align: center;
+    margin: 20px 0;
+    animation: headerRainbow 3s linear infinite;
+}
+
+@keyframes headerRainbow {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+/* Last updated section */
+.last-updated {
+    text-align: center;
+    background: #FFFF99;
+    border: 2px dashed #FF0000;
+    padding: 10px;
+    margin: 20px 0;
+    font-size: 14px;
+    animation: lastUpdatedBlink 2s infinite;
+}
+
+@keyframes lastUpdatedBlink {
+    0%, 80% { background: #FFFF99; }
+    81%, 100% { background: #FF99FF; }
+}
+
+/* Main content table styling */
+table {
+    font-family: Arial, sans-serif;
+    border-collapse: separate;
+    border-spacing: 2px;
+}
+
+td {
+    vertical-align: top;
+}
+
+/* Construction notice */
+.construction-notice {
+    background: #FFCCCC;
+    border: 3px solid #FF0000;
+    padding: 15px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+/* GeoCities button style */
+.geocities-button {
+    background: linear-gradient(45deg, #FF0000, #FF6666);
+    border: 4px outset #FF0000;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 15px 20px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 4px 4px 8px #666666;
+    margin: 15px 0;
+    width: 90%;
+    animation: buttonFlash 2s infinite;
+}
+
+.geocities-button:hover {
+    background: linear-gradient(45deg, #FF6666, #FF0000);
+}
+
+@keyframes buttonFlash {
+    0%, 80% { box-shadow: 4px 4px 8px #666666; }
+    81%, 100% { box-shadow: 4px 4px 8px #FF0000; }
+}
+
+/* Loading bars */
+.loading-geocities {
+    text-align: center;
+    margin: 20px 0;
+    background: #CCCCFF;
+    border: 2px solid #0000FF;
+    padding: 15px;
+}
+
+.loading-bars {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+    gap: 3px;
+}
+
+.bar {
+    color: #0000FF;
+    font-size: 20px;
+    font-weight: bold;
+    animation: barBlink 0.8s infinite;
+}
+
+.bar1 { animation-delay: 0s; }
+.bar2 { animation-delay: 0.1s; }
+.bar3 { animation-delay: 0.2s; }
+.bar4 { animation-delay: 0.3s; }
+.bar5 { animation-delay: 0.4s; }
+.bar6 { animation-delay: 0.5s; }
+.bar7 { animation-delay: 0.6s; }
+.bar8 { animation-delay: 0.7s; }
+
+@keyframes barBlink {
+    0%, 50% { opacity: 1; color: #0000FF; }
+    51%, 100% { opacity: 0.3; color: #CCCCCC; }
+}
+
+/* Now playing table */
+.now-playing-table {
+    margin: 20px 0;
+}
+
+.track-display {
+    margin: 15px 0;
+    animation: trackBlink 1.5s infinite;
+}
+
+@keyframes trackBlink {
+    0%, 70% { background: transparent; }
+    71%, 100% { background: rgba(255, 255, 0, 0.3); }
+}
+
+/* Control button */
+.control-btn-geocities {
+    background: linear-gradient(45deg, #0000FF, #6666FF);
+    border: 4px outset #0000FF;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin: 15px 0;
+    width: 80%;
+    box-shadow: 3px 3px 6px #333333;
+}
+
+.control-btn-geocities:hover {
+    background: linear-gradient(45deg, #6666FF, #0000FF);
+}
+
+/* What's new section */
+.whats-new {
+    background: #CCFFCC;
+    border: 2px solid #00AA00;
+    padding: 10px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.whats-new p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+/* Awards section */
+.awards-geocities {
+    background: #FFFFCC;
+    border: 2px dashed #FFAA00;
+    padding: 10px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+/* Ministry info */
+.ministry-info {
+    margin: 20px 0;
+}
+
+/* Bottom decorations */
+.bottom-links {
+    margin: 20px 0;
+}
+
+.bottom-links a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.bottom-links a:hover {
+    text-decoration: underline;
+}
+
+/* Links styling */
+a {
+    color: #0000FF;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #800080;
+}
+
+a:hover {
+    color: #FF0000;
+    background: #FFFF00;
+}
+
+#revealed {
+    display: none;
+}
+
+/* Marquee styling */
+.marquee {
+    position: fixed;
+    left: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    z-index: 8;
+    background: #000000;
+    border: 2px solid #FFFF00;
+}
+
+#topMarquee {
+    top: 25px;
+}
+
+#bottomMarquee {
+    bottom: 0;
+}
+
+.marqueeContent {
+    display: flex;
+    width: max-content;
+    animation: marquee 18s linear infinite;
+    color: #00FF00;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.marqueeItem {
+    padding-right: 150px;
+    white-space: nowrap;
+}
+
+.marqueeItem::after {
+    content: " ★ TUNE IN TO THE TRUTH ★ HIS MESSAGE IS CLEAR ★ OPEN YOUR MIND TO THE TRUTH ★ LET THE HOLY SPIRIT GUIDE YOU ★ YOUR JOURNEY BEGINS HERE ★";
+}
+
+@keyframes marquee {
+    from {
+        transform: translateX(0%);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.playing .pulsing {
+    animation: geocitiesPulse 3s infinite;
+}
+
+@keyframes geocitiesPulse {
+    0% {
+        border-color: #FF0000;
+        filter: brightness(1);
+    }
+    25% {
+        border-color: #00FF00;
+        filter: brightness(1.2);
+    }
+    50% {
+        border-color: #0000FF;
+        filter: brightness(1.4);
+    }
+    75% {
+        border-color: #FFFF00;
+        filter: brightness(1.2);
+    }
+    100% {
+        border-color: #FF0000;
+        filter: brightness(1);
+    }
+}
+
+.musicNotes {
+    margin-bottom: 5px;
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.musicNote {
+    display: inline-block;
+    color: #FF00FF;
+    animation: rotateNote 2s infinite;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.musicNote::after {
+    content: "♪";
+}
+
+.playing .musicNote {
+    animation: geocitiesPulseNote 1s infinite;
+}
+
+.playing .musicNote.eighth::after {
+    content: "♪";
+}
+
+.playing .musicNote.beamedEighth::after {
+    content: "♫";
+}
+
+@keyframes rotateNote {
+    0% {
+        transform: rotate(0deg);
+        color: #FF00FF;
+    }
+    25% {
+        color: #FF0000;
+    }
+    50% {
+        color: #00FF00;
+    }
+    75% {
+        color: #0000FF;
+    }
+    100% {
+        transform: rotate(360deg);
+        color: #FF00FF;
+    }
+}
+
+@keyframes geocitiesPulseNote {
+    0% {
+        transform: scale(1);
+        color: #FF00FF;
+    }
+    50% {
+        transform: scale(1.5);
+        color: #FFFF00;
+    }
+    100% {
+        transform: scale(1);
+        color: #FF00FF;
+    }
+}
+
+/* Font tags for authentic GeoCities look */
+font[color="red"] { color: #FF0000 !important; }
+font[color="blue"] { color: #0000FF !important; }
+font[color="green"] { color: #00AA00 !important; }
+font[color="purple"] { color: #800080 !important; }
+font[color="orange"] { color: #FF8000 !important; }
+font[color="darkblue"] { color: #000080 !important; }
+font[color="gold"] { color: #FFD700 !important; }
+font[color="silver"] { color: #C0C0C0 !important; }
+font[color="bronze"] { color: #CD7F32 !important; }
+font[color="white"] { color: #FFFFFF !important; }
+font[color="gray"] { color: #808080 !important; }
+
+font[size="1"] { font-size: 10px !important; }
+font[size="2"] { font-size: 12px !important; }
+font[size="3"] { font-size: 14px !important; }
+font[size="4"] { font-size: 16px !important; }
+font[size="5"] { font-size: 18px !important; }
+font[size="6"] { font-size: 20px !important; }
+font[size="7"] { font-size: 24px !important; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .geocities-container {
+        margin: 0 10px;
+        padding: 10px;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    .geocities-button {
+        font-size: 14px;
+        padding: 12px 15px;
+    }
+    
+    .construction-worker {
+        font-size: 20px;
+    }
+    
+    .blink-text {
+        font-size: 14px;
+        padding: 3px;
+    }
+}
+
+/* Additional GeoCities authenticity */
+hr[color="red"] { border-color: #FF0000; background-color: #FF0000; }
+hr[color="blue"] { border-color: #0000FF; background-color: #0000FF; }
+hr[color="green"] { border-color: #00AA00; background-color: #00AA00; }
+
+/* Make sure tables look authentic */
+table[border] {
+    border-style: outset;
+}
+
+td[bgcolor="#FFFF99"] { background-color: #FFFF99 !important; }
+td[bgcolor="#FF99FF"] { background-color: #FF99FF !important; }
+td[bgcolor="#99FF99"] { background-color: #99FF99 !important; }
+td[bgcolor="#99FFFF"] { background-color: #99FFFF !important; }
+td[bgcolor="#0099FF"] { background-color: #0099FF !important; }
+td[bgcolor="#FFCCFF"] { background-color: #FFCCFF !important; }
+td[bgcolor="#FF66CC"] { background-color: #FF66CC !important; }
+td[bgcolor="#CCCCCC"] { background-color: #CCCCCC !important; }

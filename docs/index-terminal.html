@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Join Churchwave Radio and tune in to the Truth! This urgent Message simply cannot wait.">
+        <title>CHURCHWAVE.RADIO - TERMINAL INTERFACE</title>
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="preload" href="satellite.gif" as="image" />
+        <link rel="stylesheet" href="style-terminal.css" />
+    </head>
+    <body>
+        <!-- Terminal background effect -->
+        <div id="terminal-bg"></div>
+        
+        <!-- System messages -->
+        <div class="system-msg top-left">
+            <div class="blinking-cursor">SYSTEM STATUS: ONLINE_</div>
+            <div>UPTIME: 999:59:59</div>
+            <div>USERS: 777</div>
+        </div>
+        
+        <div class="system-msg top-right">
+            <div>SECURITY: HOLY</div>
+            <div>ENCRYPTION: DIVINE</div>
+            <div class="blinking-cursor">SIGNAL: STRONG_</div>
+        </div>
+        
+        <div class="system-msg bottom-left">
+            <div>MEMORY: 144MB FREE</div>
+            <div>CPU: SANCTIFIED</div>
+            <div class="blinking-cursor">TASK: BROADCAST_</div>
+        </div>
+        
+        <div class="system-msg bottom-right">
+            <div class="blinking-cursor">LOG: STREAMING_</div>
+            <div>PORT: 7777</div>
+            <div>PROTO: HOLY/1.0</div>
+        </div>
+
+        <div class="marquee" id="topMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+        <div class="marquee" id="bottomMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+
+        <!-- ASCII art borders -->
+        <div class="ascii-border top">
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+        </div>
+        <div class="ascii-border bottom">
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+        </div>
+
+        <main>
+            <div class="terminal-console">
+                <div class="console-header">
+                    <span class="header-text">CHURCHWAVE RADIO BROADCAST SYSTEM v3.14159</span>
+                    <span class="timestamp" id="timestamp"></span>
+                </div>
+                
+                <div class="console-body">
+                    <div class="boot-sequence" id="bootSequence">
+                        <div>Initializing divine transmission protocols...</div>
+                        <div>Loading sacred frequency database...</div>
+                        <div>Establishing heavenly uplink...</div>
+                        <div>Calibrating spiritual bandwidth...</div>
+                        <div>Testing holy audio codecs...</div>
+                        <div>Synchronizing with celestial time...</div>
+                        <div class="success">All systems operational. Ready for broadcast.</div>
+                    </div>
+                    
+                    <div class="command-prompt">
+                        <span class="prompt">root@heaven:~# </span>
+                        <button id="startButton" class="command-button">
+                            ./tune_in_to_truth --frequency=divine --power=maximum
+                        </button>
+                    </div>
+
+                    <div id="loadingIndicator" style="display: none;" class="loading-section">
+                        <div class="loading-bar">
+                            <div class="loading-fill"></div>
+                        </div>
+                        <div>Establishing secure connection to divine servers...</div>
+                    </div>
+
+                    <div id="revealed">
+                        <div class="status-display">
+                            <div class="status-line">┌─ TRANSMISSION STATUS ─────────────────────────┐</div>
+                            <div class="status-line">│ SIGNAL STRENGTH: ████████████████████░ 95%   │</div>
+                            <div class="status-line">│ BROADCAST STATE: ACTIVE                       │</div>
+                            <div class="status-line">│ LISTENERS: ∞                                  │</div>
+                            <div class="status-line">│ DIVINE APPROVAL: ✓ VERIFIED                   │</div>
+                            <div class="status-line">└───────────────────────────────────────────────┘</div>
+                        </div>
+                        
+                        <div id="playingIndicator" class="media-display">
+                            <div class="musicNotes">
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.1s"></span>
+                                <span class="musicNote eighth"></span>
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.5s"></span>
+                                <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.3s"></span>
+                                <span class="musicNote eighth" style="animation-delay: 0.6s"></span>
+                            </div>
+                            <div class="satellite-container">
+                                <img
+                                    id="satelliteImage"
+                                    class="pulsing"
+                                    src="satellite.gif"
+                                    alt="Broadcasting the truth"
+                                    width="100%"
+                                />
+                            </div>
+                            <div class="musicNotes">
+                                <span class="musicNote eighth" style="animation-delay: 0.5s"></span>
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.1s"></span>
+                                <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.3s"></span>
+                                <span class="musicNote eighth"></span>
+                                <span class="musicNote beamedEighth" style="animation-delay: 0.6s"></span>
+                            </div>
+                        </div>
+
+                        <audio id="theTransmitter"></audio>
+
+                        <div id="currentlyPlaying" class="now-playing">
+                            <div class="np-header">┌─ NOW BROADCASTING ──────────────────────────┐</div>
+                            <div class="np-content">
+                                │ <span id="currentlyPlayingText">Initializing divine frequencies...</span>
+                            </div>
+                            <div class="np-footer">└─────────────────────────────────────────────┘</div>
+                        </div>
+
+                        <div class="control-panel">
+                            <span class="prompt">root@heaven:~# </span>
+                            <button id="pausePlayButton" class="command-button">
+                                ./pause_transmission || ./resume_transmission
+                            </button>
+                        </div>
+
+                        <div class="ministry-section">
+                            <div class="ministry-header">┌─ ADDITIONAL RESOURCES ─────────────────────┐</div>
+                            <div class="ministry-content">
+                                │ <a href="home">cat /ministry/database.txt</a>                  │
+                            </div>
+                            <div class="ministry-footer">└─────────────────────────────────────────────┘</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script type="module">
+            import { initialize } from './modules/app.js';
+
+            // Update timestamp
+            function updateTimestamp() {
+                const now = new Date();
+                const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+                const timestampEl = document.getElementById('timestamp');
+                if (timestampEl) {
+                    timestampEl.textContent = timestamp;
+                }
+            }
+
+            // Boot sequence animation
+            function animateBootSequence() {
+                const bootEl = document.getElementById('bootSequence');
+                const lines = bootEl.children;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    setTimeout(() => {
+                        lines[i].style.opacity = '1';
+                        if (i === lines.length - 1) {
+                            setTimeout(() => {
+                                bootEl.style.display = 'none';
+                            }, 2000);
+                        }
+                    }, i * 500);
+                }
+            }
+
+            // Initialize the application when DOM is loaded
+            document.addEventListener("DOMContentLoaded", () => {
+                updateTimestamp();
+                setInterval(updateTimestamp, 1000);
+                animateBootSequence();
+                initialize();
+            });
+        </script>
+        <script data-goatcounter="https://2-evila.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    </body>
+</html>
