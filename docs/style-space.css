@@ -1,866 +1,1084 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap");
 
 body {
-    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f23 50%, #000000 100%);
-    color: #00ffaa;
-    font-family: "Space Mono", monospace;
-    margin: 0;
-    overflow-x: hidden;
-    position: relative;
-    min-height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    #1a1a2e 0%,
+    #0f0f23 50%,
+    #000000 100%
+  );
+  color: #00ffaa;
+  font-family: "Space Mono", monospace;
+  margin: 0;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
 }
 
 /* Star field */
 #starField {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: #ffffff;
-    border-radius: 50%;
-    animation: starTwinkle 2s ease-in-out infinite;
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: starTwinkle 2s ease-in-out infinite;
 }
 
 @keyframes starTwinkle {
-    0%, 100% { opacity: 0.3; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.5); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
 }
 
 /* Floating space elements */
 .space-element {
-    position: fixed;
-    font-size: 20px;
-    pointer-events: none;
-    z-index: 3;
-    animation: floatInSpace 10s ease-in-out infinite;
+  position: fixed;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 3;
+  animation: floatInSpace 10s ease-in-out infinite;
 }
 
-.ufo1 { top: 15%; left: 5%; animation-delay: 0s; }
-.ufo2 { top: 70%; right: 8%; animation-delay: 3s; }
-.alien1 { top: 25%; right: 15%; animation-delay: 1s; }
-.alien2 { top: 80%; left: 12%; animation-delay: 4s; }
-.planet1 { top: 5%; right: 25%; animation-delay: 2s; }
-.planet2 { top: 85%; right: 30%; animation-delay: 5s; }
-.rocket1 { top: 40%; left: 3%; animation-delay: 1.5s; }
-.rocket2 { top: 60%; right: 5%; animation-delay: 3.5s; }
-.satellite1 { top: 35%; right: 10%; animation-delay: 2.5s; }
-.satellite2 { top: 55%; left: 8%; animation-delay: 4.5s; }
-.star1 { top: 20%; left: 15%; animation-delay: 0.5s; }
-.star2 { top: 75%; right: 20%; animation-delay: 2.8s; }
-.comet1 { top: 10%; left: 25%; animation-delay: 1.8s; }
-.moon1 { top: 90%; left: 20%; animation-delay: 3.2s; }
+.ufo1 {
+  top: 15%;
+  left: 5%;
+  animation-delay: 0s;
+}
+.ufo2 {
+  top: 70%;
+  right: 8%;
+  animation-delay: 3s;
+}
+.alien1 {
+  top: 25%;
+  right: 15%;
+  animation-delay: 1s;
+}
+.alien2 {
+  top: 80%;
+  left: 12%;
+  animation-delay: 4s;
+}
+.planet1 {
+  top: 5%;
+  right: 25%;
+  animation-delay: 2s;
+}
+.planet2 {
+  top: 85%;
+  right: 30%;
+  animation-delay: 5s;
+}
+.rocket1 {
+  top: 40%;
+  left: 3%;
+  animation-delay: 1.5s;
+}
+.rocket2 {
+  top: 60%;
+  right: 5%;
+  animation-delay: 3.5s;
+}
+.satellite1 {
+  top: 35%;
+  right: 10%;
+  animation-delay: 2.5s;
+}
+.satellite2 {
+  top: 55%;
+  left: 8%;
+  animation-delay: 4.5s;
+}
+.star1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0.5s;
+}
+.star2 {
+  top: 75%;
+  right: 20%;
+  animation-delay: 2.8s;
+}
+.comet1 {
+  top: 10%;
+  left: 25%;
+  animation-delay: 1.8s;
+}
+.moon1 {
+  top: 90%;
+  left: 20%;
+  animation-delay: 3.2s;
+}
 
 @keyframes floatInSpace {
-    0%, 100% { 
-        transform: translateY(0px) translateX(0px) rotate(0deg);
-        opacity: 0.7;
-    }
-    25% { 
-        transform: translateY(-15px) translateX(10px) rotate(90deg);
-        opacity: 1;
-    }
-    50% { 
-        transform: translateY(-10px) translateX(-5px) rotate(180deg);
-        opacity: 0.8;
-    }
-    75% { 
-        transform: translateY(5px) translateX(-10px) rotate(270deg);
-        opacity: 0.9;
-    }
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) rotate(90deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-5px) rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(5px) translateX(-10px) rotate(270deg);
+    opacity: 0.9;
+  }
 }
 
 /* Cosmic transmission bars */
 .cosmic-bar {
-    position: fixed;
-    width: 100%;
-    height: 35px;
-    background: linear-gradient(90deg, #1e3c72, #2a5298, #1e3c72);
-    z-index: 10;
-    overflow: hidden;
-    border: 2px solid #00ffaa;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 0 20px #00ffaa;
+  position: fixed;
+  width: 100%;
+  height: 35px;
+  background: linear-gradient(90deg, #1e3c72, #2a5298, #1e3c72);
+  z-index: 10;
+  overflow: hidden;
+  border: 2px solid #00ffaa;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 20px #00ffaa;
 }
 
-.cosmic-bar.top { top: 50px; }
-.cosmic-bar.bottom { bottom: 50px; }
+.cosmic-bar.top {
+  top: 50px;
+}
+.cosmic-bar.bottom {
+  bottom: 50px;
+}
 
 .transmission-wave {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0, 255, 170, 0.3), 
-        rgba(0, 255, 255, 0.5), 
-        rgba(0, 255, 170, 0.3), 
-        transparent
-    );
-    animation: waveTransmission 3s linear infinite;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 170, 0.3),
+    rgba(0, 255, 255, 0.5),
+    rgba(0, 255, 170, 0.3),
+    transparent
+  );
+  animation: waveTransmission 3s linear infinite;
 }
 
 @keyframes waveTransmission {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .bar-text {
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 12px;
-    text-shadow: 0 0 10px #00ffaa;
-    white-space: nowrap;
-    animation: barTextScroll 20s linear infinite;
-    padding: 0 20px;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 0 0 10px #00ffaa;
+  white-space: nowrap;
+  animation: barTextScroll 20s linear infinite;
+  padding: 0 20px;
 }
 
 @keyframes barTextScroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 /* Communication pods */
 .comm-pod {
-    position: fixed;
-    background: rgba(30, 60, 114, 0.8);
-    border: 2px solid #00ffaa;
-    border-radius: 10px;
-    padding: 10px;
-    z-index: 10;
-    font-size: 10px;
-    box-shadow: 0 0 15px rgba(0, 255, 170, 0.5);
+  position: fixed;
+  background: rgba(30, 60, 114, 0.8);
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 10;
+  font-size: 10px;
+  box-shadow: 0 0 15px rgba(0, 255, 170, 0.5);
 }
 
-.top-left { top: 100px; left: 10px; }
-.top-right { top: 100px; right: 10px; }
+.top-left {
+  top: 100px;
+  left: 10px;
+}
+.top-right {
+  top: 100px;
+  right: 10px;
+}
 
 .alien-text {
-    color: #ff00aa;
-    font-weight: bold;
-    animation: alienTextGlow 2s ease-in-out infinite;
+  color: #ff00aa;
+  font-weight: bold;
+  animation: alienTextGlow 2s ease-in-out infinite;
 }
 
 .translation {
-    color: #00ffaa;
-    font-size: 8px;
-    margin-top: 5px;
+  color: #00ffaa;
+  font-size: 8px;
+  margin-top: 5px;
 }
 
 @keyframes alienTextGlow {
-    0%, 100% { text-shadow: 0 0 5px #ff00aa; }
-    50% { text-shadow: 0 0 15px #ff00aa, 0 0 25px #ff00aa; }
+  0%,
+  100% {
+    text-shadow: 0 0 5px #ff00aa;
+  }
+  50% {
+    text-shadow:
+      0 0 15px #ff00aa,
+      0 0 25px #ff00aa;
+  }
 }
 
 main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    text-align: center;
-    position: relative;
-    z-index: 5;
-    padding: 120px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  position: relative;
+  z-index: 5;
+  padding: 120px 20px;
 }
 
 /* Space station */
 .space-station {
-    background: linear-gradient(135deg, rgba(30, 60, 114, 0.9), rgba(42, 82, 152, 0.9));
-    border: 3px solid #00ffaa;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 
-        0 0 30px #00ffaa,
-        inset 0 0 30px rgba(0, 255, 170, 0.1);
-    max-width: 700px;
-    position: relative;
-    backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 60, 114, 0.9),
+    rgba(42, 82, 152, 0.9)
+  );
+  border: 3px solid #00ffaa;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow:
+    0 0 30px #00ffaa,
+    inset 0 0 30px rgba(0, 255, 170, 0.1);
+  max-width: 700px;
+  position: relative;
+  backdrop-filter: blur(10px);
 }
 
 .station-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    border: 1px solid #00ffaa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  border: 1px solid #00ffaa;
 }
 
 .header-lights {
-    display: flex;
-    gap: 5px;
+  display: flex;
+  gap: 5px;
 }
 
 .light {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    animation: lightBlink 2s infinite;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: lightBlink 2s infinite;
 }
 
-.light.red { background: #ff0000; animation-delay: 0s; }
-.light.green { background: #00ff00; animation-delay: 0.7s; }
-.light.blue { background: #0000ff; animation-delay: 1.4s; }
+.light.red {
+  background: #ff0000;
+  animation-delay: 0s;
+}
+.light.green {
+  background: #00ff00;
+  animation-delay: 0.7s;
+}
+.light.blue {
+  background: #0000ff;
+  animation-delay: 1.4s;
+}
 
 @keyframes lightBlink {
-    0%, 50% { opacity: 0.3; }
-    25% { opacity: 1; box-shadow: 0 0 10px currentColor; }
+  0%,
+  50% {
+    opacity: 0.3;
+  }
+  25% {
+    opacity: 1;
+    box-shadow: 0 0 10px currentColor;
+  }
 }
 
 .station-title {
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 14px;
-    text-shadow: 0 0 10px #00ffaa;
-    font-family: "Orbitron", monospace;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 10px #00ffaa;
+  font-family: "Orbitron", monospace;
 }
 
 .orbital-indicator {
-    width: 40px;
-    height: 40px;
-    position: relative;
+  width: 40px;
+  height: 40px;
+  position: relative;
 }
 
 .orbit {
-    width: 100%;
-    height: 100%;
-    border: 2px dashed #00ffaa;
-    border-radius: 50%;
-    position: relative;
-    animation: orbitRotate 4s linear infinite;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #00ffaa;
+  border-radius: 50%;
+  position: relative;
+  animation: orbitRotate 4s linear infinite;
 }
 
 .orbiting-body {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 16px;
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
 }
 
 @keyframes orbitRotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Hologram title */
 .hologram-title {
-    font-family: "Orbitron", monospace;
-    color: #00ffff;
-    margin: 20px 0;
-    text-shadow: 0 0 15px #00ffff;
-    animation: hologramFlicker 3s ease-in-out infinite;
+  font-family: "Orbitron", monospace;
+  color: #00ffff;
+  margin: 20px 0;
+  text-shadow: 0 0 15px #00ffff;
+  animation: hologramFlicker 3s ease-in-out infinite;
 }
 
 .holo-line {
-    margin: 3px 0;
-    font-size: 14px;
+  margin: 3px 0;
+  font-size: 14px;
 }
 
 @keyframes hologramFlicker {
-    0%, 100% { opacity: 1; }
-    95% { opacity: 1; }
-    96% { opacity: 0.8; }
-    97% { opacity: 1; }
-    98% { opacity: 0.9; }
-    99% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.8;
+  }
+  97% {
+    opacity: 1;
+  }
+  98% {
+    opacity: 0.9;
+  }
+  99% {
+    opacity: 1;
+  }
 }
 
 /* Mission status */
 .mission-status {
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #00ffaa;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 20px 0;
-    font-family: "Orbitron", monospace;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px 0;
+  font-family: "Orbitron", monospace;
 }
 
 .status-row {
-    display: flex;
-    justify-content: space-between;
-    margin: 8px 0;
-    font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 12px;
 }
 
 .status-label {
-    color: #ffffff;
-    font-weight: bold;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 .status-value {
-    color: #00ffaa;
-    text-shadow: 0 0 5px #00ffaa;
+  color: #00ffaa;
+  text-shadow: 0 0 5px #00ffaa;
 }
 
 /* Launch button */
 .launch-button {
-    background: linear-gradient(45deg, #ff6b35, #f7931e);
-    border: 3px solid #ffaa00;
-    color: #ffffff;
-    font-family: "Orbitron", monospace;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 20px 30px;
-    cursor: pointer;
-    border-radius: 15px;
-    text-shadow: 2px 2px 0px #cc5500;
-    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
-    transition: all 0.3s ease;
-    animation: launchPulse 2s ease-in-out infinite;
-    margin: 20px 0;
-    width: 100%;
+  background: linear-gradient(45deg, #ff6b35, #f7931e);
+  border: 3px solid #ffaa00;
+  color: #ffffff;
+  font-family: "Orbitron", monospace;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 20px 30px;
+  cursor: pointer;
+  border-radius: 15px;
+  text-shadow: 2px 2px 0px #cc5500;
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
+  transition: all 0.3s ease;
+  animation: launchPulse 2s ease-in-out infinite;
+  margin: 20px 0;
+  width: 100%;
 }
 
 .launch-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.8);
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.8);
 }
 
 @keyframes launchPulse {
-    0%, 100% { 
-        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
-        text-shadow: 2px 2px 0px #cc5500;
-    }
-    50% { 
-        box-shadow: 0 5px 25px rgba(255, 170, 0, 0.8);
-        text-shadow: 2px 2px 10px #ffaa00;
-    }
+  0%,
+  100% {
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
+    text-shadow: 2px 2px 0px #cc5500;
+  }
+  50% {
+    box-shadow: 0 5px 25px rgba(255, 170, 0, 0.8);
+    text-shadow: 2px 2px 10px #ffaa00;
+  }
 }
 
 /* Space loading */
 .space-loading {
-    text-align: center;
-    margin: 30px 0;
+  text-align: center;
+  margin: 30px 0;
 }
 
 .loading-orbit {
-    width: 100px;
-    height: 100px;
-    position: relative;
-    margin: 0 auto 20px;
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin: 0 auto 20px;
 }
 
 .central-star {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 30px;
-    animation: starPulse 2s ease-in-out infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  animation: starPulse 2s ease-in-out infinite;
 }
 
 .orbiting-satellite {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 20px;
-    animation: satelliteOrbit 3s linear infinite;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  animation: satelliteOrbit 3s linear infinite;
 }
 
 @keyframes starPulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.2); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
 }
 
 @keyframes satelliteOrbit {
-    0% { transform: translateX(-50%) rotate(0deg) translateY(-50px) rotate(0deg); }
-    100% { transform: translateX(-50%) rotate(360deg) translateY(-50px) rotate(-360deg); }
+  0% {
+    transform: translateX(-50%) rotate(0deg) translateY(-50px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg) translateY(-50px) rotate(-360deg);
+  }
 }
 
 .loading-text {
-    color: #00ffaa;
-    font-weight: bold;
-    margin: 15px 0;
-    animation: loadingTextBlink 1.5s ease-in-out infinite;
+  color: #00ffaa;
+  font-weight: bold;
+  margin: 15px 0;
+  animation: loadingTextBlink 1.5s ease-in-out infinite;
 }
 
 @keyframes loadingTextBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .warp-tunnel {
-    width: 100%;
-    height: 20px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        #00ffaa, 
-        #00ffff, 
-        #00ffaa, 
-        transparent
-    );
-    border-radius: 10px;
-    animation: warpEffect 1s linear infinite;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #00ffaa,
+    #00ffff,
+    #00ffaa,
+    transparent
+  );
+  border-radius: 10px;
+  animation: warpEffect 1s linear infinite;
 }
 
 @keyframes warpEffect {
-    0% { transform: scaleX(0); }
-    50% { transform: scaleX(1); }
-    100% { transform: scaleX(0); }
+  0% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
 }
 
 /* Control panel */
 .control-panel {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .panel-section {
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #00ffaa;
-    border-radius: 10px;
-    padding: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 15px;
 }
 
 .section-title {
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-shadow: 0 0 10px #00ffaa;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px #00ffaa;
 }
 
 .radar-display {
-    width: 150px;
-    height: 150px;
-    border: 2px solid #00ffaa;
-    border-radius: 50%;
-    position: relative;
-    margin: 0 auto;
-    background: radial-gradient(circle, rgba(0, 255, 170, 0.1), transparent);
+  width: 150px;
+  height: 150px;
+  border: 2px solid #00ffaa;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto;
+  background: radial-gradient(circle, rgba(0, 255, 170, 0.1), transparent);
 }
 
 .radar-sweep {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 75px;
-    background: linear-gradient(to top, #00ffaa, transparent);
-    transform-origin: bottom;
-    animation: radarSweep 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 75px;
+  background: linear-gradient(to top, #00ffaa, transparent);
+  transform-origin: bottom;
+  animation: radarSweep 2s linear infinite;
 }
 
 @keyframes radarSweep {
-    0% { transform: translateX(-50%) rotate(0deg); }
-    100% { transform: translateX(-50%) rotate(360deg); }
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg);
+  }
 }
 
 .radar-dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #ff0000;
-    border-radius: 50%;
-    animation: radarPing 2s ease-in-out infinite;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ff0000;
+  border-radius: 50%;
+  animation: radarPing 2s ease-in-out infinite;
 }
 
-.dot1 { top: 30%; left: 60%; animation-delay: 0s; }
-.dot2 { top: 60%; left: 30%; animation-delay: 0.7s; }
-.dot3 { top: 70%; left: 70%; animation-delay: 1.4s; }
+.dot1 {
+  top: 30%;
+  left: 60%;
+  animation-delay: 0s;
+}
+.dot2 {
+  top: 60%;
+  left: 30%;
+  animation-delay: 0.7s;
+}
+.dot3 {
+  top: 70%;
+  left: 70%;
+  animation-delay: 1.4s;
+}
 
 @keyframes radarPing {
-    0%, 100% { 
-        opacity: 1; 
-        transform: scale(1);
-        box-shadow: 0 0 5px #ff0000;
-    }
-    50% { 
-        opacity: 0.3; 
-        transform: scale(1.5);
-        box-shadow: 0 0 15px #ff0000;
-    }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 5px #ff0000;
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.5);
+    box-shadow: 0 0 15px #ff0000;
+  }
 }
 
 /* Broadcast chamber */
 .broadcast-chamber {
-    background: rgba(0, 0, 0, 0.8);
-    border: 3px solid #00ffaa;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    position: relative;
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #00ffaa;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  position: relative;
 }
 
 .chamber-title {
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-shadow: 0 0 10px #00ffaa;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px #00ffaa;
 }
 
 .energy-field {
-    position: relative;
+  position: relative;
 }
 
 .satellite-chamber {
-    position: relative;
-    padding: 20px;
+  position: relative;
+  padding: 20px;
 }
 
 .energy-rings {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .ring {
-    position: absolute;
-    border: 2px solid #00ffaa;
-    border-radius: 50%;
-    animation: energyRingPulse 3s ease-in-out infinite;
+  position: absolute;
+  border: 2px solid #00ffaa;
+  border-radius: 50%;
+  animation: energyRingPulse 3s ease-in-out infinite;
 }
 
-.ring1 { 
-    width: 120px; 
-    height: 120px; 
-    margin: -60px 0 0 -60px;
-    animation-delay: 0s;
+.ring1 {
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  animation-delay: 0s;
 }
-.ring2 { 
-    width: 160px; 
-    height: 160px; 
-    margin: -80px 0 0 -80px;
-    animation-delay: 1s;
+.ring2 {
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
+  animation-delay: 1s;
 }
-.ring3 { 
-    width: 200px; 
-    height: 200px; 
-    margin: -100px 0 0 -100px;
-    animation-delay: 2s;
+.ring3 {
+  width: 200px;
+  height: 200px;
+  margin: -100px 0 0 -100px;
+  animation-delay: 2s;
 }
 
 @keyframes energyRingPulse {
-    0% { 
-        opacity: 0; 
-        transform: scale(0.5);
-    }
-    50% { 
-        opacity: 1; 
-        transform: scale(1);
-    }
-    100% { 
-        opacity: 0; 
-        transform: scale(1.2);
-    }
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
 }
 
 /* Signal display */
 .signal-display {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .display-border {
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #00ffaa;
-    border-radius: 10px;
-    padding: 15px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 15px;
 }
 
 .signal-header {
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px #00ffaa;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px #00ffaa;
 }
 
 .signal-content {
-    color: #00ffaa;
-    margin: 10px 0;
-    font-style: italic;
+  color: #00ffaa;
+  margin: 10px 0;
+  font-style: italic;
 }
 
 .waveform {
-    display: flex;
-    justify-content: center;
-    align-items: end;
-    height: 30px;
-    gap: 3px;
-    margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  height: 30px;
+  gap: 3px;
+  margin-top: 10px;
 }
 
 .wave-bar {
-    width: 4px;
-    background: #00ffaa;
-    border-radius: 2px;
-    animation: waveformBounce 1s ease-in-out infinite;
+  width: 4px;
+  background: #00ffaa;
+  border-radius: 2px;
+  animation: waveformBounce 1s ease-in-out infinite;
 }
 
-.wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
-.wave-bar:nth-child(2) { height: 15px; animation-delay: 0.2s; }
-.wave-bar:nth-child(3) { height: 25px; animation-delay: 0.4s; }
-.wave-bar:nth-child(4) { height: 10px; animation-delay: 0.6s; }
-.wave-bar:nth-child(5) { height: 30px; animation-delay: 0.8s; }
-.wave-bar:nth-child(6) { height: 18px; animation-delay: 1s; }
-.wave-bar:nth-child(7) { height: 22px; animation-delay: 1.2s; }
+.wave-bar:nth-child(1) {
+  height: 20px;
+  animation-delay: 0s;
+}
+.wave-bar:nth-child(2) {
+  height: 15px;
+  animation-delay: 0.2s;
+}
+.wave-bar:nth-child(3) {
+  height: 25px;
+  animation-delay: 0.4s;
+}
+.wave-bar:nth-child(4) {
+  height: 10px;
+  animation-delay: 0.6s;
+}
+.wave-bar:nth-child(5) {
+  height: 30px;
+  animation-delay: 0.8s;
+}
+.wave-bar:nth-child(6) {
+  height: 18px;
+  animation-delay: 1s;
+}
+.wave-bar:nth-child(7) {
+  height: 22px;
+  animation-delay: 1.2s;
+}
 
 @keyframes waveformBounce {
-    0%, 100% { height: 5px; opacity: 0.5; }
-    50% { opacity: 1; }
+  0%,
+  100% {
+    height: 5px;
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .control-btn {
-    background: linear-gradient(45deg, #4a90e2, #357abd);
-    border: 2px solid #00ffaa;
-    color: #ffffff;
-    font-family: "Space Mono", monospace;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 15px 25px;
-    cursor: pointer;
-    border-radius: 10px;
-    text-shadow: 0 0 5px #ffffff;
-    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
-    margin: 15px 0;
-    transition: all 0.3s ease;
+  background: linear-gradient(45deg, #4a90e2, #357abd);
+  border: 2px solid #00ffaa;
+  color: #ffffff;
+  font-family: "Space Mono", monospace;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 15px 25px;
+  cursor: pointer;
+  border-radius: 10px;
+  text-shadow: 0 0 5px #ffffff;
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+  margin: 15px 0;
+  transition: all 0.3s ease;
 }
 
 .control-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(74, 144, 226, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(74, 144, 226, 0.6);
 }
 
 /* Alien testimonials */
 .alien-testimonials {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .testimonial {
-    background: rgba(30, 60, 114, 0.6);
-    border: 2px solid #00ffaa;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  background: rgba(30, 60, 114, 0.6);
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .alien-avatar {
-    font-size: 30px;
-    animation: avatarFloat 3s ease-in-out infinite;
+  font-size: 30px;
+  animation: avatarFloat 3s ease-in-out infinite;
 }
 
 @keyframes avatarFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .quote {
-    color: #ffffff;
-    font-style: italic;
-    flex: 1;
-    text-align: left;
+  color: #ffffff;
+  font-style: italic;
+  flex: 1;
+  text-align: left;
 }
 
 /* Ministry portal */
 .ministry-portal {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .portal-frame {
-    position: relative;
-    background: radial-gradient(circle, rgba(0, 255, 170, 0.2), rgba(30, 60, 114, 0.8));
-    border: 3px solid #00ffaa;
-    border-radius: 15px;
-    padding: 20px;
-    overflow: hidden;
+  position: relative;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 170, 0.2),
+    rgba(30, 60, 114, 0.8)
+  );
+  border: 3px solid #00ffaa;
+  border-radius: 15px;
+  padding: 20px;
+  overflow: hidden;
 }
 
 .portal-energy {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle, transparent 30%, rgba(0, 255, 170, 0.1) 70%);
-    animation: portalPulse 4s ease-in-out infinite;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle,
+    transparent 30%,
+    rgba(0, 255, 170, 0.1) 70%
+  );
+  animation: portalPulse 4s ease-in-out infinite;
 }
 
 @keyframes portalPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }
 
 .portal-content {
-    position: relative;
-    z-index: 2;
+  position: relative;
+  z-index: 2;
 }
 
 a {
-    color: #00ffff;
-    text-decoration: none;
-    font-weight: bold;
-    text-shadow: 0 0 10px #00ffff;
+  color: #00ffff;
+  text-decoration: none;
+  font-weight: bold;
+  text-shadow: 0 0 10px #00ffff;
 }
 
 a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 15px #ffffff;
+  color: #ffffff;
+  text-shadow: 0 0 15px #ffffff;
 }
 
 #revealed {
-    display: none;
+  display: none;
 }
 
 .marquee {
-    position: fixed;
-    left: 0;
-    overflow: hidden;
-    box-sizing: border-box;
-    width: 100%;
-    z-index: 8;
-    font-family: "Orbitron", monospace;
-    font-size: 12px;
+  position: fixed;
+  left: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  z-index: 8;
+  font-family: "Orbitron", monospace;
+  font-size: 12px;
 }
 
 #topMarquee {
-    top: 0;
-    background: linear-gradient(90deg, #1e3c72, #2a5298);
-    border-bottom: 2px solid #00ffaa;
+  top: 0;
+  background: linear-gradient(90deg, #1e3c72, #2a5298);
+  border-bottom: 2px solid #00ffaa;
 }
 
 #bottomMarquee {
-    bottom: 0;
-    background: linear-gradient(90deg, #2a5298, #1e3c72);
-    border-top: 2px solid #00ffaa;
+  bottom: 0;
+  background: linear-gradient(90deg, #2a5298, #1e3c72);
+  border-top: 2px solid #00ffaa;
 }
 
 .marqueeContent {
-    display: flex;
-    width: max-content;
-    animation: marquee 18s linear infinite;
-    color: #ffffff;
-    text-shadow: 0 0 10px #00ffaa;
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
+  color: #ffffff;
+  text-shadow: 0 0 10px #00ffaa;
 }
 
 .marqueeItem {
-    padding-right: 150px;
-    white-space: nowrap;
+  padding-right: 150px;
+  white-space: nowrap;
 }
 
 .marqueeItem::after {
-    content: " ◉ TUNE IN TO THE TRUTH ◉ HIS MESSAGE IS CLEAR ◉ OPEN YOUR MIND TO THE TRUTH ◉ LET THE HOLY SPIRIT GUIDE YOU ◉ YOUR JOURNEY BEGINS HERE ◉";
+  content: " ◉ TUNE IN TO THE TRUTH ◉ HIS MESSAGE IS CLEAR ◉ OPEN YOUR MIND TO THE TRUTH ◉ LET THE HOLY SPIRIT GUIDE YOU ◉ YOUR JOURNEY BEGINS HERE ◉";
 }
 
 @keyframes marquee {
-    from {
-        transform: translateX(0%);
-    }
-    to {
-        transform: translateX(-50%);
-    }
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .playing .pulsing {
-    animation: cosmicPulse 3s infinite;
+  animation: cosmicPulse 3s infinite;
 }
 
 @keyframes cosmicPulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.7);
-        filter: brightness(1);
-    }
-    70% {
-        box-shadow: 0 0 30px 30px rgba(0, 255, 170, 0);
-        filter: brightness(1.5);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 170, 0);
-        filter: brightness(1);
-    }
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.7);
+    filter: brightness(1);
+  }
+  70% {
+    box-shadow: 0 0 30px 30px rgba(0, 255, 170, 0);
+    filter: brightness(1.5);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 170, 0);
+    filter: brightness(1);
+  }
 }
 
 .musicNotes {
-    margin-bottom: 5px;
-    height: 30px;
-    display: flex;
-    justify-content: space-between;
+  margin-bottom: 5px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .musicNote {
-    display: inline-block;
-    color: #00ffaa;
-    animation: rotateNote 2s infinite;
-    text-shadow: 0 0 10px currentColor;
-    font-size: 16px;
+  display: inline-block;
+  color: #00ffaa;
+  animation: rotateNote 2s infinite;
+  text-shadow: 0 0 10px currentColor;
+  font-size: 16px;
 }
 
 .musicNote::after {
-    content: "⟡";
+  content: "⟡";
 }
 
 .playing .musicNote {
-    animation: cosmicPulseNote 1s infinite;
+  animation: cosmicPulseNote 1s infinite;
 }
 
 .playing .musicNote.eighth::after {
-    content: "♪";
+  content: "♪";
 }
 
 .playing .musicNote.beamedEighth::after {
-    content: "♫";
+  content: "♫";
 }
 
 @keyframes rotateNote {
-    0% {
-        transform: rotate(0deg);
-        color: #00ffaa;
-    }
-    100% {
-        transform: rotate(360deg);
-        color: #00ffff;
-    }
+  0% {
+    transform: rotate(0deg);
+    color: #00ffaa;
+  }
+  100% {
+    transform: rotate(360deg);
+    color: #00ffff;
+  }
 }
 
 @keyframes cosmicPulseNote {
-    0% {
-        transform: scale(1);
-        color: #00ffaa;
-    }
-    50% {
-        transform: scale(1.3);
-        color: #ffffff;
-        text-shadow: 0 0 15px #ffffff;
-    }
-    100% {
-        transform: scale(1);
-        color: #00ffaa;
-    }
+  0% {
+    transform: scale(1);
+    color: #00ffaa;
+  }
+  50% {
+    transform: scale(1.3);
+    color: #ffffff;
+    text-shadow: 0 0 15px #ffffff;
+  }
+  100% {
+    transform: scale(1);
+    color: #00ffaa;
+  }
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .space-station {
-        margin: 0 10px;
-        padding: 20px;
-    }
-    
-    .station-header {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .testimonial {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .comm-pod {
-        font-size: 8px;
-        padding: 5px;
-    }
+  .space-station {
+    margin: 0 10px;
+    padding: 20px;
+  }
+
+  .station-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .testimonial {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .comm-pod {
+    font-size: 8px;
+    padding: 5px;
+  }
 }
+

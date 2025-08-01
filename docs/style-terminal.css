@@ -1,399 +1,441 @@
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap");
 
 body {
-    background: #000000;
-    color: #00ff00;
-    font-family: "Courier Prime", monospace;
-    margin: 0;
-    overflow-x: hidden;
-    position: relative;
-    font-size: 14px;
-    line-height: 1.2;
+  background: #000000;
+  color: #00ff00;
+  font-family: "Courier Prime", monospace;
+  margin: 0;
+  overflow-x: hidden;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
 /* Terminal background texture */
 #terminal-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(0, 255, 0, 0.03) 0%, transparent 50%),
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0, 255, 0, 0.03) 2px,
-            rgba(0, 255, 0, 0.03) 4px
-        );
-    pointer-events: none;
-    z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(0, 255, 0, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(0, 255, 0, 0.03) 0%,
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 0, 0.03) 2px,
+      rgba(0, 255, 0, 0.03) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* System status messages */
 .system-msg {
-    position: fixed;
-    font-size: 10px;
-    color: #00aa00;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 5px;
-    border: 1px solid #00aa00;
+  position: fixed;
+  font-size: 10px;
+  color: #00aa00;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 5px;
+  border: 1px solid #00aa00;
 }
 
-.top-left { top: 10px; left: 10px; }
-.top-right { top: 10px; right: 10px; }
-.bottom-left { bottom: 60px; left: 10px; }
-.bottom-right { bottom: 60px; right: 10px; }
+.top-left {
+  top: 10px;
+  left: 10px;
+}
+.top-right {
+  top: 10px;
+  right: 10px;
+}
+.bottom-left {
+  bottom: 60px;
+  left: 10px;
+}
+.bottom-right {
+  bottom: 60px;
+  right: 10px;
+}
 
 .blinking-cursor {
-    animation: blink 1s infinite;
+  animation: blink 1s infinite;
 }
 
 @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* ASCII borders */
 .ascii-border {
-    position: fixed;
-    width: 100%;
-    color: #004400;
-    font-size: 8px;
-    text-align: center;
-    z-index: 5;
-    font-family: monospace;
+  position: fixed;
+  width: 100%;
+  color: #004400;
+  font-size: 8px;
+  text-align: center;
+  z-index: 5;
+  font-family: monospace;
 }
 
-.ascii-border.top { top: 80px; }
-.ascii-border.bottom { bottom: 80px; }
+.ascii-border.top {
+  top: 80px;
+}
+.ascii-border.bottom {
+  bottom: 80px;
+}
 
 main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    text-align: left;
-    position: relative;
-    z-index: 5;
-    padding: 100px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: left;
+  position: relative;
+  z-index: 5;
+  padding: 100px 20px;
 }
 
 /* Terminal console */
 .terminal-console {
-    background: rgba(0, 0, 0, 0.95);
-    border: 2px solid #00ff00;
-    border-radius: 0;
-    box-shadow: 
-        0 0 20px #00ff00,
-        inset 0 0 20px rgba(0, 255, 0, 0.1);
-    width: 100%;
-    max-width: 800px;
-    position: relative;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #00ff00;
+  border-radius: 0;
+  box-shadow:
+    0 0 20px #00ff00,
+    inset 0 0 20px rgba(0, 255, 0, 0.1);
+  width: 100%;
+  max-width: 800px;
+  position: relative;
 }
 
 .console-header {
-    background: #003300;
-    color: #00ff00;
-    padding: 10px 20px;
-    border-bottom: 2px solid #00ff00;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
+  background: #003300;
+  color: #00ff00;
+  padding: 10px 20px;
+  border-bottom: 2px solid #00ff00;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
 }
 
 .header-text {
-    text-shadow: 0 0 5px #00ff00;
+  text-shadow: 0 0 5px #00ff00;
 }
 
 .timestamp {
-    font-size: 12px;
-    color: #00aa00;
+  font-size: 12px;
+  color: #00aa00;
 }
 
 .console-body {
-    padding: 20px;
+  padding: 20px;
 }
 
 /* Boot sequence */
 .boot-sequence {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .boot-sequence div {
-    opacity: 0;
-    margin: 5px 0;
-    transition: opacity 0.3s ease;
+  opacity: 0;
+  margin: 5px 0;
+  transition: opacity 0.3s ease;
 }
 
 .boot-sequence .success {
-    color: #00ff00;
-    font-weight: bold;
-    text-shadow: 0 0 5px #00ff00;
+  color: #00ff00;
+  font-weight: bold;
+  text-shadow: 0 0 5px #00ff00;
 }
 
 /* Command prompt styling */
-.command-prompt, .control-panel {
-    margin: 20px 0;
-    display: flex;
-    align-items: center;
+.command-prompt,
+.control-panel {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
 }
 
 .prompt {
-    color: #00ff00;
-    font-weight: bold;
-    margin-right: 10px;
-    text-shadow: 0 0 3px #00ff00;
+  color: #00ff00;
+  font-weight: bold;
+  margin-right: 10px;
+  text-shadow: 0 0 3px #00ff00;
 }
 
 .command-button {
-    background: transparent;
-    border: 1px solid #00aa00;
-    color: #00ff00;
-    font-family: "Courier Prime", monospace;
-    font-size: 14px;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-shadow: 0 0 5px #00ff00;
-    min-width: 300px;
-    text-align: left;
+  background: transparent;
+  border: 1px solid #00aa00;
+  color: #00ff00;
+  font-family: "Courier Prime", monospace;
+  font-size: 14px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px #00ff00;
+  min-width: 300px;
+  text-align: left;
 }
 
 .command-button:hover {
-    background: rgba(0, 255, 0, 0.1);
-    box-shadow: 0 0 10px #00ff00;
-    color: #ffffff;
+  background: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 10px #00ff00;
+  color: #ffffff;
 }
 
 /* Loading section */
 .loading-section {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .loading-bar {
-    width: 100%;
-    height: 20px;
-    border: 1px solid #00aa00;
-    background: #001100;
-    margin: 10px 0;
-    position: relative;
-    overflow: hidden;
+  width: 100%;
+  height: 20px;
+  border: 1px solid #00aa00;
+  background: #001100;
+  margin: 10px 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .loading-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00aa00, #00ff00, #00aa00);
-    width: 0%;
-    animation: loadingProgress 3s ease-in-out infinite;
+  height: 100%;
+  background: linear-gradient(90deg, #00aa00, #00ff00, #00aa00);
+  width: 0%;
+  animation: loadingProgress 3s ease-in-out infinite;
 }
 
 @keyframes loadingProgress {
-    0% { width: 0%; }
-    50% { width: 70%; }
-    100% { width: 100%; }
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 /* Status display */
 .status-display {
-    margin: 20px 0;
-    font-family: monospace;
+  margin: 20px 0;
+  font-family: monospace;
 }
 
 .status-line {
-    color: #00aa00;
-    margin: 2px 0;
+  color: #00aa00;
+  margin: 2px 0;
 }
 
 /* Media display */
 .media-display {
-    text-align: center;
-    margin: 20px 0;
+  text-align: center;
+  margin: 20px 0;
 }
 
 .satellite-container {
-    border: 2px solid #00aa00;
-    padding: 10px;
-    margin: 10px 0;
-    background: rgba(0, 170, 0, 0.05);
+  border: 2px solid #00aa00;
+  padding: 10px;
+  margin: 10px 0;
+  background: rgba(0, 170, 0, 0.05);
 }
 
 /* Now playing section */
 .now-playing {
-    margin: 20px 0;
-    font-family: monospace;
+  margin: 20px 0;
+  font-family: monospace;
 }
 
-.np-header, .np-footer, .ministry-header, .ministry-footer {
-    color: #00aa00;
+.np-header,
+.np-footer,
+.ministry-header,
+.ministry-footer {
+  color: #00aa00;
 }
 
-.np-content, .ministry-content {
-    color: #00ff00;
-    padding: 5px 0;
+.np-content,
+.ministry-content {
+  color: #00ff00;
+  padding: 5px 0;
 }
 
 .ministry-section {
-    margin: 20px 0;
-    font-family: monospace;
+  margin: 20px 0;
+  font-family: monospace;
 }
 
 a {
-    color: #00ffaa;
-    text-decoration: none;
-    text-shadow: 0 0 3px #00ffaa;
+  color: #00ffaa;
+  text-decoration: none;
+  text-shadow: 0 0 3px #00ffaa;
 }
 
 a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 5px #ffffff;
+  color: #ffffff;
+  text-shadow: 0 0 5px #ffffff;
 }
 
 #revealed {
-    display: none;
+  display: none;
 }
 
 .marquee {
-    position: fixed;
-    left: 0;
-    overflow: hidden;
-    box-sizing: border-box;
-    width: 100%;
-    z-index: 8;
-    font-family: monospace;
-    font-size: 12px;
+  position: fixed;
+  left: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  z-index: 8;
+  font-family: monospace;
+  font-size: 12px;
 }
 
 #topMarquee {
-    top: 0;
-    background: #002200;
-    border-bottom: 1px solid #00ff00;
+  top: 0;
+  background: #002200;
+  border-bottom: 1px solid #00ff00;
 }
 
 #bottomMarquee {
-    bottom: 0;
-    background: #002200;
-    border-top: 1px solid #00ff00;
+  bottom: 0;
+  background: #002200;
+  border-top: 1px solid #00ff00;
 }
 
 .marqueeContent {
-    display: flex;
-    width: max-content;
-    animation: marquee 18s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
 }
 
 .marqueeItem {
-    padding-right: 150px;
-    white-space: nowrap;
+  padding-right: 150px;
+  white-space: nowrap;
 }
 
 .marqueeItem::after {
-    content: " >>> TUNE IN TO THE TRUTH >>> HIS MESSAGE IS CLEAR >>> OPEN YOUR MIND TO THE TRUTH >>> LET THE HOLY SPIRIT GUIDE YOU >>> YOUR JOURNEY BEGINS HERE >>>";
+  content: " >>> TUNE IN TO THE TRUTH >>> HIS MESSAGE IS CLEAR >>> OPEN YOUR MIND TO THE TRUTH >>> LET THE HOLY SPIRIT GUIDE YOU >>> YOUR JOURNEY BEGINS HERE >>>";
 }
 
 @keyframes marquee {
-    from {
-        transform: translateX(0%);
-    }
-    to {
-        transform: translateX(-50%);
-    }
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .playing .pulsing {
-    animation: terminalPulse 3s infinite;
+  animation: terminalPulse 3s infinite;
 }
 
 @keyframes terminalPulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
-        filter: brightness(1);
-    }
-    70% {
-        box-shadow: 0 0 20px 10px rgba(0, 255, 0, 0);
-        filter: brightness(1.3);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
-        filter: brightness(1);
-    }
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+    filter: brightness(1);
+  }
+  70% {
+    box-shadow: 0 0 20px 10px rgba(0, 255, 0, 0);
+    filter: brightness(1.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+    filter: brightness(1);
+  }
 }
 
 .musicNotes {
-    margin-bottom: 5px;
-    height: 30px;
-    display: flex;
-    justify-content: space-between;
+  margin-bottom: 5px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .musicNote {
-    display: inline-block;
-    color: #00aa00;
-    animation: rotateNote 2s infinite;
-    text-shadow: 0 0 5px currentColor;
-    font-size: 16px;
+  display: inline-block;
+  color: #00aa00;
+  animation: rotateNote 2s infinite;
+  text-shadow: 0 0 5px currentColor;
+  font-size: 16px;
 }
 
 .musicNote::after {
-    content: "█";
+  content: "█";
 }
 
 .playing .musicNote {
-    animation: terminalPulseNote 1s infinite;
+  animation: terminalPulseNote 1s infinite;
 }
 
 .playing .musicNote.eighth::after {
-    content: "♪";
+  content: "♪";
 }
 
 .playing .musicNote.beamedEighth::after {
-    content: "♫";
+  content: "♫";
 }
 
 @keyframes rotateNote {
-    0% {
-        transform: rotate(0deg);
-        color: #00aa00;
-    }
-    100% {
-        transform: rotate(360deg);
-        color: #00ff00;
-    }
+  0% {
+    transform: rotate(0deg);
+    color: #00aa00;
+  }
+  100% {
+    transform: rotate(360deg);
+    color: #00ff00;
+  }
 }
 
 @keyframes terminalPulseNote {
-    0% {
-        transform: scale(1);
-        color: #00aa00;
-    }
-    50% {
-        transform: scale(1.2);
-        color: #00ff00;
-        text-shadow: 0 0 10px #00ff00;
-    }
-    100% {
-        transform: scale(1);
-        color: #00aa00;
-    }
+  0% {
+    transform: scale(1);
+    color: #00aa00;
+  }
+  50% {
+    transform: scale(1.2);
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+  }
+  100% {
+    transform: scale(1);
+    color: #00aa00;
+  }
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .system-msg {
-        font-size: 8px;
-        padding: 3px;
-    }
-    
-    .command-button {
-        min-width: 200px;
-        font-size: 12px;
-    }
-    
-    .terminal-console {
-        margin: 0 10px;
-    }
+  .system-msg {
+    font-size: 8px;
+    padding: 3px;
+  }
+
+  .command-button {
+    min-width: 200px;
+    font-size: 12px;
+  }
+
+  .terminal-console {
+    margin: 0 10px;
+  }
 }
+

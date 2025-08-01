@@ -1,137 +1,137 @@
 body {
-    background-color: #000;
-    color: #0f0;
-    font-family: "Papyrus", cursive;
-    margin: 0;
+  background-color: #000;
+  color: #0f0;
+  font-family: "Papyrus", cursive;
+  margin: 0;
 }
 main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
 }
 button {
-    font-size: 18px;
-    padding: 10px;
-    border: none;
-    background-color: #ff00ff;
-    color: #fff;
-    cursor: pointer;
-    text-shadow: 1px 1px 2px #000;
-    font-family: inherit;
+  font-size: 18px;
+  padding: 10px;
+  border: none;
+  background-color: #ff00ff;
+  color: #fff;
+  cursor: pointer;
+  text-shadow: 1px 1px 2px #000;
+  font-family: inherit;
 }
 a {
-    color: #a9a9a9;
+  color: #a9a9a9;
 }
 #seekButton {
-    width: 100%;
+  width: 100%;
 }
 #pausePlayButton {
-    margin: 15px 0;
-    width: 100%;
+  margin: 15px 0;
+  width: 100%;
 }
 #revealed {
-    display: none;
-    width: 320px;
+  display: none;
+  width: 320px;
 }
 #currentlyPlaying {
-    font-size: 14px;
-    margin: 15px 0;
-    color: #ffff00;
-    text-align: center;
-    font-style: italic;
-    text-shadow: 0 0 5px #ffff00;
-    letter-spacing: 2px;
+  font-size: 14px;
+  margin: 15px 0;
+  color: #ffff00;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 0 0 5px #ffff00;
+  letter-spacing: 2px;
 }
 .marquee {
-    position: fixed;
-    left: 0;
-    overflow: hidden;
-    box-sizing: border-box;
-    width: 100%;
+  position: fixed;
+  left: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 #topMarquee {
-    top: 0;
+  top: 0;
 }
 #bottomMarquee {
-    bottom: 0;
+  bottom: 0;
 }
 .marqueeContent {
-    display: flex;
-    width: max-content;
-    animation: marquee 18s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
 }
 .marqueeItem {
-    padding-right: 150px;
-    white-space: nowrap;
+  padding-right: 150px;
+  white-space: nowrap;
 }
 .marqueeItem::after {
-    content: " \2627 TUNE IN TO THE TRUTH \2627 HIS MESSAGE IS CLEAR \2627 OPEN YOUR MIND TO THE TRUTH \2627 LET THE HOLY SPIRIT GUIDE YOU \2627 YOUR JOURNEY BEGINS HERE \2627";
+  content: " \2627 TUNE IN TO THE TRUTH \2627 HIS MESSAGE IS CLEAR \2627 OPEN YOUR MIND TO THE TRUTH \2627 LET THE HOLY SPIRIT GUIDE YOU \2627 YOUR JOURNEY BEGINS HERE \2627";
 }
 @keyframes marquee {
-    from {
-        transform: translateX(0%);
-    }
-    to {
-        transform: translateX(-50%);
-    }
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .playing .pulsing {
-    animation: pulse 3s infinite;
+  animation: pulse 3s infinite;
 }
 @keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 0, 255, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 30px 30px rgba(255, 0, 255, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 0, 255, 0);
-    }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 30px 30px rgba(255, 0, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 255, 0);
+  }
 }
 
 .musicNotes {
-    margin-bottom: 5px;
-    height: 30px;
-    display: flex;
-    justify-content: space-between;
+  margin-bottom: 5px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
 }
 .musicNote {
-    display: inline-block;
-    color: #ff00ff;
-    animation: rotateNote 2s infinite;
+  display: inline-block;
+  color: #ff00ff;
+  animation: rotateNote 2s infinite;
 }
 .musicNote::after {
-    content: "\23F3";
+  content: "\23F3";
 }
 .playing .musicNote {
-    animation: pulseNote 1s infinite;
+  animation: pulseNote 1s infinite;
 }
 .playing .musicNote.eighth::after {
-    content: "\266A";
+  content: "\266A";
 }
 .playing .musicNote.beamedEighth::after {
-    content: "\266B";
+  content: "\266B";
 }
 @keyframes rotateNote {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 @keyframes pulseNote {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.3);
-    }
-    100% {
-        transform: scale(1);
-    }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
