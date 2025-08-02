@@ -9,7 +9,11 @@ import {
   getActiveScheduledTrack,
   startScheduledSystem,
 } from "./scheduling.js";
-import { getApplicationState, initializeApplicationState, updateApplicationState } from "./state.js";
+import {
+  getApplicationState,
+  initializeApplicationState,
+  updateApplicationState,
+} from "./state.js";
 import { updateCurrentlyPlayingIndicator } from "./indicator.js";
 
 /**
@@ -23,9 +27,9 @@ export async function loadApplicationData() {
     if (!appState || !appState.config) {
       throw new Error("Configuration not found in application state");
     }
-    
+
     const configurationData = appState.config;
-    
+
     // Validate required configuration properties
     if (!configurationData.mediaPath) {
       throw new Error("Media path not configured");
@@ -42,10 +46,10 @@ export async function loadApplicationData() {
     const trackData = await tracksResponse.json();
 
     // Validate track data structure
-    if (!trackData || typeof trackData !== 'object') {
+    if (!trackData || typeof trackData !== "object") {
       throw new Error("Invalid track data format");
     }
-    
+
     if (!trackData.preprocessed) {
       throw new Error("Track data missing required preprocessed information");
     }
@@ -58,9 +62,11 @@ export async function loadApplicationData() {
 
     if (trackData.metadata?.lastUpdated) {
       const lastUpdated = new Date(trackData.metadata.lastUpdated);
-      console.log(`Tracks database last updated: ${lastUpdated.toLocaleString()}`);
+      console.log(
+        `Tracks database last updated: ${lastUpdated.toLocaleString()}`,
+      );
     }
-    
+
     return true;
   } catch (error) {
     console.error("Application data loading failed:", error);
@@ -75,7 +81,7 @@ export async function loadApplicationData() {
  */
 export async function initializePlayback() {
   const dataLoadSuccess = await loadApplicationData();
-  
+
   if (!dataLoadSuccess) {
     console.error("Playback initialization failed: could not load data");
     return false;
@@ -113,5 +119,5 @@ export function skipCurrentTrack() {
 
   console.log("Skipping current track");
 
-  state.theTransmitter.dispatchEvent(new Event('ended'));
+  state.theTransmitter.dispatchEvent(new Event("ended"));
 }

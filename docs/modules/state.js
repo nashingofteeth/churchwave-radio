@@ -77,8 +77,9 @@ export function initializeDOMElements() {
   applicationState.playingIndicator =
     document.getElementById("playingIndicator");
   applicationState.pausePlayButton = document.getElementById("pausePlayButton");
-  applicationState.currentlyPlayingText =
-    document.getElementById("currentlyPlayingText");
+  applicationState.currentlyPlayingText = document.getElementById(
+    "currentlyPlayingText",
+  );
 }
 
 /**
@@ -147,27 +148,38 @@ export function clearStateArray(arrayPath) {
 export function clearUsedAlgorithmicTracks() {
   const now = getCurrentTime();
   const twentyFourHoursAgo = now.getTime() - 24 * 60 * 60 * 1000;
-  
-  const cleanedUsedAlgorithmicTracks = { ...applicationState.usedAlgorithmicTracks };
-  
+
+  const cleanedUsedAlgorithmicTracks = {
+    ...applicationState.usedAlgorithmicTracks,
+  };
+
   for (const category in cleanedUsedAlgorithmicTracks) {
-    if (category === 'standard') {
+    if (category === "standard") {
       // Standard tracks use 24-hour cycle
       const cleanedStandardTracks = {};
-      Object.keys(cleanedUsedAlgorithmicTracks[category]).forEach((trackKey) => {
-        const usedTimestamp = cleanedUsedAlgorithmicTracks[category][trackKey];
-        if (usedTimestamp && usedTimestamp.getTime && usedTimestamp.getTime() >= twentyFourHoursAgo) {
-          cleanedStandardTracks[trackKey] = usedTimestamp;
-        }
-      });
+      Object.keys(cleanedUsedAlgorithmicTracks[category]).forEach(
+        (trackKey) => {
+          const usedTimestamp =
+            cleanedUsedAlgorithmicTracks[category][trackKey];
+          if (
+            usedTimestamp &&
+            usedTimestamp.getTime &&
+            usedTimestamp.getTime() >= twentyFourHoursAgo
+          ) {
+            cleanedStandardTracks[trackKey] = usedTimestamp;
+          }
+        },
+      );
       cleanedUsedAlgorithmicTracks[category] = cleanedStandardTracks;
     } else {
       // Late night and morning tracks clear hourly
       cleanedUsedAlgorithmicTracks[category] = {};
     }
   }
-  
-  updateApplicationState({ usedAlgorithmicTracks: cleanedUsedAlgorithmicTracks });
+
+  updateApplicationState({
+    usedAlgorithmicTracks: cleanedUsedAlgorithmicTracks,
+  });
 }
 
 /**
@@ -210,8 +222,9 @@ export function markAlgorithmicTrackUsed(category, trackKey) {
     applicationState.usedAlgorithmicTracks[category] = {};
   }
   // Store timestamp for standard tracks, boolean for others
-  if (category === 'standard') {
-    applicationState.usedAlgorithmicTracks[category][trackKey] = getCurrentTime();
+  if (category === "standard") {
+    applicationState.usedAlgorithmicTracks[category][trackKey] =
+      getCurrentTime();
   } else {
     applicationState.usedAlgorithmicTracks[category][trackKey] = true;
   }
@@ -291,9 +304,11 @@ export function initializeApplicationState() {
     const usedAlgorithmicTracks = {};
 
     // Create tracking objects for each algorithmic track type
-    state.preprocessed.optimizations.algorithmicTrackTypes.forEach((trackType) => {
-      usedAlgorithmicTracks[trackType] = {};
-    });
+    state.preprocessed.optimizations.algorithmicTrackTypes.forEach(
+      (trackType) => {
+        usedAlgorithmicTracks[trackType] = {};
+      },
+    );
 
     updateApplicationState({ usedAlgorithmicTracks });
   } else {

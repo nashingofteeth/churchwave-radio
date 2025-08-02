@@ -35,7 +35,6 @@ export async function loadConfiguration() {
   }
 }
 
-
 /**
  * Initialize application
  * @returns {Promise<boolean>} Success status

@@ -103,9 +103,9 @@ class SetTimeoutMonitor {
 
     this.currentTimeoutId = setTimeout(() => {
       this.currentTimeoutId = null;
-      
+
       if (!this.isMonitoring) return; // Double-check monitoring status
-      
+
       const actualDelay = performance.now() - startTime;
       const accuracy = Math.abs(actualDelay - expectedDelay) / expectedDelay;
 

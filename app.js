@@ -1,24 +1,31 @@
-const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
-const { promisify } = require('util');
+const fs = require("fs");
+const path = require("path");
+const { exec } = require("child_process");
+const { promisify } = require("util");
 
 const execAsync = promisify(exec);
 
 // Load media configuration
-const mediaConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-const frontendConfig = JSON.parse(fs.readFileSync('./docs/config.json', 'utf8'));
+const mediaConfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+const frontendConfig = JSON.parse(
+  fs.readFileSync("./docs/config.json", "utf8"),
+);
 
 // Function to get duration of MP3 file using ffprobe
 async function getDuration(filePath) {
   try {
-    const { stdout, stderr } = await execAsync(`ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${filePath}"`);
-    if (mediaConfig.processing.showExecOutput && stdout) console.log(`ffprobe stdout: ${stdout}`);
+    const { stdout, stderr } = await execAsync(
+      `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${filePath}"`,
+    );
+    if (mediaConfig.processing.showExecOutput && stdout)
+      console.log(`ffprobe stdout: ${stdout}`);
     if (stderr) console.log(`ffprobe stderr: ${stderr}`);
     const duration = parseFloat(stdout.trim());
     return Number.isNaN(duration) ? null : Math.round(duration);
   } catch (error) {
-    console.warn(`⚠️ Warning: Could not get duration for ${filePath}: ${error.message}`);
+    console.warn(
+      `⚠️ Warning: Could not get duration for ${filePath}: ${error.message}`,
+    );
     if (error.stderr) console.log(`ffprobe error stderr: ${error.stderr}`);
     return null;
   }
@@ -26,12 +33,12 @@ async function getDuration(filePath) {
 
 // Function to parse time string (HH:MM:SS)
 function parseTimeString(timeString) {
-  const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
   return { hours, minutes, seconds };
 }
 
 // Function to recursively scan directories and collect file info
-function scanDirectory(dir, basePath = '', category = '', genre = null) {
+function scanDirectory(dir, basePath = "", category = "", genre = null) {
   const fileInfos = [];
 
   try {
@@ -39,15 +46,24 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
 
     for (const item of items) {
       const fullPath = path.join(dir, item.name);
-      const relativePath = basePath ? path.join(basePath, item.name) : item.name;
+      const relativePath = basePath
+        ? path.join(basePath, item.name)
+        : item.name;
 
       if (item.isDirectory()) {
         // Recursively scan subdirectories
-        fileInfos.push(...scanDirectory(fullPath, relativePath, category, genre));
-      } else if (item.isFile() && mediaConfig.fileExtensions.audio.some(ext => item.name.toLowerCase().endsWith(ext))) {
+        fileInfos.push(
+          ...scanDirectory(fullPath, relativePath, category, genre),
+        );
+      } else if (
+        item.isFile() &&
+        mediaConfig.fileExtensions.audio.some((ext) =>
+          item.name.toLowerCase().endsWith(ext),
+        )
+      ) {
         // Add audio files with metadata
         const fileInfo = {
-          path: `${frontendConfig.mediaPath}/${mediaConfig.tracks.path}/${relativePath.replace(/\\/g, '/')}`
+          path: `${frontendConfig.mediaPath}/${mediaConfig.tracks.path}/${relativePath.replace(/\\/g, "/")}`,
         };
 
         // Add genre if specified
@@ -59,7 +75,9 @@ function scanDirectory(dir, basePath = '', category = '', genre = null) {
       }
     }
   } catch (error) {
-    console.warn(`⚠️ Warning: Could not read directory ${dir}: ${error.message}`);
+    console.warn(
+      `⚠️ Warning: Could not read directory ${dir}: ${error.message}`,
+    );
   }
 
   return fileInfos;
@@ -74,7 +92,7 @@ function loadExistingTracks() {
   const existingPath = `${mediaConfig.basePath}/${mediaConfig.outputFile}`;
   try {
     if (fs.existsSync(existingPath)) {
-      const existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
+      const existing = JSON.parse(fs.readFileSync(existingPath, "utf8"));
       const existingFiles = {};
 
       // Extract tracks from the current data structure
@@ -85,21 +103,21 @@ function loadExistingTracks() {
 
           // Late night lo-fis
           if (timeSlots.lateNightLoFis?.tracks) {
-            timeSlots.lateNightLoFis.tracks.forEach(track => {
+            timeSlots.lateNightLoFis.tracks.forEach((track) => {
               existingFiles[track.path] = track;
             });
           }
 
           // Morning music
           if (timeSlots.morning?.tracks) {
-            timeSlots.morning.tracks.forEach(track => {
+            timeSlots.morning.tracks.forEach((track) => {
               existingFiles[track.path] = track;
             });
           }
 
           // Standard tracks
           if (timeSlots.standard?.tracks) {
-            timeSlots.standard.tracks.forEach(track => {
+            timeSlots.standard.tracks.forEach((track) => {
               existingFiles[track.path] = track;
             });
           }
@@ -107,37 +125,49 @@ function loadExistingTracks() {
 
         // Extract from junkContent
         if (existing.preprocessed.junkContent?.types) {
-          Object.values(existing.preprocessed.junkContent.types).forEach(type => {
-            if (type.tracks) {
-              type.tracks.forEach(track => {
-                existingFiles[track.path] = track;
-              });
-            }
-          });
+          Object.values(existing.preprocessed.junkContent.types).forEach(
+            (type) => {
+              if (type.tracks) {
+                type.tracks.forEach((track) => {
+                  existingFiles[track.path] = track;
+                });
+              }
+            },
+          );
         }
 
         // Extract from scheduledTracks
         if (existing.preprocessed.scheduledTracks?.byHour) {
-          Object.values(existing.preprocessed.scheduledTracks.byHour).forEach(hourTracks => {
-            hourTracks.forEach(item => {
-              if (item.trackData) {
-                existingFiles[item.trackData.path] = item.trackData;
-              }
-            });
-          });
+          Object.values(existing.preprocessed.scheduledTracks.byHour).forEach(
+            (hourTracks) => {
+              hourTracks.forEach((item) => {
+                if (item.trackData) {
+                  existingFiles[item.trackData.path] = item.trackData;
+                }
+              });
+            },
+          );
         }
       }
 
       return existingFiles;
     }
   } catch (error) {
-    console.warn(`⚠️ Warning: Could not load existing ${existingPath} for caching`);
+    console.warn(
+      `⚠️ Warning: Could not load existing ${existingPath} for caching`,
+    );
   }
   return {};
 }
 
 // Helper function to add file to collection with duration caching
-function addFileToCollection(fileInfo, fileIndex, existingFiles, files, targetArray) {
+function addFileToCollection(
+  fileInfo,
+  fileIndex,
+  existingFiles,
+  files,
+  targetArray,
+) {
   const key = fileIndex.value++;
   // Check if we have existing duration data
   if (mediaConfig.processing.useCachedDurations) {
@@ -152,7 +182,14 @@ function addFileToCollection(fileInfo, fileIndex, existingFiles, files, targetAr
 }
 
 // Helper function to add scheduled file to collection
-function addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, scheduledEntry) {
+function addScheduledFileToCollection(
+  fileInfo,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+  scheduledEntry,
+) {
   const key = fileIndex.value++;
   // Check if we have existing duration data
   if (mediaConfig.processing.useCachedDurations) {
@@ -164,64 +201,115 @@ function addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files,
   files[key] = fileInfo;
   categories.scheduled.push({
     ...scheduledEntry,
-    trackKey: key
+    trackKey: key,
   });
   return key;
 }
 
 // Process algorithmic content (late night lo-fis, morning, standard, junk)
-function processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, categories) {
+function processAlgorithmic(
+  mainDirPath,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
   const config = mediaConfig.tracks.algorithmic;
 
   for (const [subdirKey, subdirConfig] of Object.entries(config)) {
-    if (subdirKey === 'path') continue; // Skip the path property
+    if (subdirKey === "path") continue; // Skip the path property
     const subdirPath = path.join(mainDirPath, subdirConfig.path);
 
     if (!fs.existsSync(subdirPath)) {
-      console.warn(`⚠️ Warning: Algorithmic subdirectory not found: ${subdirConfig.path}`);
+      console.warn(
+        `⚠️ Warning: Algorithmic subdirectory not found: ${subdirConfig.path}`,
+      );
       continue;
     }
 
     switch (subdirKey) {
-      case 'lateNightLoFis': {
-        const lateNightFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
+      case "lateNightLoFis": {
+        const lateNightFiles = scanDirectory(
+          subdirPath,
+          `${config.path}/${subdirConfig.path}`,
+        );
         for (const fileInfo of lateNightFiles) {
-          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.lateNightLoFis);
+          addFileToCollection(
+            fileInfo,
+            fileIndex,
+            existingFiles,
+            files,
+            categories.algorithmic.lateNightLoFis,
+          );
         }
         break;
       }
 
-      case 'morning':
-        processMorningMusic(subdirPath, `${config.path}/${subdirConfig.path}`, subdirConfig, fileIndex, existingFiles, files, categories);
+      case "morning":
+        processMorningMusic(
+          subdirPath,
+          `${config.path}/${subdirConfig.path}`,
+          subdirConfig,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+        );
         break;
 
-      case 'standard': {
-        const standardFiles = scanDirectory(subdirPath, `${config.path}/${subdirConfig.path}`);
+      case "standard": {
+        const standardFiles = scanDirectory(
+          subdirPath,
+          `${config.path}/${subdirConfig.path}`,
+        );
         for (const fileInfo of standardFiles) {
-          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.standardTracks);
+          addFileToCollection(
+            fileInfo,
+            fileIndex,
+            existingFiles,
+            files,
+            categories.algorithmic.standardTracks,
+          );
         }
         break;
       }
 
-      case 'junk':
-        processJunkContent(subdirPath, `${config.path}/${subdirConfig.path}`, subdirConfig, fileIndex, existingFiles, files, categories);
+      case "junk":
+        processJunkContent(
+          subdirPath,
+          `${config.path}/${subdirConfig.path}`,
+          subdirConfig,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+        );
         break;
     }
   }
 }
 
 // Process morning music tracks with flexible genre support
-function processMorningMusic(mainDirPath, basePath, config, fileIndex, existingFiles, files, categories) {
-  const morningSubdirs = fs.readdirSync(mainDirPath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name);
+function processMorningMusic(
+  mainDirPath,
+  basePath,
+  config,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
+  const morningSubdirs = fs
+    .readdirSync(mainDirPath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name);
 
   for (const subdir of morningSubdirs) {
     const subdirPath = path.join(mainDirPath, subdir);
 
     // Check if this is a genre directory (starts with 'genre-')
-    if (subdir.startsWith('genre-')) {
-      const genreKey = subdir.replace('genre-', '');
+    if (subdir.startsWith("genre-")) {
+      const genreKey = subdir.replace("genre-", "");
 
       // Only process if genre is configured
       if (mediaConfig.genres[genreKey]) {
@@ -231,35 +319,51 @@ function processMorningMusic(mainDirPath, basePath, config, fileIndex, existingF
 
         const morningFiles = scanDirectory(subdirPath, `${basePath}/${subdir}`);
         for (const fileInfo of morningFiles) {
-          addFileToCollection(fileInfo, fileIndex, existingFiles, files, categories.algorithmic.morningMusic[genreKey]);
+          addFileToCollection(
+            fileInfo,
+            fileIndex,
+            existingFiles,
+            files,
+            categories.algorithmic.morningMusic[genreKey],
+          );
         }
       } else {
-        console.warn(`⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${subdir}`);
+        console.warn(
+          `⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${subdir}`,
+        );
       }
     } else {
       // Ignore non-genre directories in morning music
-      console.warn(`⚠️ Warning: Non-genre directory '${subdir}' found in morning music - ignoring (use genre-* format)`);
+      console.warn(
+        `⚠️ Warning: Non-genre directory '${subdir}' found in morning music - ignoring (use genre-* format)`,
+      );
     }
   }
 }
 
-
-
 // Process junk content tracks
-function processJunkContent(mainDirPath, basePath, config, fileIndex, existingFiles, files, categories) {
-
-  const junkSubdirs = fs.readdirSync(mainDirPath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name);
+function processJunkContent(
+  mainDirPath,
+  basePath,
+  config,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
+  const junkSubdirs = fs
+    .readdirSync(mainDirPath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name);
 
   for (const subdir of junkSubdirs) {
     const subdirPath = path.join(mainDirPath, subdir);
     let targetArray = [];
-    let typeKey = '';
+    let typeKey = "";
 
     // Find matching subdirectory config
     for (const [key, subdirConfig] of Object.entries(config)) {
-      if (key === 'path') continue; // Skip the path property
+      if (key === "path") continue; // Skip the path property
       if (subdirConfig.path === subdir) {
         typeKey = subdirConfig.type;
         targetArray = categories.algorithmic.junkContent[typeKey];
@@ -270,7 +374,13 @@ function processJunkContent(mainDirPath, basePath, config, fileIndex, existingFi
     if (targetArray) {
       const junkFiles = scanDirectory(subdirPath, `${basePath}/${subdir}`);
       for (const fileInfo of junkFiles) {
-        addFileToCollection(fileInfo, fileIndex, existingFiles, files, targetArray);
+        addFileToCollection(
+          fileInfo,
+          fileIndex,
+          existingFiles,
+          files,
+          targetArray,
+        );
       }
     }
   }
@@ -282,7 +392,11 @@ function isValidDateFormat(dateStr) {
   if (!dateRegex.test(dateStr)) return false;
 
   const date = new Date(dateStr);
-  return date instanceof Date && !Number.isNaN(date) && date.toISOString().slice(0, 10) === dateStr;
+  return (
+    date instanceof Date &&
+    !Number.isNaN(date) &&
+    date.toISOString().slice(0, 10) === dateStr
+  );
 }
 
 // Validate time format (HH-MM-SS)
@@ -290,19 +404,36 @@ function isValidTimeFormat(timeStr) {
   const timeRegex = /^\d{2}-\d{2}-\d{2}$/;
   if (!timeRegex.test(timeStr)) return false;
 
-  const [hours, minutes, seconds] = timeStr.split('-').map(Number);
-  return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59;
+  const [hours, minutes, seconds] = timeStr.split("-").map(Number);
+  return (
+    hours >= 0 &&
+    hours <= 23 &&
+    minutes >= 0 &&
+    minutes <= 59 &&
+    seconds >= 0 &&
+    seconds <= 59
+  );
 }
 
 // Process scheduled dates (specific YYYY-MM-DD folders)
-function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
+function processScheduledDates(
+  recurrencePath,
+  recurrence,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
   const scheduledConfig = mediaConfig.tracks.scheduled;
-  const dates = fs.readdirSync(recurrencePath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name)
-    .filter(date => {
+  const dates = fs
+    .readdirSync(recurrencePath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name)
+    .filter((date) => {
       if (!isValidDateFormat(date)) {
-        console.warn(`⚠️ Warning: Invalid date format '${date}' in timeline/${recurrence}/`);
+        console.warn(
+          `⚠️ Warning: Invalid date format '${date}' in timeline/${recurrence}/`,
+        );
         return false;
       }
       return true;
@@ -310,12 +441,15 @@ function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFi
 
   for (const date of dates) {
     const datePath = path.join(recurrencePath, date);
-    const times = fs.readdirSync(datePath, { withFileTypes: true })
-      .filter(item => item.isDirectory())
-      .map(item => item.name)
-      .filter(timeDir => {
+    const times = fs
+      .readdirSync(datePath, { withFileTypes: true })
+      .filter((item) => item.isDirectory())
+      .map((item) => item.name)
+      .filter((timeDir) => {
         if (!isValidTimeFormat(timeDir)) {
-          console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${date}/`);
+          console.warn(
+            `⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${date}/`,
+          );
           return false;
         }
         return true;
@@ -323,29 +457,57 @@ function processScheduledDates(recurrencePath, recurrence, fileIndex, existingFi
 
     for (const timeDir of times) {
       const timePath = path.join(datePath, timeDir);
-      const timeString = timeDir.replace(/-/g, ':');
-      const scheduledFiles = scanDirectory(timePath, `${scheduledConfig.path}/${recurrence}/${date}/${timeDir}`);
+      const timeString = timeDir.replace(/-/g, ":");
+      const scheduledFiles = scanDirectory(
+        timePath,
+        `${scheduledConfig.path}/${recurrence}/${date}/${timeDir}`,
+      );
 
       for (const fileInfo of scheduledFiles) {
-        addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
-          time: timeString,
-          date: date
-        });
+        addScheduledFileToCollection(
+          fileInfo,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+          {
+            time: timeString,
+            date: date,
+          },
+        );
       }
     }
   }
 }
 
 // Process scheduled days of the week
-function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
+function processScheduledDays(
+  recurrencePath,
+  recurrence,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
   const scheduledConfig = mediaConfig.tracks.scheduled;
-  const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  const dayDirs = fs.readdirSync(recurrencePath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name)
-    .filter(day => {
+  const validDays = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+  const dayDirs = fs
+    .readdirSync(recurrencePath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name)
+    .filter((day) => {
       if (!validDays.includes(day.toLowerCase())) {
-        console.warn(`⚠️ Warning: Invalid day name '${day}' in scheduled/${recurrence}/`);
+        console.warn(
+          `⚠️ Warning: Invalid day name '${day}' in scheduled/${recurrence}/`,
+        );
         return false;
       }
       return true;
@@ -353,12 +515,15 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
 
   for (const day of dayDirs) {
     const dayPath = path.join(recurrencePath, day);
-    const times = fs.readdirSync(dayPath, { withFileTypes: true })
-      .filter(item => item.isDirectory())
-      .map(item => item.name)
-      .filter(timeDir => {
+    const times = fs
+      .readdirSync(dayPath, { withFileTypes: true })
+      .filter((item) => item.isDirectory())
+      .map((item) => item.name)
+      .filter((timeDir) => {
         if (!isValidTimeFormat(timeDir)) {
-          console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${day}/`);
+          console.warn(
+            `⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/${day}/`,
+          );
           return false;
         }
         return true;
@@ -366,28 +531,48 @@ function processScheduledDays(recurrencePath, recurrence, fileIndex, existingFil
 
     for (const timeDir of times) {
       const timePath = path.join(dayPath, timeDir);
-      const timeString = timeDir.replace(/-/g, ':');
-      const scheduledFiles = scanDirectory(timePath, `${scheduledConfig.path}/${recurrence}/${day}/${timeDir}`);
+      const timeString = timeDir.replace(/-/g, ":");
+      const scheduledFiles = scanDirectory(
+        timePath,
+        `${scheduledConfig.path}/${recurrence}/${day}/${timeDir}`,
+      );
 
       for (const fileInfo of scheduledFiles) {
-        addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
-          time: timeString,
-          recurrence: day
-        });
+        addScheduledFileToCollection(
+          fileInfo,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+          {
+            time: timeString,
+            recurrence: day,
+          },
+        );
       }
     }
   }
 }
 
 // Process scheduled daily recurrence with flexible genre support
-function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFiles, files, categories) {
+function processScheduledDaily(
+  recurrencePath,
+  recurrence,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
   const scheduledConfig = mediaConfig.tracks.scheduled;
-  const times = fs.readdirSync(recurrencePath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name)
-    .filter(timeDir => {
+  const times = fs
+    .readdirSync(recurrencePath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name)
+    .filter((timeDir) => {
       if (!isValidTimeFormat(timeDir)) {
-        console.warn(`⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/`);
+        console.warn(
+          `⚠️ Warning: Invalid time format '${timeDir}' in scheduled/${recurrence}/`,
+        );
         return false;
       }
       return true;
@@ -395,18 +580,18 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
 
   for (const timeDir of times) {
     const timePath = path.join(recurrencePath, timeDir);
-    const timeString = timeDir.replace(/-/g, ':');
+    const timeString = timeDir.replace(/-/g, ":");
 
     // Check if this time directory has genre subdirectories (only for daily)
     const timeContents = fs.readdirSync(timePath, { withFileTypes: true });
-    const genreSubdirs = timeContents.filter(item =>
-      item.isDirectory() && item.name.startsWith('genre-')
+    const genreSubdirs = timeContents.filter(
+      (item) => item.isDirectory() && item.name.startsWith("genre-"),
     );
 
     if (genreSubdirs.length > 0) {
       // Handle genre subdirectories
       for (const genreItem of genreSubdirs) {
-        const genreKey = genreItem.name.replace('genre-', '');
+        const genreKey = genreItem.name.replace("genre-", "");
 
         // Only process if genre is configured
         if (mediaConfig.genres[genreKey]) {
@@ -414,68 +599,114 @@ function processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFi
           const scheduledFiles = scanDirectory(
             genrePath,
             `${scheduledConfig.path}/${recurrence}/${timeDir}/${genreItem.name}`,
-            'scheduled',
-            genreKey
+            "scheduled",
+            genreKey,
           );
 
           for (const fileInfo of scheduledFiles) {
-            addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
-              time: timeString,
-              recurrence: recurrence,
-              genre: genreKey
-            });
+            addScheduledFileToCollection(
+              fileInfo,
+              fileIndex,
+              existingFiles,
+              files,
+              categories,
+              {
+                time: timeString,
+                recurrence: recurrence,
+                genre: genreKey,
+              },
+            );
           }
         } else {
-          console.warn(`⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${genreItem.name}`);
+          console.warn(
+            `⚠️ Warning: Genre '${genreKey}' found in directory but not configured - ignoring ${genreItem.name}`,
+          );
         }
       }
     } else {
       // Handle direct files in time directory
-      const scheduledFiles = scanDirectory(timePath, `${scheduledConfig.path}/${recurrence}/${timeDir}`);
+      const scheduledFiles = scanDirectory(
+        timePath,
+        `${scheduledConfig.path}/${recurrence}/${timeDir}`,
+      );
 
       for (const fileInfo of scheduledFiles) {
-        addScheduledFileToCollection(fileInfo, fileIndex, existingFiles, files, categories, {
-          time: timeString,
-          recurrence: recurrence
-        });
+        addScheduledFileToCollection(
+          fileInfo,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+          {
+            time: timeString,
+            recurrence: recurrence,
+          },
+        );
       }
     }
   }
 }
 
-
-
 // Process scheduled tracks
-function processScheduled(mainDirPath, fileIndex, existingFiles, files, categories) {
+function processScheduled(
+  mainDirPath,
+  fileIndex,
+  existingFiles,
+  files,
+  categories,
+) {
   const scheduledConfig = mediaConfig.tracks.scheduled;
   const scheduledPath = path.join(mainDirPath, scheduledConfig.path);
   if (!fs.existsSync(scheduledPath)) {
     return;
   }
 
-  const recurrenceTypes = fs.readdirSync(scheduledPath, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name);
+  const recurrenceTypes = fs
+    .readdirSync(scheduledPath, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name);
 
   for (const recurrence of recurrenceTypes) {
     const recurrencePath = path.join(scheduledPath, recurrence);
 
     if (!scheduledConfig.recurrenceTypes.includes(recurrence)) {
-      console.warn(`⚠️ Warning: Unknown recurrence type '${recurrence}' - ignoring`);
+      console.warn(
+        `⚠️ Warning: Unknown recurrence type '${recurrence}' - ignoring`,
+      );
       continue;
     }
 
     switch (recurrence) {
-      case 'dates':
-        processScheduledDates(recurrencePath, recurrence, fileIndex, existingFiles, files, categories);
+      case "dates":
+        processScheduledDates(
+          recurrencePath,
+          recurrence,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+        );
         break;
-      case 'days':
-        processScheduledDays(recurrencePath, recurrence, fileIndex, existingFiles, files, categories);
+      case "days":
+        processScheduledDays(
+          recurrencePath,
+          recurrence,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+        );
         break;
-      case 'daily':
-        processScheduledDaily(recurrencePath, recurrence, fileIndex, existingFiles, files, categories);
+      case "daily":
+        processScheduledDaily(
+          recurrencePath,
+          recurrence,
+          fileIndex,
+          existingFiles,
+          files,
+          categories,
+        );
         break;
-
     }
   }
 }
@@ -502,10 +733,10 @@ function organizeTracksByStructure() {
         scripture: [],
         interludes: [],
         bumpers: [],
-        ads2: []
-      }
+        ads2: [],
+      },
     },
-    scheduled: []
+    scheduled: [],
   };
 
   // Initialize morning music genres dynamically
@@ -514,9 +745,10 @@ function organizeTracksByStructure() {
   }
 
   // Scan each main directory
-  const mainDirs = fs.readdirSync(mediaDir, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => item.name)
+  const mainDirs = fs
+    .readdirSync(mediaDir, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name)
     .sort();
 
   // Use object to pass by reference for fileIndex
@@ -528,14 +760,26 @@ function organizeTracksByStructure() {
     // Find matching directory configuration
     let processed = false;
     for (const [configKey, dirConfig] of Object.entries(mediaConfig.tracks)) {
-      if (configKey === 'path') continue; // Skip the path property
+      if (configKey === "path") continue; // Skip the path property
       if (dirConfig.path === mainDir) {
         switch (configKey) {
-          case 'algorithmic':
-            processAlgorithmic(mainDirPath, fileIndex, existingFiles, files, categories);
+          case "algorithmic":
+            processAlgorithmic(
+              mainDirPath,
+              fileIndex,
+              existingFiles,
+              files,
+              categories,
+            );
             break;
-          case 'scheduled':
-            processScheduled(mediaDir, fileIndex, existingFiles, files, categories);
+          case "scheduled":
+            processScheduled(
+              mediaDir,
+              fileIndex,
+              existingFiles,
+              files,
+              categories,
+            );
             break;
         }
         processed = true;
@@ -554,7 +798,7 @@ function organizeTracksByStructure() {
 // Function to scan durations
 async function scanDurations(files) {
   const fileKeys = Object.keys(files);
-  const filesToScan = fileKeys.filter(key => !files[key].duration);
+  const filesToScan = fileKeys.filter((key) => !files[key].duration);
   const cachedCount = fileKeys.length - filesToScan.length;
 
   if (cachedCount > 0) {
@@ -562,7 +806,9 @@ async function scanDurations(files) {
   }
 
   if (filesToScan.length > 0) {
-    console.log(`🎵 Scanning durations for ${filesToScan.length} new tracks...`);
+    console.log(
+      `🎵 Scanning durations for ${filesToScan.length} new tracks...`,
+    );
 
     let processed = 0;
 
@@ -571,21 +817,28 @@ async function scanDurations(files) {
 
       // Show progress every 50 files
       if (processed % mediaConfig.processing.progressReportInterval === 0) {
-        console.log(`   Progress: ${processed}/${filesToScan.length} (${Math.round(processed / filesToScan.length * 100)}%)`);
+        console.log(
+          `   Progress: ${processed}/${filesToScan.length} (${Math.round((processed / filesToScan.length) * 100)}%)`,
+        );
       }
 
       const fileInfo = files[key];
 
       // Get duration
       // Use local path for duration scanning but keep remote path in fileInfo
-      const localPath = fileInfo.path.replace(frontendConfig.mediaPath, mediaConfig.basePath);
+      const localPath = fileInfo.path.replace(
+        frontendConfig.mediaPath,
+        mediaConfig.basePath,
+      );
       const duration = await getDuration(localPath);
       if (duration !== null) {
         fileInfo.duration = duration;
       }
     }
 
-    console.log(`✅ Duration scanning complete for ${filesToScan.length} files`);
+    console.log(
+      `✅ Duration scanning complete for ${filesToScan.length} files`,
+    );
   } else {
     console.log(`✅ All durations found in cache - no scanning needed`);
   }
@@ -600,7 +853,7 @@ function preprocessTimeSlots(files, categories) {
 
   // Parse time ranges to get hour arrays
   const parseTimeToHours = (startTime, endTime) => {
-    const getHours = (timeStr) => parseInt(timeStr.split(':')[0], 10);
+    const getHours = (timeStr) => parseInt(timeStr.split(":")[0], 10);
     const startHour = getHours(startTime);
     const endHour = getHours(endTime);
 
@@ -623,8 +876,11 @@ function preprocessTimeSlots(files, categories) {
     } else {
       // Simple case: start hour to end hour
       // Special case: if endTime is 23:59:59, include hour 23
-      const includeEndHour = endTime.endsWith('23:59:59');
-      while (currentHour < endHour || (includeEndHour && currentHour === endHour)) {
+      const includeEndHour = endTime.endsWith("23:59:59");
+      while (
+        currentHour < endHour ||
+        (includeEndHour && currentHour === endHour)
+      ) {
         hours.push(currentHour);
         currentHour++;
       }
@@ -633,37 +889,48 @@ function preprocessTimeSlots(files, categories) {
     return hours;
   };
 
-  const lateNightLoFisHours = parseTimeToHours(lateNightLoFisConfig.startTime, lateNightLoFisConfig.endTime);
-  const morningHours = parseTimeToHours(morningConfig.startTime, morningConfig.endTime);
-  const standardHours = parseTimeToHours(standardConfig.startTime, standardConfig.endTime);
+  const lateNightLoFisHours = parseTimeToHours(
+    lateNightLoFisConfig.startTime,
+    lateNightLoFisConfig.endTime,
+  );
+  const morningHours = parseTimeToHours(
+    morningConfig.startTime,
+    morningConfig.endTime,
+  );
+  const standardHours = parseTimeToHours(
+    standardConfig.startTime,
+    standardConfig.endTime,
+  );
 
   const timeSlots = {
     lateNightLoFis: {
-      tracks: categories.algorithmic.lateNightLoFis.map(key => ({
+      tracks: categories.algorithmic.lateNightLoFis.map((key) => ({
         key,
-        ...files[key]
-      }))
+        ...files[key],
+      })),
     },
     morning: {
       genres: {},
-      tracks: []
+      tracks: [],
     },
     standard: {
-      tracks: categories.algorithmic.standardTracks.map(key => ({
+      tracks: categories.algorithmic.standardTracks.map((key) => ({
         key,
-        ...files[key]
-      }))
-    }
+        ...files[key],
+      })),
+    },
   };
 
   // Process morning genres
-  for (const [genreKey, trackKeys] of Object.entries(categories.algorithmic.morningMusic)) {
+  for (const [genreKey, trackKeys] of Object.entries(
+    categories.algorithmic.morningMusic,
+  )) {
     timeSlots.morning.genres[genreKey] = {
-      tracks: trackKeys.map(key => ({
+      tracks: trackKeys.map((key) => ({
         key,
         ...files[key],
-        genre: genreKey
-      }))
+        genre: genreKey,
+      })),
     };
 
     // Also add to main morning tracks array
@@ -674,11 +941,11 @@ function preprocessTimeSlots(files, categories) {
   const hourToTimeSlot = {};
   for (let hour = 0; hour < 24; hour++) {
     if (lateNightLoFisHours.includes(hour)) {
-      hourToTimeSlot[hour] = 'lateNightLoFis';
+      hourToTimeSlot[hour] = "lateNightLoFis";
     } else if (morningHours.includes(hour)) {
-      hourToTimeSlot[hour] = 'morning';
+      hourToTimeSlot[hour] = "morning";
     } else if (standardHours.includes(hour)) {
-      hourToTimeSlot[hour] = 'standard';
+      hourToTimeSlot[hour] = "standard";
     }
   }
 
@@ -691,19 +958,21 @@ function preprocessTimeSlots(files, categories) {
 // Function to pre-process junk content for cycling
 function preprocessJunkContent(files, categories) {
   const junkContent = {
-    cycleOrder: ['ads', 'scripture', 'interludes', 'ads2', 'bumpers'],
-    types: {}
+    cycleOrder: ["ads", "scripture", "interludes", "ads2", "bumpers"],
+    types: {},
   };
 
-  for (const [junkType, trackKeys] of Object.entries(categories.algorithmic.junkContent)) {
-    const tracks = trackKeys.map(key => ({
+  for (const [junkType, trackKeys] of Object.entries(
+    categories.algorithmic.junkContent,
+  )) {
+    const tracks = trackKeys.map((key) => ({
       key,
-      ...files[key]
+      ...files[key],
     }));
 
     junkContent.types[junkType] = {
       tracks,
-      nonBumper: junkType !== 'bumpers'
+      nonBumper: junkType !== "bumpers",
     };
   }
 
@@ -712,7 +981,7 @@ function preprocessJunkContent(files, categories) {
 
 // Function to pre-process scheduled tracks with parsed times and dates
 function preprocessScheduledTracks(files, categories) {
-  const processedScheduled = categories.scheduled.map(scheduledItem => {
+  const processedScheduled = categories.scheduled.map((scheduledItem) => {
     const trackData = files[scheduledItem.trackKey];
     const { hours, minutes, seconds } = parseTimeString(scheduledItem.time);
 
@@ -722,16 +991,25 @@ function preprocessScheduledTracks(files, categories) {
       parsedTime: {
         hours,
         minutes,
-        seconds
+        seconds,
       },
-      priority: scheduledItem.date ? 1 : (scheduledItem.recurrence && scheduledItem.recurrence !== 'daily' ? 2 : 3)
+      priority: scheduledItem.date
+        ? 1
+        : scheduledItem.recurrence && scheduledItem.recurrence !== "daily"
+          ? 2
+          : 3,
     };
 
     // Add day of week info if exists
-    if (scheduledItem.recurrence && scheduledItem.recurrence !== 'daily') {
+    if (scheduledItem.recurrence && scheduledItem.recurrence !== "daily") {
       const dayMap = {
-        'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
-        'thursday': 4, 'friday': 5, 'saturday': 6
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
       };
       processed.dayOfWeek = dayMap[scheduledItem.recurrence.toLowerCase()];
     }
@@ -742,64 +1020,72 @@ function preprocessScheduledTracks(files, categories) {
   // Group by hour for efficient lookups (only what frontend uses)
   const byHour = {};
 
-  processedScheduled.forEach(item => {
+  processedScheduled.forEach((item) => {
     const hourKey = item.parsedTime.hours;
     if (!byHour[hourKey]) byHour[hourKey] = [];
     byHour[hourKey].push(item);
   });
 
   return {
-    byHour
+    byHour,
   };
 }
 
 // Function to create performance optimizations for frontend
-function preprocessPerformanceOptimizations(timeSlots, junkContent, scheduledTracks) {
+function preprocessPerformanceOptimizations(
+  timeSlots,
+  junkContent,
+  scheduledTracks,
+) {
   const optimizations = {
     // Pre-compute available genres from config
     availableGenres: Object.keys(mediaConfig.genres),
-    
+
     // Pre-compute algorithmic track types (excluding junk) for state initialization
-    algorithmicTrackTypes: Object.keys(mediaConfig.tracks.algorithmic)
-      .filter(key => key !== 'path' && key !== 'junk'),
-    
+    algorithmicTrackTypes: Object.keys(mediaConfig.tracks.algorithmic).filter(
+      (key) => key !== "path" && key !== "junk",
+    ),
+
     // Pre-compute non-bumper junk types for pre-schedule filtering
     nonBumperJunkTypes: Object.entries(junkContent.types)
       .filter(([_, typeData]) => typeData.nonBumper)
-      .map(([type, _]) => type)
+      .map(([type, _]) => type),
   };
 
   return optimizations;
 }
 
-
 // Generate the complete tracks.json
 async function generateTracksJson() {
-  console.log('🔍 Scanning media directory...');
+  console.log("🔍 Scanning media directory...");
   const { files, categories } = organizeTracksByStructure();
 
   // Scan durations
   await scanDurations(files);
 
-  console.log('🔧 Pre-processing data for front-end optimization...');
+  console.log("🔧 Pre-processing data for front-end optimization...");
 
   // Pre-process different track types
   const timeSlots = preprocessTimeSlots(files, categories);
   const junkContent = preprocessJunkContent(files, categories);
   const scheduledTracks = preprocessScheduledTracks(files, categories);
-  const optimizations = preprocessPerformanceOptimizations(timeSlots, junkContent, scheduledTracks);
+  const optimizations = preprocessPerformanceOptimizations(
+    timeSlots,
+    junkContent,
+    scheduledTracks,
+  );
 
   const tracksJson = {
     preprocessed: {
       timeSlots,
-      junkContent, 
+      junkContent,
       scheduledTracks,
-      optimizations
+      optimizations,
     },
 
     metadata: {
-      lastUpdated: new Date().toISOString()
-    }
+      lastUpdated: new Date().toISOString(),
+    },
   };
 
   return JSON.stringify(tracksJson, null, 2);
@@ -808,18 +1094,20 @@ async function generateTracksJson() {
 // Write the new tracks.json
 async function main() {
   try {
-    console.log('🚀 Starting track population with normalized structure...');
+    console.log("🚀 Starting track population with normalized structure...");
 
     // Check if ffprobe is available
     try {
-      const { stdout, stderr } = await execAsync('ffprobe -version');
+      const { stdout, stderr } = await execAsync("ffprobe -version");
       if (mediaConfig.processing.showExecOutput && stdout) console.log(stdout);
       if (stderr) console.log(`ffprobe version stderr: ${stderr}`);
     } catch (error) {
-      console.error('❌ ffprobe not found. Please install FFmpeg to scan durations.');
-      console.log('   On macOS: brew install ffmpeg');
-      console.log('   On Ubuntu: sudo apt install ffmpeg');
-      console.log('   On Windows: Download from https://ffmpeg.org/');
+      console.error(
+        "❌ ffprobe not found. Please install FFmpeg to scan durations.",
+      );
+      console.log("   On macOS: brew install ffmpeg");
+      console.log("   On Ubuntu: sudo apt install ffmpeg");
+      console.log("   On Windows: Download from https://ffmpeg.org/");
       if (error.stderr) console.log(`ffprobe error stderr: ${error.stderr}`);
       process.exit(1);
     }
@@ -828,41 +1116,55 @@ async function main() {
     const outputPath = `${mediaConfig.basePath}/${mediaConfig.outputFile}`;
     fs.writeFileSync(outputPath, newTracksContent);
     console.log(`✅ Successfully generated optimized ${outputPath}`);
-    
+
     const data = JSON.parse(newTracksContent);
-    
+
     // Simple statistics
-    const totalAlgorithmic = data.preprocessed.timeSlots.lateNightLoFis.tracks.length + 
-                           data.preprocessed.timeSlots.morning.tracks.length + 
-                           data.preprocessed.timeSlots.standard.tracks.length;
-    
-    const totalJunk = Object.values(data.preprocessed.junkContent.types)
-                           .reduce((sum, type) => sum + type.tracks.length, 0);
-    
-    const totalScheduled = Object.values(data.preprocessed.scheduledTracks.byHour)
-                               .reduce((sum, hour) => sum + hour.length, 0);
-    
-    console.log(`📊 ${totalAlgorithmic} algorithmic tracks, ${totalJunk} junk tracks, ${totalScheduled} scheduled tracks`);
+    const totalAlgorithmic =
+      data.preprocessed.timeSlots.lateNightLoFis.tracks.length +
+      data.preprocessed.timeSlots.morning.tracks.length +
+      data.preprocessed.timeSlots.standard.tracks.length;
+
+    const totalJunk = Object.values(data.preprocessed.junkContent.types).reduce(
+      (sum, type) => sum + type.tracks.length,
+      0,
+    );
+
+    const totalScheduled = Object.values(
+      data.preprocessed.scheduledTracks.byHour,
+    ).reduce((sum, hour) => sum + hour.length, 0);
+
+    console.log(
+      `📊 ${totalAlgorithmic} algorithmic tracks, ${totalJunk} junk tracks, ${totalScheduled} scheduled tracks`,
+    );
 
     // Upload media folder to remote storage
     if (mediaConfig.processing.uploadToRemote) {
-      console.log('☁️ Uploading media folder to remote storage...');
+      console.log("☁️ Uploading media folder to remote storage...");
       try {
-        const { stdout, stderr } = await execAsync('rclone sync media/ storj:churchwave-radio -P');
-        if (mediaConfig.processing.showExecOutput && stdout) console.log(stdout);
+        const { stdout, stderr } = await execAsync(
+          "rclone sync media/ storj:churchwave-radio -P",
+        );
+        if (mediaConfig.processing.showExecOutput && stdout)
+          console.log(stdout);
         if (stderr) console.log(stderr);
-        console.log('✅ Successfully uploaded media folder to storj:churchwave-radio');
+        console.log(
+          "✅ Successfully uploaded media folder to storj:churchwave-radio",
+        );
       } catch (uploadError) {
-        console.warn(`⚠️ Warning: Failed to upload to remote storage: ${uploadError.message}`);
-        if (uploadError.stderr) console.log('stderr:', uploadError.stderr);
-        console.log('   Continuing without upload - tracks.json generation was successful');
+        console.warn(
+          `⚠️ Warning: Failed to upload to remote storage: ${uploadError.message}`,
+        );
+        if (uploadError.stderr) console.log("stderr:", uploadError.stderr);
+        console.log(
+          "   Continuing without upload - tracks.json generation was successful",
+        );
       }
     } else {
-      console.log('⏭️ Skipping remote upload');
+      console.log("⏭️ Skipping remote upload");
     }
-
   } catch (error) {
-    console.error('❌ Error generating tracks.json:', error.message);
+    console.error("❌ Error generating tracks.json:", error.message);
     process.exit(1);
   }
 }
