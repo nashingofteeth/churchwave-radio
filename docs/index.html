@@ -7,12 +7,38 @@
       name="description"
       content="Join Churchwave Radio and tune in to the Truth! This urgent Message simply cannot wait."
     />
-    <title>Churchwave Radio</title>
+    <title>CHURCHWAVE RADIO</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <link rel="preload" href="satellite.gif" as="image" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Tiled background -->
+    <div class="tile-background"></div>
+
+    <!-- Apocalypse themed floating elements -->
+    <div class="floating-element palm1">🌴</div>
+    <div class="floating-element palm2">🌴</div>
+    <div class="floating-element sun1">☀️</div>
+    <div class="floating-element cross1">✝️</div>
+    <div class="floating-element cross2">☩</div>
+    <div class="floating-element dove1">🕊️</div>
+    <div class="floating-element dove2">🕊️</div>
+    <div class="floating-element lamb1">🐑</div>
+    <div class="floating-element trumpet1">🎺</div>
+    <div class="floating-element trumpet2">🎺</div>
+    <div class="floating-element angel1">👼</div>
+    <div class="floating-element angel2">👼</div>
+    <div class="floating-element crown1">👑</div>
+    <div class="floating-element fire1">🔥</div>
+    <div class="floating-element lightning1">⚡</div>
+
+    <!-- Under construction animated GIF -->
+    <div class="construction-gif">
+      <div class="gif-placeholder">🙏 END TIMES INSTRUCTION 🙏</div>
+    </div>
+
     <div class="marquee" id="topMarquee">
       <div class="marqueeContent">
         <div class="marqueeItem"></div>
@@ -26,80 +52,368 @@
       </div>
     </div>
 
-    <main>
-      <button id="startButton">
-        &#x2629; &#9835; TUNE IN TO THE TRUTH &#937; &#9834;
-      </button>
+    <!-- Blinking text everywhere -->
+    <div class="blink-text top-left">SAVED!</div>
+    <div class="blink-text top-right">HOLY!</div>
+    <div class="blink-text bottom-left">EPIC!</div>
+    <div class="blink-text bottom-right">BLESSED!</div>
 
-      <div id="loadingIndicator" style="display: none">
-        &#x23F3; Loading... Please wait &#x23F3;
-      </div>
+    <main class="py-12 px-5 relative z-[5] min-h-screen">
+      <div
+        class="max-w-4xl mx-auto bg-white border-4 border-black p-5 site-container"
+      >
+        <!-- Header with awesome fonts -->
+        <h1 class="site-header">
+          <span class="text-red text-2xl font-bold">WSHM7:</span>
+          <span class="text-blue text-2xl font-bold">CHURCHWAVE</span>
+          <span class="text-green text-2xl font-bold">RADIO</span><br />
+          <span class="text-purple text-md font-bold"
+            >The Most Radical Christian Vaporwave Station!</span
+          >
+        </h1>
 
-      <div id="revealed">
-        <div id="playingIndicator">
-          <div class="musicNotes">
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.1s"
-            ></span>
-            <span class="musicNote eighth"></span>
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.5s"
-            ></span>
-            <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.3s"
-            ></span>
-            <span class="musicNote eighth" style="animation-delay: 0.6s"></span>
+        <!-- Main content grid -->
+        <section class="my-5 main-content-wrapper">
+          <div
+            class="grid grid-cols-1 gap-px lg:px-3 lg:pb-3 border-4 border-black bg-yellow-200"
+          >
+            <header class="col-span-1 text-center py-4 bg-yellow-200">
+              <span class="text-red text-md font-bold underline"
+                >WELCOME TO OUR AWESOME STREAM!</span
+              >
+            </header>
+            <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-2">
+              <article class="p-3 bg-pink-300">
+                <div class="text-center">
+                  <span class="text-darkblue text-base font-bold"
+                    >DIVINE BROADCASTING SYSTEM</span
+                  >
+
+                  <button id="startButton" class="button">
+                    <span class="text-base text-white font-bold"
+                      >🎵 TUNE INTO THE TRUTH! 🎵</span
+                    ><br />
+                    <small>(Netscape 4.0+ Required)</small>
+                  </button>
+
+                  <div id="loadingIndicator" class="hidden loading">
+                    <p>
+                      <span class="text-red text-sm font-bold"
+                        >Connecting to Divine Frequencies...</span
+                      >
+                    </p>
+                    <div class="loading-bars">
+                      <div class="bar bar1">▓</div>
+                      <div class="bar bar2">▓</div>
+                      <div class="bar bar3">▓</div>
+                      <div class="bar bar4">▓</div>
+                      <div class="bar bar5">▓</div>
+                      <div class="bar bar6">▓</div>
+                      <div class="bar bar7">▓</div>
+                      <div class="bar bar8">▓</div>
+                    </div>
+                    <p>
+                      <span class="text-blue"
+                        >Please wait while we sync with the holy
+                        mainframe!</span
+                      >
+                    </p>
+                  </div>
+
+                  <div id="revealed" class="hidden">
+                    <div class="border-2 border-black w-full my-5 bg-cyan-200">
+                      <div class="text-center p-1 bg-blue-500">
+                        <span class="text-white text-sm font-bold"
+                          >TRUTH TRANSMISSION</span
+                        >
+                      </div>
+                      <div class="text-center py-2 px-4 bg-cyan-200">
+                        <div id="playingIndicator">
+                          <div class="musicNotes">
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.1s"
+                            ></span>
+                            <span class="musicNote eighth"></span>
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.5s"
+                            ></span>
+                            <span
+                              class="musicNote eighth"
+                              style="animation-delay: 0.4s"
+                            ></span>
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.3s"
+                            ></span>
+                            <span
+                              class="musicNote eighth"
+                              style="animation-delay: 0.6s"
+                            ></span>
+                          </div>
+                          <div class="satellite-container my-2">
+                            <img
+                              id="satelliteImage"
+                              src="satellite.gif"
+                              alt="Broadcasting the truth"
+                              width="100%"
+                            />
+                            <div class="satellite-overlay"></div>
+                          </div>
+                          <div class="musicNotes">
+                            <span
+                              class="musicNote eighth"
+                              style="animation-delay: 0.5s"
+                            ></span>
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.1s"
+                            ></span>
+                            <span
+                              class="musicNote eighth"
+                              style="animation-delay: 0.4s"
+                            ></span>
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.3s"
+                            ></span>
+                            <span class="musicNote eighth"></span>
+                            <span
+                              class="musicNote beamedEighth"
+                              style="animation-delay: 0.6s"
+                            ></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <audio id="theTransmitter"></audio>
+
+                    <div id="currentlyPlaying" class="mb-4 animate-track-blink">
+                      <div
+                        class="border-2 border-black text-center p-1 bg-yellow-400"
+                      >
+                        <span class="text-red text-sm font-bold">
+                          <span id="currentlyPlayingText"></span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <button id="pausePlayButton" class="control-btn mb-4">
+                      <span class="text-white text-sm font-bold"
+                        >⏸️ PAUSE/PLAY ⏯️</span
+                      >
+                    </button>
+                  </div>
+
+                  <div class="notice">
+                    <p>
+                      <span class="text-red text-sm font-bold"
+                        >🌈 NEVER-ENDING SACRED VIBES! 🌈</span
+                      >
+                    </p>
+                    <p>
+                      We always play the best of churchwave, tradwave,
+                      mormonwave, and much more!
+                    </p>
+                    <p>
+                      <span class="text-green"
+                        >Listen anytime, anywhere, from any device!</span
+                      >
+                    </p>
+                  </div>
+                </div>
+              </article>
+              <aside class="p-3 bg-green-300">
+                <div class="text-center">
+                  <span class="text-purple text-base font-bold"
+                    >GOOD TIDINGS</span
+                  >
+
+                  <div class="awards">
+                    <span class="text-red text-sm font-bold"
+                      >OUR ACCOLADES:</span
+                    ><br />
+                    <span class="text-gold">🏆 #1 HOLY HITS STATION</span><br />
+                    <span class="text-silver">🎖️ Jesus Approved!</span><br />
+                    <span class="text-bronze">🏅 Best Christian Site 1999</span
+                    ><br />
+                    <span class="text-purple"
+                      >🌟 Y2K Compatible Certified!</span
+                    >
+                  </div>
+
+                  <!-- Apocalypse Status Section -->
+                  <div class="border-2 border-black w-full my-5 bg-yellow-200">
+                    <div class="text-center p-1 bg-red-500">
+                      <span class="text-white text-sm font-bold"
+                        >APOCALYPSE STATUS</span
+                      >
+                    </div>
+                    <div class="text-center py-2 px-4 bg-yellow-200">
+                      <div class="apocalypse-status-grid">
+                        <div class="status-item">
+                          <span class="text-red font-bold">SEALS OPENED:</span>
+                          <span class="text-blue font-bold" id="sealsOpened"
+                            >∞/7</span
+                          >
+                        </div>
+                        <div class="status-item">
+                          <span class="text-red font-bold"
+                            >TRUMPETS SOUNDED:</span
+                          >
+                          <span class="text-blue font-bold" id="trumpetsSounded"
+                            >∞/7</span
+                          >
+                        </div>
+                        <div class="status-item">
+                          <span class="text-red font-bold">BOWLS POURED:</span>
+                          <span class="text-blue font-bold" id="bowlsPoured"
+                            >∞/7</span
+                          >
+                        </div>
+                        <div class="status-item">
+                          <span class="text-red font-bold">HOLY SPIRIT:</span>
+                          <span class="text-green font-bold">ACTIVE</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-2 border-black w-full my-5 bg-pink-200">
+                    <div class="text-center p-1 bg-pink-400">
+                      <span class="text-white text-sm font-bold"
+                        >OUR MINISTRY</span
+                      >
+                    </div>
+                    <div class="text-center p-1 bg-pink-200">
+                      <p>
+                        📖
+                        <a
+                          href="https://shakingtime.neocities.org/beliefs"
+                          class="text-blue font-bold underline"
+                          >LEARN ABOUT OUR BELIEFS!</a
+                        >
+                        📖<br />
+                        <span class="text-xs text-green"
+                          >Click here for further reading!</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
           </div>
-          <img
-            id="satelliteImage"
-            class="pulsing"
-            src="satellite.gif"
-            alt="Broadcasting the truth"
-            width="100%"
-          />
-          <div class="musicNotes">
-            <span class="musicNote eighth" style="animation-delay: 0.5s"></span>
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.1s"
-            ></span>
-            <span class="musicNote eighth" style="animation-delay: 0.4s"></span>
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.3s"
-            ></span>
-            <span class="musicNote eighth"></span>
-            <span
-              class="musicNote beamedEighth"
-              style="animation-delay: 0.6s"
-            ></span>
-          </div>
-        </div>
+        </section>
 
-        <audio id="theTransmitter"></audio>
+        <!-- Bottom decorations -->
+        <footer class="text-center">
+          <div class="h-1 bg-red-500 my-2"></div>
+          <span class="text-purple text-base font-bold"
+            >♫ PRAISE THE LORD! ♫</span
+          >
+          <div class="h-1 bg-blue-500 my-2"></div>
 
-        <div id="currentlyPlaying">
-          <span id="currentlyPlayingText"></span>
-        </div>
+          <nav class="bottom-links mt-4">
+            <div
+              class="grid grid-cols-2 md:grid-cols-4 gap-0 border border-black bg-gray-300"
+            >
+              <div
+                class="border border-black p-1 text-center hover:bg-gray-400 bg-gray-300"
+              >
+                <a
+                  href="https://shakingtime.neocities.org/home"
+                  class="text-red"
+                  >🏠 Home</a
+                >
+              </div>
+              <div
+                class="border border-black p-1 text-center hover:bg-gray-400 bg-gray-300"
+              >
+                <a
+                  href="https://shakingtime.neocities.org/about"
+                  class="text-blue"
+                  >ℹ️ About</a
+                >
+              </div>
+              <div
+                class="border border-black p-1 text-center hover:bg-gray-400 bg-gray-300"
+              >
+                <a
+                  href="https://shakingtime.neocities.org/sermons"
+                  class="text-purple"
+                  >🙏 Sermons</a
+                >
+              </div>
+              <div
+                class="border border-black p-1 text-center hover:bg-gray-400 bg-gray-300"
+              >
+                <a
+                  href="https://shakingtime.neocities.org/contact"
+                  class="text-orange"
+                  >📞 Contact</a
+                >
+              </div>
+            </div>
+          </nav>
 
-        <button id="pausePlayButton">&#x23F8; PAUSE</button>
-
-        <p>
-          &#128214; <a href="home">Learn more about our ministry</a> &#128214;
-        </p>
+          <p class="text-xs text-gray-600 mt-4">
+            This site is best viewed in Netscape Navigator 4.0+.<br />
+            Made with Microsoft FrontPage Express • Copyright © 1999-2025
+            Churchwave Radio<br />
+            Webmaster: pastor@nash.video • Y2K Ready<br />
+            Last Updated:
+            <span id="lastUpdated">Loading from divine servers...</span>
+          </p>
+        </footer>
       </div>
     </main>
 
     <script type="module">
       import { initialize } from "./modules/app.js";
 
+      // Load last updated from tracks.json metadata
+      async function loadLastUpdated() {
+        try {
+          const response = await fetch("media/tracks.json");
+          const data = await response.json();
+          const lastUpdated = new Date(data.metadata.lastUpdated);
+          const formattedDate = lastUpdated.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          document.getElementById("lastUpdated").textContent = formattedDate;
+        } catch (error) {
+          document.getElementById("lastUpdated").textContent =
+            "Unable to load from divine servers";
+        }
+      }
+
+      // Animate apocalypse status counters
+      function animateApocalypseCounters() {
+        const seals = document.getElementById("sealsOpened");
+        const trumpets = document.getElementById("trumpetsSounded");
+        const bowls = document.getElementById("bowlsPoured");
+
+        if (seals) seals.textContent = `${Math.floor(Math.random() * 8)}/7`;
+        if (trumpets)
+          trumpets.textContent = `${Math.floor(Math.random() * 8)}/7`;
+        if (bowls) bowls.textContent = `${Math.floor(Math.random() * 8)}/7`;
+      }
+
       // Initialize the application when DOM is loaded
       document.addEventListener("DOMContentLoaded", () => {
+        loadLastUpdated();
         initialize();
+
+        // Start apocalypse counter animation
+        animateApocalypseCounters();
+        setInterval(animateApocalypseCounters, 5000);
       });
     </script>
     <script

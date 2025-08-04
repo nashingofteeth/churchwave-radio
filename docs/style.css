@@ -1,74 +1,489 @@
+@import url("https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Arial&family=Courier+New&display=swap");
+
 body {
-  background-color: #000;
-  color: #0f0;
-  font-family: "Papyrus", cursive;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: "Times New Roman", serif;
   margin: 0;
+  overflow-x: auto;
+  position: relative;
 }
-main {
+
+/* Tiled background pattern */
+.tile-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 0, 0, 0.1) 10px,
+      rgba(255, 0, 0, 0.1) 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 255, 0.1) 10px,
+      rgba(0, 0, 255, 0.1) 20px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Floating elements (apocalypse themed) */
+.floating-element {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 3;
+  animation: vaporFloat 15s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.worker1 {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+.worker2 {
+  top: 60%;
+  right: 15%;
+  animation-delay: 2s;
+}
+.worker3 {
+  top: 80%;
+  left: 20%;
+  animation-delay: 4s;
+}
+.worker4 {
+  top: 30%;
+  right: 25%;
+  animation-delay: 6s;
+}
+
+@keyframes constructionFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(10deg);
+  }
+}
+
+/* Web ring banner */
+.webring-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 25px;
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #00ff00,
+    #0000ff,
+    #ffff00,
+    #ff00ff
+  );
+  z-index: 15;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  text-align: center;
+  border-bottom: 3px solid #000000;
 }
-button {
+
+.banner-content {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 2px 2px 0px #000000;
+  animation: bannerScroll 15s linear infinite;
+}
+
+@keyframes bannerScroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Under construction GIF */
+.construction-gif {
+  position: fixed;
+  bottom: 90px;
+  right: 10px;
+  z-index: 12;
+  background: #ffff00;
+  border: 3px solid #ff0000;
+  padding: 5px;
+  animation: constructionBlink 1s infinite;
+}
+
+.gif-placeholder {
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 12px;
+  animation: textBlink 0.5s infinite;
+}
+
+@keyframes constructionBlink {
+  0%,
+  50% {
+    background: #ffff00;
+  }
+  51%,
+  100% {
+    background: #ff0000;
+  }
+}
+
+@keyframes textBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Blinking text elements */
+.blink-text {
+  position: fixed;
+  font-weight: bold;
   font-size: 18px;
-  padding: 10px;
-  border: none;
-  background-color: #ff00ff;
-  color: #fff;
-  cursor: pointer;
-  text-shadow: 1px 1px 2px #000;
-  font-family: inherit;
+  z-index: 11;
+  animation: blink 1s infinite;
+  background: #ffff00;
+  border: 2px solid #ff0000;
+  padding: 5px;
+  color: #ff0000;
 }
-a {
-  color: #a9a9a9;
+
+.top-left {
+  top: 40px;
+  left: 10px;
 }
-#seekButton {
-  width: 100%;
+.top-right {
+  top: 40px;
+  right: 10px;
 }
-#pausePlayButton {
-  margin: 15px 0;
-  width: 100%;
+.bottom-left {
+  bottom: 40px;
+  left: 10px;
 }
-#revealed {
-  display: none;
-  width: 320px;
+.bottom-right {
+  bottom: 40px;
+  right: 10px;
 }
-#currentlyPlaying {
-  font-size: 14px;
-  margin: 15px 0;
-  color: #ffff00;
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Header with mixed fonts */
+.site-header {
   text-align: center;
-  font-style: italic;
-  text-shadow: 0 0 5px #ffff00;
-  letter-spacing: 2px;
+  margin: 0 0 25px 0;
+  animation: headerRainbow 3s linear infinite;
 }
+
+@keyframes headerRainbow {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Last updated section */
+.last-updated {
+  text-align: center;
+  background: #ffff99;
+  border: 2px dashed #ff0000;
+  padding: 10px;
+  margin: 20px 0;
+  font-size: 14px;
+  animation: lastUpdatedBlink 2s infinite;
+}
+
+@keyframes lastUpdatedBlink {
+  0%,
+  80% {
+    background: #ffff99;
+  }
+  81%,
+  100% {
+    background: #ff99ff;
+  }
+}
+
+/* Main content table styling */
+table {
+  font-family: Arial, sans-serif;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+td {
+  vertical-align: top;
+}
+
+/* Construction notice */
+.notice {
+  background: #ffcccc;
+  border: 3px solid #ff0000;
+  padding: 15px;
+  margin: 15px 0;
+  text-align: center;
+}
+
+/* GeoCities button style */
+.button {
+  background: linear-gradient(45deg, #ff0000, #ff6666);
+  border: 4px outset #ff0000;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 15px 20px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 4px 4px 8px #666666;
+  margin: 15px 0;
+  width: 90%;
+  animation: buttonFlash 2s infinite;
+}
+
+.button:hover {
+  background: linear-gradient(45deg, #ff6666, #ff0000);
+}
+
+@keyframes buttonFlash {
+  0%,
+  80% {
+    box-shadow: 4px 4px 8px #666666;
+  }
+  81%,
+  100% {
+    box-shadow: 4px 4px 8px #ff0000;
+  }
+}
+
+/* Loading bars */
+.loading {
+  text-align: center;
+  margin: 20px 0;
+  background: #ccccff;
+  border: 2px solid #0000ff;
+  padding: 15px;
+}
+
+.loading-bars {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  gap: 3px;
+}
+
+.bar {
+  color: #0000ff;
+  font-size: 20px;
+  font-weight: bold;
+  animation: barBlink 0.8s infinite;
+}
+
+.bar1 {
+  animation-delay: 0s;
+}
+.bar2 {
+  animation-delay: 0.1s;
+}
+.bar3 {
+  animation-delay: 0.2s;
+}
+.bar4 {
+  animation-delay: 0.3s;
+}
+.bar5 {
+  animation-delay: 0.4s;
+}
+.bar6 {
+  animation-delay: 0.5s;
+}
+.bar7 {
+  animation-delay: 0.6s;
+}
+.bar8 {
+  animation-delay: 0.7s;
+}
+
+@keyframes barBlink {
+  0%,
+  50% {
+    opacity: 1;
+    color: #0000ff;
+  }
+  51%,
+  100% {
+    opacity: 0.3;
+    color: #cccccc;
+  }
+}
+
+/* Now playing table */
+.now-playing-table {
+  margin: 20px 0;
+}
+
+.track-display {
+  margin: 15px 0;
+  animation: trackBlink 1.5s infinite;
+}
+
+.animate-track-blink {
+  animation: trackBlink 1.5s infinite;
+}
+
+@keyframes trackBlink {
+  0%,
+  70% {
+    background: transparent;
+  }
+  71%,
+  100% {
+    background: rgba(255, 255, 0, 0.3);
+  }
+}
+
+/* Control button */
+.control-btn {
+  background: linear-gradient(45deg, #0000ff, #6666ff);
+  border: 4px outset #0000ff;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px;
+  cursor: pointer;
+  width: 80%;
+  box-shadow: 3px 3px 6px #333333;
+}
+
+.control-btn:hover {
+  background: linear-gradient(45deg, #6666ff, #0000ff);
+}
+
+/* What's new section */
+.whats-new {
+  background: #ccffcc;
+  border: 2px solid #00aa00;
+  padding: 10px;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.whats-new p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+/* Awards section */
+.awards {
+  background: #ffffcc;
+  border: 2px dashed #ffaa00;
+  padding: 10px;
+  margin: 15px 0;
+  text-align: left;
+}
+
+/* Ministry info */
+.ministry-info {
+  margin: 20px 0;
+}
+
+/* Bottom links styling */
+.bottom-links a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.bottom-links a:hover {
+  text-decoration: underline;
+}
+
+/* Links styling */
+a {
+  color: #0000ff;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #800080;
+}
+
+a:hover {
+  color: #ff0000;
+  background: #ffff00;
+}
+
+/* Revealed section - using Tailwind hidden class instead */
+
+/* Marquee styling */
 .marquee {
   position: fixed;
   left: 0;
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
+  z-index: 8;
+  background: #000000;
+  border: 2px solid #ffff00;
 }
+
 #topMarquee {
   top: 0;
 }
+
 #bottomMarquee {
   bottom: 0;
 }
+
 .marqueeContent {
   display: flex;
   width: max-content;
   animation: marquee 18s linear infinite;
+  color: #00ff00;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
 }
+
 .marqueeItem {
   padding-right: 150px;
   white-space: nowrap;
 }
+
 .marqueeItem::after {
-  content: " \2627 TUNE IN TO THE TRUTH \2627 HIS MESSAGE IS CLEAR \2627 OPEN YOUR MIND TO THE TRUTH \2627 LET THE HOLY SPIRIT GUIDE YOU \2627 YOUR JOURNEY BEGINS HERE \2627";
+  content: " ★ TUNE IN TO THE TRUTH ★ HIS MESSAGE IS CLEAR ★ OPEN YOUR MIND TO THE TRUTH ★ LET THE HOLY SPIRIT GUIDE YOU ★ YOUR JOURNEY BEGINS HERE ★";
 }
+
 @keyframes marquee {
   from {
     transform: translateX(0%);
@@ -78,60 +493,414 @@ a {
   }
 }
 
-.playing .pulsing {
-  animation: pulse 3s infinite;
-}
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 255, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 30px 30px rgba(255, 0, 255, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 255, 0);
-  }
-}
-
 .musicNotes {
-  margin-bottom: 5px;
   height: 30px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
 }
+
 .musicNote {
   display: inline-block;
   color: #ff00ff;
   animation: rotateNote 2s infinite;
+  font-size: 16px;
+  font-weight: bold;
 }
+
 .musicNote::after {
-  content: "\23F3";
+  content: "⏳";
 }
+
 .playing .musicNote {
-  animation: pulseNote 1s infinite;
+  animation: geocitiesPulseNote 1s infinite;
 }
+
 .playing .musicNote.eighth::after {
-  content: "\266A";
+  content: "♪";
 }
+
 .playing .musicNote.beamedEighth::after {
-  content: "\266B";
+  content: "♫";
 }
+
 @keyframes rotateNote {
   0% {
     transform: rotate(0deg);
+    color: #ff00ff;
+  }
+  25% {
+    color: #ff0000;
+  }
+  50% {
+    color: #00ff00;
+  }
+  75% {
+    color: #0000ff;
   }
   100% {
     transform: rotate(360deg);
+    color: #ff00ff;
   }
 }
-@keyframes pulseNote {
+
+@keyframes geocitiesPulseNote {
   0% {
     transform: scale(1);
+    color: #ff00ff;
   }
   50% {
-    transform: scale(1.3);
+    transform: scale(1.5);
+    color: #ffff00;
   }
   100% {
     transform: scale(1);
+    color: #ff00ff;
   }
+}
+
+/* Modern CSS classes for authentic GeoCities look */
+.text-red { color: #ff0000 !important; }
+.text-blue { color: #0000ff !important; }
+.text-green { color: #00aa00 !important; }
+.text-purple { color: #800080 !important; }
+.text-orange { color: #ff8000 !important; }
+.text-darkblue { color: #000080 !important; }
+.text-gold { color: #ffd700 !important; }
+.text-silver { color: #c0c0c0 !important; }
+.text-bronze { color: #cd7f32 !important; }
+.text-white { color: #ffffff !important; }
+.text-gray { color: #808080 !important; }
+
+/* Responsive adjustments - some replaced with Tailwind */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+
+  .button {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+
+  .construction-worker {
+    font-size: 20px;
+  }
+
+  .blink-text {
+    font-size: 14px;
+    padding: 3px;
+  }
+}
+
+/* Keep track blinking animation */
+
+.animate-track-blink {
+  animation: trackBlink 1.5s infinite;
+}
+@keyframes trackBlink {
+  0%, 70% { background: transparent; }
+  71%, 100% { background: rgba(255, 255, 0, 0.3); }
+}
+
+/* Vaporwave floating animation */
+@keyframes vaporFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-30px) translateX(15px) rotate(90deg) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px) translateX(-10px) rotate(180deg) scale(0.8);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(10px) translateX(-20px) rotate(270deg) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Floating element positions */
+.palm1 { top: 20%; left: 5%; animation-delay: 0s; color: #06ffa5; }
+.palm2 { top: 60%; right: 8%; animation-delay: 4s; color: #06ffa5; }
+.sun1 { top: 10%; left: 15%; animation-delay: 2s; color: #ffbe0b; }
+.cross1 { top: 30%; right: 15%; animation-delay: 1s; color: #ffffff; }
+.cross2 { top: 70%; left: 10%; animation-delay: 5s; color: #ffffff; }
+.dove1 { top: 15%; right: 25%; animation-delay: 3s; color: #ffffff; }
+.dove2 { top: 80%; right: 20%; animation-delay: 7s; color: #ffffff; }
+.lamb1 { top: 50%; left: 3%; animation-delay: 6s; color: #ffffff; }
+.trumpet1 { top: 25%; left: 20%; animation-delay: 2.5s; color: #ffd700; }
+.trumpet2 { top: 75%; right: 12%; animation-delay: 6.5s; color: #ffd700; }
+.angel1 { top: 35%; right: 5%; animation-delay: 1.5s; color: #ffffff; }
+.angel2 { top: 85%; left: 15%; animation-delay: 5.5s; color: #ffffff; }
+.crown1 { top: 5%; right: 35%; animation-delay: 3.5s; color: #ffd700; }
+.fire1 { top: 45%; right: 30%; animation-delay: 4.5s; color: #ff006e; }
+.lightning1 { top: 55%; left: 25%; animation-delay: 7.5s; color: #00ffff; }
+
+/* Satellite overlay for vaporwave effect */
+.satellite-container {
+  position: relative;
+  display: inline-block;
+}
+
+.playing .satellite-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle,
+    transparent 40%,
+    rgba(255, 0, 255, 0.3) 70%
+  );
+  pointer-events: none;
+  animation: vaporOverlay 4s ease-in-out infinite;
+  border-radius: inherit;
+}
+
+@keyframes vaporOverlay {
+  0%, 100% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(255, 0, 255, 0.3) 70%
+    );
+  }
+  25% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(0, 255, 255, 0.3) 70%
+    );
+  }
+  50% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(255, 0, 110, 0.3) 70%
+    );
+  }
+  75% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(6, 255, 165, 0.3) 70%
+    );
+  }
+}
+
+/* Apocalypse Status Grid */
+.apocalypse-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  text-align: left;
+  margin: 5px 0;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  background: #ffffff;
+  font-size: 12px;
+}
+
+/* Responsive adjustments for status grid */
+@media (max-width: 768px) {
+  .apocalypse-status-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  
+  .status-item {
+    font-size: 11px;
+    padding: 3px;
+  }
+}
+
+/* End of modern layouts */
+
+@keyframes vaporOverlay {
+  0%,
+  100% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(255, 0, 255, 0.3) 70%
+    );
+  }
+  25% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(0, 255, 255, 0.3) 70%
+    );
+  }
+  50% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(255, 0, 110, 0.3) 70%
+    );
+  }
+  75% {
+    background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(6, 255, 165, 0.3) 70%
+    );
+  }
+}
+
+/* Mobile responsive adjustments - some replaced with Tailwind */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+
+  .button {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+
+  .floating-element {
+    font-size: 18px;
+  }
+}
+
+/* Apocalypse floating elements with vaporwave movement */
+.floating-element {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 3;
+  animation: vaporFloat 15s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.palm1 {
+  top: 20%;
+  left: 5%;
+  animation-delay: 0s;
+  color: #06ffa5;
+}
+.palm2 {
+  top: 60%;
+  right: 8%;
+  animation-delay: 4s;
+  color: #06ffa5;
+}
+.sun1 {
+  top: 10%;
+  left: 15%;
+  animation-delay: 2s;
+  color: #ffbe0b;
+}
+.cross1 {
+  top: 30%;
+  right: 15%;
+  animation-delay: 1s;
+  color: #ffffff;
+}
+.cross2 {
+  top: 70%;
+  left: 10%;
+  animation-delay: 5s;
+  color: #ffffff;
+}
+.dove1 {
+  top: 15%;
+  right: 25%;
+  animation-delay: 3s;
+  color: #ffffff;
+}
+.dove2 {
+  top: 80%;
+  right: 20%;
+  animation-delay: 7s;
+  color: #ffffff;
+}
+.lamb1 {
+  top: 50%;
+  left: 3%;
+  animation-delay: 6s;
+  color: #ffffff;
+}
+.trumpet1 {
+  top: 25%;
+  left: 20%;
+  animation-delay: 2.5s;
+  color: #ffd700;
+}
+.trumpet2 {
+  top: 75%;
+  right: 12%;
+  animation-delay: 6.5s;
+  color: #ffd700;
+}
+.angel1 {
+  top: 35%;
+  right: 5%;
+  animation-delay: 1.5s;
+  color: #ffffff;
+}
+.angel2 {
+  top: 85%;
+  left: 15%;
+  animation-delay: 5.5s;
+  color: #ffffff;
+}
+.crown1 {
+  top: 5%;
+  right: 35%;
+  animation-delay: 3.5s;
+  color: #ffd700;
+}
+.fire1 {
+  top: 45%;
+  right: 30%;
+  animation-delay: 4.5s;
+  color: #ff006e;
+}
+.lightning1 {
+  top: 55%;
+  left: 25%;
+  animation-delay: 7.5s;
+  color: #00ffff;
+}
+
+@keyframes vaporFloat {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-30px) translateX(15px) rotate(90deg) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px) translateX(-10px) rotate(180deg) scale(0.8);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(10px) translateX(-20px) rotate(270deg) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Satellite container needs relative positioning for overlay */
+#satelliteImage {
+  position: relative;
+}
+
+.satellite-container {
+  position: relative;
+  display: inline-block;
 }
