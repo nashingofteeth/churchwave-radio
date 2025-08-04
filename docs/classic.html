@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Join Churchwave Radio and tune in to the Truth! This urgent Message simply cannot wait.">
+        <title>Churchwave Radio</title>
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="preload" href="satellite.gif" as="image" />
+        <link rel="stylesheet" href="style-classic.css" />
+    </head>
+    <body>
+        <div class="marquee" id="topMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+        <div class="marquee" id="bottomMarquee">
+            <div class="marqueeContent">
+                <div class="marqueeItem"></div>
+                <div class="marqueeItem"></div>
+            </div>
+        </div>
+
+        <main>
+            <button id="startButton">
+                &#x2629; &#9835; TUNE IN TO THE TRUTH &#937; &#9834;
+            </button>
+
+            <div id="loadingIndicator" style="display: none;">
+                &#x23F3; Loading... Please wait &#x23F3;
+            </div>
+
+            <div id="revealed">
+                <div id="playingIndicator">
+                    <div class="musicNotes">
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.1s"
+                            ></span
+                        >
+                        <span class="musicNote eighth"></span>
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.5s"
+                            ></span
+                        >
+                        <span class="musicNote eighth" style="animation-delay: 0.4s"
+                            ></span
+                        >
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.3s"
+                            ></span
+                        >
+                        <span class="musicNote eighth" style="animation-delay: 0.6s"
+                            ></span
+                        >
+                    </div>
+                    <img
+                        id="satelliteImage"
+                        class="pulsing"
+                        src="satellite.gif"
+                        alt="Broadcasting the truth"
+                        width="100%"
+                    />
+                    <div class="musicNotes">
+                        <span class="musicNote eighth" style="animation-delay: 0.5s"
+                            ></span
+                        >
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.1s"
+                            ></span
+                        >
+                        <span class="musicNote eighth" style="animation-delay: 0.4s"
+                            ></span
+                        >
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.3s"
+                            ></span
+                        >
+                        <span class="musicNote eighth"></span>
+                        <span class="musicNote beamedEighth" style="animation-delay: 0.6s"
+                            ></span
+                        >
+                    </div>
+                </div>
+
+                <audio id="theTransmitter"></audio>
+
+                <div id="prayer">
+                    <span style="white-space: nowrap;">&#9767 Dear God, shield this stream with Your divine protection. &alefsym;</span>
+                    <span style="white-space: nowrap;">&Omega; May Your light &mdash; &#10024; &mdash; dispel any darkness of Satan. &#11088;</span>
+                    <span style="white-space: nowrap;">Bless the journey to truth, &#x26B6; keeping evil at bay. &#128330; Amen. &#9767</span>
+                </div>
+
+                <button id="pausePlayButton">
+                    &#x23F8; PAUSE
+                </button>
+
+                <p>
+                    &#128214; <a href="home">Learn more about our ministry</a> &#128214;
+                </p>
+            </div>
+        </main>
+
+        <script type="module">
+            import { initialize } from './modules/app.js';
+
+            // Initialize the application when DOM is loaded
+            document.addEventListener("DOMContentLoaded", () => {
+                initialize();
+            });
+        </script>
+        <script data-goatcounter="https://2-evila.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    </body>
+</html>
