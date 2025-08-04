@@ -256,7 +256,7 @@
                         <div class="status-item">
                           <span class="text-red font-bold">SEALS OPENED:</span>
                           <span class="text-blue font-bold" id="sealsOpened"
-                            >∞/7</span
+                            >4/7</span
                           >
                         </div>
                         <div class="status-item">
@@ -264,13 +264,13 @@
                             >TRUMPETS SOUNDED:</span
                           >
                           <span class="text-blue font-bold" id="trumpetsSounded"
-                            >∞/7</span
+                            >0/7</span
                           >
                         </div>
                         <div class="status-item">
                           <span class="text-red font-bold">BOWLS POURED:</span>
                           <span class="text-blue font-bold" id="bowlsPoured"
-                            >∞/7</span
+                            >0/7</span
                           >
                         </div>
                         <div class="status-item">
@@ -394,26 +394,10 @@
         }
       }
 
-      // Animate apocalypse status counters
-      function animateApocalypseCounters() {
-        const seals = document.getElementById("sealsOpened");
-        const trumpets = document.getElementById("trumpetsSounded");
-        const bowls = document.getElementById("bowlsPoured");
-
-        if (seals) seals.textContent = `${Math.floor(Math.random() * 8)}/7`;
-        if (trumpets)
-          trumpets.textContent = `${Math.floor(Math.random() * 8)}/7`;
-        if (bowls) bowls.textContent = `${Math.floor(Math.random() * 8)}/7`;
-      }
-
       // Initialize the application when DOM is loaded
       document.addEventListener("DOMContentLoaded", () => {
         loadLastUpdated();
         initialize();
-
-        // Start apocalypse counter animation
-        animateApocalypseCounters();
-        setInterval(animateApocalypseCounters, 5000);
       });
     </script>
     <script
