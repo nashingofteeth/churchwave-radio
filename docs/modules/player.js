@@ -17,6 +17,7 @@ import {
   markJunkTrackUsed,
   updateApplicationState,
   markScheduledFileUsed,
+  removeFromUpcomingScheduled,
 } from "./state.js";
 import {
   getRandomStartTime,
@@ -226,6 +227,8 @@ export function playAlgorithmicTrack() {
 /**
  * Check if there's a scheduled track ready to play opportunistically
  * Only runs when in opportunistic mode
+ * Only returns tracks if scheduled time is less than 5 minutes ago
+ * Removes tracks that are more than 5 minutes past their scheduled time
  * @returns {Object|null} Scheduled track object or null
  */
 function checkForOpportunisticScheduledTrack() {
@@ -236,11 +239,19 @@ function checkForOpportunisticScheduledTrack() {
   if (!isOpportunisticMode) return null;
 
   const now = getCurrentTime();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutes in milliseconds
 
-  // Find the first (earliest) ready track
+  // Find the first (earliest) ready track within the 5-minute window
   for (const entry of state.upcomingScheduled) {
     if (entry.scheduledTime <= now) {
-      return entry;
+      if (entry.scheduledTime >= fiveMinutesAgo) {
+        // Track is past due but within 5-minute window
+        return entry;
+      } else {
+        // Track is more than 5 minutes past due - remove it
+        removeFromUpcomingScheduled(entry.track.trackKey);
+        continue;
+      }
     }
     // Since array is sorted, we can break early when we hit future times
     break;
