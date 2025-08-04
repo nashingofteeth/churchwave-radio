@@ -247,6 +247,7 @@ export function markJunkTrackUsed(junkType, trackKey) {
  * @param {string} trackKey - Unique identifier for the scheduled track
  */
 export function removeFromUpcomingScheduled(trackKey) {
+  console.log(trackKey);
   applicationState.upcomingScheduled =
     applicationState.upcomingScheduled.filter(
       (entry) => entry.track.trackKey !== trackKey,
