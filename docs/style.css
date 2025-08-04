@@ -211,16 +211,6 @@ body {
   }
 }
 
-/* Last updated section */
-.last-updated {
-  text-align: center;
-  background: #ffff99;
-  border: 2px dashed #ff0000;
-  padding: 10px;
-  margin: 20px 0;
-  font-size: 14px;
-  animation: lastUpdatedBlink 2s infinite;
-}
 
 @keyframes lastUpdatedBlink {
   0%,
@@ -231,17 +221,6 @@ body {
   100% {
     background: #ff99ff;
   }
-}
-
-/* Main content table styling */
-table {
-  font-family: Arial, sans-serif;
-  border-collapse: separate;
-  border-spacing: 2px;
-}
-
-td {
-  vertical-align: top;
 }
 
 /* Construction notice */
@@ -452,7 +431,7 @@ a:hover {
   box-sizing: border-box;
   width: 100%;
   z-index: 8;
-  background: #00ff00;
+  background: #000000;
   border: 2px solid #ffff00;
 }
 
@@ -468,7 +447,7 @@ a:hover {
   display: flex;
   width: max-content;
   animation: marquee 18s linear infinite;
-  color: #000000;
+  color: #00ff00;
   font-weight: bold;
   font-family: Arial, sans-serif;
 }
