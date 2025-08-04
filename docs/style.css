@@ -199,8 +199,6 @@ body {
 
 /* Header with mixed fonts */
 .site-header {
-  text-align: center;
-  margin: 0 0 25px 0;
   animation: headerRainbow 3s linear infinite;
 }
 
@@ -454,7 +452,7 @@ a:hover {
   box-sizing: border-box;
   width: 100%;
   z-index: 8;
-  background: #000000;
+  background: #00ff00;
   border: 2px solid #ffff00;
 }
 
@@ -470,7 +468,7 @@ a:hover {
   display: flex;
   width: max-content;
   animation: marquee 18s linear infinite;
-  color: #00ff00;
+  color: #000000;
   font-weight: bold;
   font-family: Arial, sans-serif;
 }
