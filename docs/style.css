@@ -46,21 +46,21 @@ body {
 /* Under construction GIF */
 .instruction-text {
   position: fixed;
-  z-index: 12;
-  background: #ffff00;
-  border: 3px solid #ff0000;
   padding: 5px;
-  animation: constructionBlink 1s infinite;
+  z-index: 11;
+  font-weight: bold;
+  font-size: 12px;
+  animation: instructionBlink 1s infinite;
+  background: #ffff00;
+  border: 2px solid #ff0000;
+  color: #ff0000;
 }
 
 .text-placeholder {
-  color: #ff0000;
-  font-weight: bold;
-  font-size: 12px;
   animation: textBlink 0.5s infinite;
 }
 
-@keyframes constructionBlink {
+@keyframes instructionBlink {
   0%,
   50% {
     background: #ffff00;
