@@ -715,24 +715,22 @@ h6 {
 
 /* Content Grid */
 .content-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1px;
+  display: flex;
+  flex-direction: column;
   border: 4px solid #000000;
   background-color: #fef3c7;
-  margin: 15px 0;
+  margin-bottom: 15px 0;
 }
 
 @media (min-width: 840px) {
   .content-grid {
-    padding: 0 0.75rem 0.75rem 0.75rem;
+    padding: 0 12px 12px 12px;
   }
 }
 
 .content-header {
-  grid-column: span 1 / span 1;
   text-align: center;
-  padding: 1rem 0;
+  padding: 15px 0;
   background-color: #fef3c7;
 }
 
@@ -745,14 +743,19 @@ h6 {
 }
 
 .main-content {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 @media (min-width: 840px) {
   .main-content {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-direction: row;
     gap: 0.5rem;
+  }
+
+  .main-content > * {
+    flex: 1;
   }
 }
 
@@ -900,24 +903,25 @@ h6 {
 }
 
 .nav-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0px;
+  display: flex;
+  flex-wrap: wrap;
   border: 1px solid #000000;
   background-color: #d1d5db;
 }
 
 @media (min-width: 768px) {
-  .nav-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .nav-item {
+    flex: 1 1 25%; /* 4 columns on desktop */
   }
 }
 
 .nav-item {
+  flex: 1 1 50%; /* 2 columns on mobile */
   border: 1px solid #000000;
   padding: 0.25rem;
   text-align: center;
   background-color: #d1d5db;
+  box-sizing: border-box;
 }
 
 .nav-item:hover {
