@@ -909,14 +909,8 @@ h6 {
   background-color: #d1d5db;
 }
 
-@media (min-width: 768px) {
-  .nav-item {
-    flex: 1 1 25%; /* 4 columns on desktop */
-  }
-}
-
 .nav-item {
-  flex: 1 1 50%; /* 2 columns on mobile */
+  flex: 1 1 25%; /* 4 columns by default */
   border: 1px solid #000000;
   padding: 0.25rem;
   text-align: center;
@@ -977,5 +971,9 @@ h6 {
   }
   .site-subtitle {
     font-size: 0.8rem;
+  }
+
+  .nav-item {
+    flex: 1 1 50%; /* 1 column */
   }
 }
