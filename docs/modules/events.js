@@ -59,6 +59,30 @@ export function initializeUIEventListeners() {
 
   state.pausePlayButton.addEventListener("click", pausePlayHandler);
 
+  // Dark mode toggle functionality
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  if (darkModeToggle) {
+    const darkModeHandler = () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+
+      // Update toggle icon
+      const toggleIcon = darkModeToggle.querySelector(".toggle-icon");
+      if (toggleIcon) {
+        toggleIcon.textContent = newTheme === "dark" ? "🌙" : "🌙";
+      }
+    };
+
+    darkModeToggle.addEventListener("click", darkModeHandler);
+
+    // Initialize theme from localStorage or default to light
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
+
   // These UI indicator listeners are permanent
   state.theTransmitter.addEventListener("pause", () => {
     state.playingIndicator.classList.remove("playing");
