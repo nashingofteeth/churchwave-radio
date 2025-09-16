@@ -943,7 +943,7 @@ h6 {
 @media (min-width: 840px) {
   .main-content {
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 12px;
   }
 
   .main-content > * {
@@ -1066,6 +1066,7 @@ h6 {
 /* Footer */
 .page-footer {
   text-align: center;
+  margin-top: 1rem;
 }
 
 .footer-divider {
