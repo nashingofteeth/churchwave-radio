@@ -76,19 +76,19 @@
 [data-theme="dark"] {
   --bg-primary: #0f172a;
   --text-primary: #f1f5f9;
-  --bg-content: #1e293b;
-  --bg-yellow: #482510;
+  --bg-content: #111b34;
+  --bg-yellow: #4f240d;
   --bg-pink: #371623;
-  --bg-green: #14532d;
+  --bg-green: #114425;
   --bg-cyan: #164e63;
   --bg-amber: #78350f;
   --bg-gray: #334155;
   --bg-gray-hover: #475569;
-  --bg-notice: #6f2525;
+  --bg-notice: #631e1e;
   --bg-loading: #1e3a8a;
-  --bg-awards: #3c3127;
+  --bg-awards: #2f251c;
   --bg-apocalypse: #451a03;
-  --bg-ministry: #701a75;
+  --bg-ministry: #581b5c;
   --border-primary: #64748b;
   --marquee-bg: #000000;
   --status-item-bg: #334155;
@@ -97,13 +97,13 @@
   --text-red: #ef4444;
   --text-blue: #3b82f6;
   --text-green: #22c55e;
-  --text-purple: #a855f7;
+  --text-purple: #8742c9;
   --text-orange: #f97316;
   --text-gold: #eab308;
   --text-silver: #94a3b8;
   --text-bronze: #d97706;
   --text-white: #f8fafc;
-  --text-navy: #3257ce;
+  --text-navy: #4163d1;
   --text-gray: #94a3b8;
 
   /* UI element dark mode colors */
