@@ -582,11 +582,6 @@ export function clearAllScheduledTimeouts() {
 export function enterScheduledMode(track) {
   const state = getApplicationState();
 
-  if (state.isInScheduledMode) {
-    console.log("Already in scheduled mode, skipping scheduled track");
-    return;
-  }
-
   if (state.theTransmitter.paused && !state.isFirstTrack) {
     console.log("Player paused, skipping scheduled track");
 
@@ -597,6 +592,11 @@ export function enterScheduledMode(track) {
       preScheduledNonBumperJunkOnly: false,
     });
 
+    return;
+  }
+
+  if (state.isInScheduledMode) {
+    console.log("Already in scheduled mode, skipping scheduled track");
     return;
   }
 
