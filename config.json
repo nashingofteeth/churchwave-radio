@@ -61,7 +61,8 @@
     "progressReportInterval": 10,
     "useCachedDurations": true,
     "showExecOutput": false,
-    "uploadToRemote": false
+    "uploadToRemote": false,
+    "remoteName": "backblaze:churchwave-radio"
   },
   "metadata": {
     "version": "3.1"

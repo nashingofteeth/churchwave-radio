@@ -8,7 +8,7 @@ const execAsync = promisify(exec);
 // Load media configuration
 const mediaConfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 const frontendConfig = JSON.parse(
-  fs.readFileSync("./docs/config.json", "utf8"),
+  fs.readFileSync("./docs/stream/config.json", "utf8"),
 );
 
 // Function to get duration of MP3 file using ffprobe
@@ -1143,13 +1143,13 @@ async function main() {
       console.log("☁️ Uploading media folder to remote storage...");
       try {
         const { stdout, stderr } = await execAsync(
-          "rclone sync media/ storj:churchwave-radio -P",
+          `rclone sync media/ ${mediaConfig.processing.remoteName} -P`,
         );
         if (mediaConfig.processing.showExecOutput && stdout)
           console.log(stdout);
         if (stderr) console.log(stderr);
         console.log(
-          "✅ Successfully uploaded media folder to storj:churchwave-radio",
+          `✅ Successfully uploaded media folder to ${mediaConfig.processing.remoteName}`,
         );
       } catch (uploadError) {
         console.warn(
